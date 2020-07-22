@@ -38,7 +38,7 @@ text: $(OBJS)
         $(OPENGL_LIBS) \
         -lm -llog
 
-opensans_regular.o: ../../assets/fonts/opensans_regular.ttf
+opensans_regular.o: ../../assets/fonts/mplus-1p-regular.ttf
 	@echo "[ bin2o ] $@"
 	cd '$(dir $<)' && ld -r -b binary '$(notdir $<)' -o '$(abspath $@)'
 

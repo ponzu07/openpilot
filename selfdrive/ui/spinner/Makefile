@@ -48,7 +48,7 @@ spinner: $(OBJS)
            -I$(PHONELIBS)/android_hardware_libhardware/include \
            -c -o '$@' '$<'
 
-opensans_semibold.o: ../../assets/fonts/opensans_semibold.ttf
+opensans_semibold.o: ../../assets/fonts/mplus-1p-medium.ttf
 	@echo "[ bin2o ] $@"
 	cd '$(dir $<)' && ld -r -b binary '$(notdir $<)' -o '$(abspath $@)'
 
