@@ -437,9 +437,9 @@ class Controls:
       self.events.add(EventName.ldw)
 
     alerts = self.events.create_alerts(self.current_alert_types, [self.CP, self.sm, self.is_metric])
-    self.AM.add_many(self.sm.frame, alerts, self.enabled)
-      # traffic_status = self.sm['trafficModelEvent'].status
-      # traffic_confidence = round(self.sm['trafficModelEvent'].confidence * 100, 2)
+    if self.traffic_light_alerts:
+      traffic_status = self.sm['trafficModelEvent'].status
+      traffic_confidence = round(self.sm['trafficModelEvent'].confidence * 100, 2)
       if traffic_confidence >= 75:
         if traffic_status == 'SLOW':
           self.AM.add_custom(self.sm.frame, 'trafficSlow', ET.WARNING, self.enabled, extra_text_2=' ({}%)'.format(traffic_confidence))
