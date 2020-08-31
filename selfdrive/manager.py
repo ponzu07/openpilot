@@ -167,6 +167,8 @@ ThermalStatus = cereal.log.ThermalData.ThermalStatus
 # comment out anything you don't want to run
 managed_processes = {
   "thermald": "selfdrive.thermald.thermald",
+  "trafficd": ("selfdrive/trafficd", ["./trafficd"]),
+  "traffic_manager": "selfdrive.trafficd.traffic_manager",
   "uploader": "selfdrive.loggerd.uploader",
   "deleter": "selfdrive.loggerd.deleter",
   "controlsd": "selfdrive.controls.controlsd",
@@ -243,6 +245,8 @@ car_started_processes = [
   'proclogd',
   'ubloxd',
   'locationd',
+  'trafficd',
+  'traffic_manager',
 ]
 
 if WEBCAM:

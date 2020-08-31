@@ -53,7 +53,7 @@ class Controls:
     self.sm = sm
     if self.sm is None:
       self.sm = messaging.SubMaster(['thermal', 'health', 'frame', 'model', 'liveCalibration',
-                                     'dMonitoringState', 'plan', 'pathPlan', 'liveLocationKalman'])
+                                     'dMonitoringState', 'plan', 'pathPlan', 'liveLocationKalman', 'trafficModelEvent'])
 
     self.can_sock = can_sock
     if can_sock is None:
@@ -392,7 +392,7 @@ class Controls:
 
     return actuators, v_acc_sol, a_acc_sol, lac_log
 
-  def publish_logs(self, CS, start_time, actuators, v_acc, a_acc, lac_log):
+  def publish_logs(self, CS, start_time, actuators, v_acc, a_acc, lac_log, self.sm):
     """Send actuators and hud commands to the car, send controlsstate and MPC logging"""
 
     CC = car.CarControl.new_message()
@@ -438,7 +438,18 @@ class Controls:
 
     alerts = self.events.create_alerts(self.current_alert_types, [self.CP, self.sm, self.is_metric])
     self.AM.add_many(self.sm.frame, alerts, self.enabled)
-    self.AM.process_alerts(self.sm.frame)
+      traffic_status = sm['trafficModelEvent'].status
+      traffic_confidence = round(sm['trafficModelEvent'].confidence * 100, 2)
+      traffic_status = self.sm['trafficModelEvent'].status
+      traffic_confidence = round(self.sm['trafficModelEvent'].confidence * 100, 2)
+      if traffic_confidence >= 75:
+        if traffic_status == 'SLOW':
+          self.AM.add_custom(self.sm.frame, 'trafficSlow', ET.WARNING, self.enabled, extra_text_2=' ({}%)'.format(traffic_confidence))
+        elif traffic_status == 'GREEN':
+          self.AM.add_custom(self.sm.frame, 'trafficGreen', ET.WARNING, self.enabled, extra_text_2=' ({}%)'.format(traffic_confidence))
+        elif traffic_status == 'DEAD':  # confidence will be 100
+          self.AM.add_custom(self.sm.frame, 'trafficDead', ET.WARNING, self.enabled)
+    AM.process_alerts(self.sm.frame)
     CC.hudControl.visualAlert = self.AM.visual_alert
 
     if not self.read_only:
@@ -553,7 +564,7 @@ class Controls:
     self.prof.checkpoint("State Control")
 
     # Publish data
-    self.publish_logs(CS, start_time, actuators, v_acc, a_acc, lac_log)
+    self.publish_logs(CS, start_time, actuators, v_acc, a_acc, lac_log, self.sm)
     self.prof.checkpoint("Sent")
 
   def controlsd_thread(self):

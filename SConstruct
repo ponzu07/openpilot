@@ -151,6 +151,7 @@ env = Environment(
     "#selfdrive/loggerd/include",
     "#selfdrive/modeld",
     "#cereal/messaging",
+    "#selfdrive/trafficd",
     "#cereal",
     "#opendbc/can",
   ],
@@ -260,5 +261,6 @@ if arch == "aarch64":
   SConscript(['selfdrive/logcatd/SConscript'])
   SConscript(['selfdrive/sensord/SConscript'])
   SConscript(['selfdrive/clocksd/SConscript'])
+  SConscript(['selfdrive/trafficd/SConscript'])
 else:
   SConscript(['tools/lib/index_log/SConscript'])
