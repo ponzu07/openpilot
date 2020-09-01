@@ -392,7 +392,7 @@ class Controls:
 
     return actuators, v_acc_sol, a_acc_sol, lac_log
 
-  def publish_logs(self, CS, start_time, actuators, v_acc, a_acc, lac_log, sm):
+  def publish_logs(self, CS, start_time, actuators, v_acc, a_acc, lac_log, self.sm):
     """Send actuators and hud commands to the car, send controlsstate and MPC logging"""
 
     CC = car.CarControl.new_message()
