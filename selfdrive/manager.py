@@ -11,13 +11,13 @@ import datetime
 import textwrap
 from typing import Dict, List
 from selfdrive.swaglog import cloudlog, add_logentries_handler
+from common.basedir import BASEDIR, PARAMS
+from common.android import ANDROID
 from common.op_params import opParams
 op_params = opParams()
 
 traffic_lights = op_params.get('traffic_lights')
 
-from common.basedir import BASEDIR, PARAMS
-from common.android import ANDROID
 WEBCAM = os.getenv("WEBCAM") is not None
 sys.path.append(os.path.join(BASEDIR, "pyextra"))
 os.environ['BASEDIR'] = BASEDIR
@@ -25,8 +25,7 @@ os.environ['BASEDIR'] = BASEDIR
 TOTAL_SCONS_NODES = 1020
 prebuilt = os.path.exists(os.path.join(BASEDIR, 'prebuilt'))
 
-op_params = opParams()
-no_ota_updates = op_params.get('no_ota_updates') or os.path.exists('/data/no_ota_updates')
+#op_params = opParams()no_ota_updates = op_params.get('no_ota_updates') or os.path.exists('/data/no_ota_updates')
 
 # Create folders needed for msgq
 try:
