@@ -12,7 +12,9 @@ import textwrap
 from typing import Dict, List
 from selfdrive.swaglog import cloudlog, add_logentries_handler
 from common.op_params import opParams
+op_params = opParams()
 
+traffic_lights = op_params.get('traffic_lights')
 
 from common.basedir import BASEDIR, PARAMS
 from common.android import ANDROID
@@ -171,6 +173,8 @@ ThermalStatus = cereal.log.ThermalData.ThermalStatus
 # comment out anything you don't want to run
 managed_processes = {
   "thermald": "selfdrive.thermald.thermald",
+  "trafficd": ("selfdrive/trafficd", ["./trafficd"]),
+  "traffic_manager": "selfdrive.trafficd.traffic_manager",
   "uploader": "selfdrive.loggerd.uploader",
   "deleter": "selfdrive.loggerd.deleter",
   "controlsd": "selfdrive.controls.controlsd",
@@ -252,7 +256,11 @@ car_started_processes = [
   'locationd',
   'lanespeedd',
 ]
-
+if traffic_lights:
+  car_started_processes += [
+    'trafficd',
+    'traffic_manager',
+  ]
 if WEBCAM:
   car_started_processes += [
     'dmonitoringmodeld',

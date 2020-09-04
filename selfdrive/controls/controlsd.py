@@ -68,12 +68,13 @@ class Controls:
       self.sm = messaging.SubMaster(['thermal', 'health', 'frame', 'model', 'liveCalibration',
                                      'dMonitoringState', 'plan', 'pathPlan', 'liveLocationKalman'])
     self.sm_smiskol = messaging.SubMaster(['radarState', 'dynamicFollowData', 'liveTracks', 'dynamicFollowButton',
-                                           'laneSpeed', 'dynamicCameraOffset', 'modelLongButton'])
+                                           'laneSpeed', 'dynamicCameraOffset', 'modelLongButton' 'trafficModelEvent' ])
 
     self.op_params = opParams()
     self.df_manager = dfManager(self.op_params)
     self.hide_auto_df_alerts = self.op_params.get('hide_auto_df_alerts')
     self.support_white_panda = self.op_params.get('support_white_panda')
+    self.traffic_light_alerts = self.op_params.get('traffic_light_alerts')
     self.last_model_long = False
 
     self.can_sock = can_sock
@@ -510,6 +511,16 @@ class Controls:
     alerts = self.events.create_alerts(self.current_alert_types, [self.CP, self.sm, self.is_metric])
     self.AM.add_many(self.sm.frame, alerts, self.enabled)
     self.last_model_long = self.sm_smiskol['modelLongButton'].enabled
+    if self.traffic_light_alerts:
+      traffic_status = self.sm_smiskol['trafficModelEvent'].status
+      traffic_confidence = round(self.sm_smiskol['trafficModelEvent'].confidence * 100, 2)
+      if traffic_confidence >= 75:
+        if traffic_status == 'SLOW':
+          self.AM.add_custom(self.sm.frame, 'trafficSlow', ET.WARNING, self.enabled, extra_text_2=' ({}%)'.format(traffic_confidence))
+        elif traffic_status == 'GREEN':
+          self.AM.add_custom(self.sm.frame, 'trafficGreen', ET.WARNING, self.enabled, extra_text_2=' ({}%)'.format(traffic_confidence))
+        elif traffic_status == 'DEAD':  # confidence will be 100
+          self.AM.add_custom(self.sm.frame, 'trafficDead', ET.WARNING, self.enabled)
     self.AM.process_alerts(self.sm.frame)
     CC.hudControl.visualAlert = self.AM.visual_alert
 
