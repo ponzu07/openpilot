@@ -85,10 +85,8 @@ class opParams:
                         'dynamic_gas': Param(True, bool, 'Whether to use dynamic gas if your car is supported'),
                         'hide_auto_df_alerts': Param(False, bool, 'Hides the alert that shows what profile the model has chosen'),
                         'log_auto_df': Param(False, bool, 'Logs dynamic follow data for auto-df'),
-                        'dynamic_camera_offset': Param(True, bool, 'Whether to automatically keep away from oncoming traffic.\n',
-                        'traffic_light_alerts': Param(False, bool, "Switch off the traffic light alerts"),
-                        'traffic_lights': Param(False, bool, "Should Openpilot stop for traffic lights"),
-                        'traffic_lights_without_direction': Param(False, bool, "Should Openpilot stop for traffic lights without a direction specified"),
+                        'dynamic_camera_offset': Param(True, bool, 'Whether to automatically keep away from oncoming traffic.\n'
+                                                                   'Works from 35 to ~60 mph (requires radar)'),
                         'dynamic_camera_offset_time': Param(3.5, VT.number, 'How long to keep away from oncoming traffic in seconds after losing lead'),
                         'support_white_panda': Param(False, bool, 'Enable this to allow engagement with the deprecated white panda.\n'
                                                                   'localizer might not work correctly'),
