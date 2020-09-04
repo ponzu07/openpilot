@@ -11,7 +11,10 @@ import datetime
 import textwrap
 from typing import Dict, List
 from selfdrive.swaglog import cloudlog, add_logentries_handler
+from common.op_params import opParams
+op_params = opParams()
 
+traffic_lights = op_params.get('traffic_lights')
 
 from common.basedir import BASEDIR, PARAMS
 from common.android import ANDROID
@@ -19,8 +22,11 @@ WEBCAM = os.getenv("WEBCAM") is not None
 sys.path.append(os.path.join(BASEDIR, "pyextra"))
 os.environ['BASEDIR'] = BASEDIR
 
-TOTAL_SCONS_NODES = 1140
+TOTAL_SCONS_NODES = 1020
 prebuilt = os.path.exists(os.path.join(BASEDIR, 'prebuilt'))
+
+op_params = opParams()
+no_ota_updates = op_params.get('no_ota_updates') or os.path.exists('/data/no_ota_updates')
 
 # Create folders needed for msgq
 try:
@@ -94,7 +100,7 @@ if not prebuilt:
 
     nproc = os.cpu_count()
     j_flag = "" if nproc is None else "-j%d" % (nproc - 1)
-    scons = subprocess.Popen(["scons", j_flag], cwd=BASEDIR, env=env, stderr=subprocess.PIPE)
+    scons = subprocess.Popen(["scons", "-j8"], cwd=BASEDIR, env=env, stderr=subprocess.PIPE)
 
     compile_output = []
 
@@ -195,6 +201,8 @@ managed_processes = {
   "dmonitoringmodeld": ("selfdrive/modeld", ["./dmonitoringmodeld"]),
   "modeld": ("selfdrive/modeld", ["./modeld"]),
   "driverview": "selfdrive.monitoring.driverview",
+
+  "lanespeedd": "selfdrive.controls.lib.lane_speed",
 }
 
 daemon_processes = {
@@ -228,9 +236,10 @@ if ANDROID:
   persistent_processes += [
     'logcatd',
     'tombstoned',
-    'updated',
     'deleter',
   ]
+if not no_ota_updates:
+  persistent_processes.append('updated')
 
 car_started_processes = [
   'controlsd',
@@ -245,10 +254,13 @@ car_started_processes = [
   'proclogd',
   'ubloxd',
   'locationd',
-  'trafficd',
-  'traffic_manager',
+  'lanespeedd',
 ]
-
+if traffic_lights:
+  car_started_processes += [
+    'trafficd',
+    'traffic_manager',
+  ]
 if WEBCAM:
   car_started_processes += [
     'dmonitoringmodeld',
@@ -476,8 +488,8 @@ def manager_thread():
 
     if msg.thermal.freeSpace < 0.05:
       logger_dead = True
-
-    if msg.thermal.started and "driverview" not in running:
+    run_all = False
+    if (msg.thermal.started and "driverview" not in running) or run_all:
       for p in car_started_processes:
         if p == "loggerd" and logger_dead:
           kill_managed_process(p)
@@ -600,10 +612,24 @@ if __name__ == "__main__":
     # Show last 3 lines of traceback
     error = traceback.format_exc(3)
 
-    error = "Manager failed to start\n \n" + error
+    error = "Manager failed to start. Press Reset to pull and reset to origin!\n \n" + error
     with TextWindow(error) as t:
-      t.wait_for_exit()
+      exit_status = t.wait_for_exit()
+    if exit_status == 'reset':
+      for _ in range(2):
+        try:
+          subprocess.check_output(["git", "pull"], cwd=BASEDIR)
+          subprocess.check_output(["git", "reset", "--hard", "@{u}"], cwd=BASEDIR)
+          print('git reset successful!')
+          break
+        except subprocess.CalledProcessError as e:
+          # print(e.output)
+          if _ != 1:
+            print('git reset failed, trying again')
+            time.sleep(5)  # wait 5 seconds and try again
 
+    time.sleep(1)
+    subprocess.check_output(["am", "start", "-a", "android.intent.action.REBOOT"])
     raise
 
   # manual exit because we are forked

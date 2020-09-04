@@ -306,7 +306,14 @@ static void update_all_lane_lines_data(UIState *s, const PathData &path, model_p
   update_lane_line_data(s, path.points, var, pstart + 2, path.validLen);
 }
 
-static void ui_draw_lane(UIState *s, const PathData *path, model_path_vertices_data *pstart, NVGcolor color) {
+static void ui_draw_lane(UIState *s, const PathData *path, model_path_vertices_data *pstart, float prob) {
+  float lane_pos = std::abs(path->poly[3]);  // get redder when line is closer to car
+  float dists[2] = {1.4, 1.0};
+  float hues[2] = {133, 0};  // green to red
+  float hue = (lane_pos - dists[0]) * (hues[1] - hues[0]) / (dists[1] - dists[0]) + hues[0];
+  hue = fmin(133, fmax(0, hue)) / 360;  // clip and normalize
+  NVGcolor color = nvgHSLA(hue, 0.73, 0.64, prob * 255);
+
   ui_draw_lane_line(s, pstart, color);
   color.a /= 25;
   ui_draw_lane_line(s, pstart + 1, color);
@@ -324,13 +331,13 @@ static void ui_draw_vision_lanes(UIState *s) {
   ui_draw_lane(
       s, &scene->model.left_lane,
       pvd,
-      nvgRGBAf(1.0, 1.0, 1.0, scene->model.left_lane.prob));
+      scene->model.left_lane.prob);
 
   // Draw right lane edge
   ui_draw_lane(
       s, &scene->model.right_lane,
       pvd + MODEL_LANE_PATH_CNT,
-      nvgRGBAf(1.0, 1.0, 1.0, scene->model.right_lane.prob));
+      scene->model.right_lane.prob);
 
   if(s->sm->updated("radarState")) {
     update_all_track_data(s);
@@ -616,6 +623,83 @@ static void ui_draw_driver_view(UIState *s) {
   ui_draw_circle_image(s->vg, x, y, face_size, s->img_face, scene->driver_state.getFaceProb() > 0.4);
 }
 
+static void ui_draw_ls_button(UIState *s) {
+  int btn_status = s->scene.lsButtonStatus;
+  int btn_w = 150;
+  int btn_h = 150;
+  int x_padding = 200;
+  int y_padding = 50;
+  int btn_x = 1920 - btn_w - x_padding;
+  int btn_y = 1080 - btn_h - y_padding;
+  int btn_colors[3][3] = {{255, 55, 55}, {55, 184, 104}, {4, 67, 137}};
+
+  nvgBeginPath(s->vg);
+  nvgRoundedRect(s->vg, btn_x-110, btn_y-45, btn_w, btn_h, 100);
+  nvgStrokeColor(s->vg, nvgRGBA(btn_colors[btn_status][0], btn_colors[btn_status][1], btn_colors[btn_status][2], 255));
+  nvgStrokeWidth(s->vg, 11);
+  nvgStroke(s->vg);
+
+  nvgFillColor(s->vg, nvgRGBA(255, 255, 255, 255));
+  nvgFontSize(s->vg, 80);
+  nvgText(s->vg, btn_x - 38, btn_y + 30, "LS", NULL);
+
+  nvgFillColor(s->vg, nvgRGBA(255, 255, 255, 255));
+  nvgFontSize(s->vg, 45);
+  nvgText(s->vg, btn_x - 34, btn_y + 50 + 15, "mode", NULL);
+}
+
+static void ui_draw_df_button(UIState *s) {
+  int btn_status = s->scene.dfButtonStatus;
+  int btn_w = 150;
+  int btn_h = 150;
+  int y_padding = 50;
+  int btn_x = 1920 - btn_w;
+  int btn_y = 1080 - btn_h - y_padding;
+  int btn_colors[4][3] = {{4, 67, 137}, {36, 168, 188}, {252, 255, 75}, {55, 184, 104}};
+
+  nvgBeginPath(s->vg);
+  nvgRoundedRect(s->vg, btn_x-110, btn_y-45, btn_w, btn_h, 100);
+  nvgStrokeColor(s->vg, nvgRGBA(btn_colors[btn_status][0], btn_colors[btn_status][1], btn_colors[btn_status][2], 255));
+  nvgStrokeWidth(s->vg, 11);
+  nvgStroke(s->vg);
+
+  nvgFillColor(s->vg, nvgRGBA(255, 255, 255, 255));
+  nvgFontSize(s->vg, 80);
+  nvgText(s->vg, btn_x - 38, btn_y + 30, "DF", NULL);
+
+  nvgFillColor(s->vg, nvgRGBA(255, 255, 255, 255));
+  nvgFontSize(s->vg, 45);
+  nvgText(s->vg, btn_x - 34, btn_y + 50 + 15, "profile", NULL);
+}
+
+static void ui_draw_ml_button(UIState *s) {
+  int btn_w = 500;
+  int btn_h = 138;
+  int x = 1920 / 2;
+  int y = 915;
+  int btn_x = x - btn_w / 2;
+  int btn_y = y - btn_h / 2;
+
+  nvgBeginPath(s->vg);
+  nvgRoundedRect(s->vg, btn_x, btn_y, btn_w, btn_h, 25);
+  if (s->scene.mlButtonEnabled) {  // change outline color based on status of button
+    nvgStrokeColor(s->vg, nvgRGBA(55, 184, 104, 255));
+  } else {
+    nvgStrokeColor(s->vg, nvgRGBA(184, 55, 55, 255));
+  }
+  nvgStrokeWidth(s->vg, 12);
+  nvgStroke(s->vg);
+
+  nvgBeginPath(s->vg);  // dark background for readability
+  nvgRoundedRect(s->vg, btn_x, btn_y, btn_w, btn_h, 25);
+  nvgFillColor(s->vg, nvgRGBA(75, 75, 75, 75));
+  nvgFill(s->vg);
+
+  nvgFillColor(s->vg, nvgRGBA(255, 255, 255, 255));
+  nvgFontSize(s->vg, 65);
+  nvgText(s->vg, x, y + btn_h / 8, "Toggle Model Long", NULL);
+}
+
 static void ui_draw_vision_header(UIState *s) {
   const UIScene *scene = &s->scene;
   int ui_viz_rx = scene->ui_viz_rx;
@@ -641,6 +725,9 @@ static void ui_draw_vision_footer(UIState *s) {
   nvgRect(s->vg, s->scene.ui_viz_rx, footer_y, s->scene.ui_viz_rw, footer_h);
 
   ui_draw_vision_face(s);
+  ui_draw_df_button(s);
+  ui_draw_ls_button(s);
+  ui_draw_ml_button(s);
 
 #ifdef SHOW_SPEEDLIMIT
   // ui_draw_vision_map(s);
