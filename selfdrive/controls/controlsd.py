@@ -68,13 +68,13 @@ class Controls:
       self.sm = messaging.SubMaster(['thermal', 'health', 'frame', 'model', 'liveCalibration',
                                      'dMonitoringState', 'plan', 'pathPlan', 'liveLocationKalman'])
     self.sm_smiskol = messaging.SubMaster(['radarState', 'dynamicFollowData', 'liveTracks', 'dynamicFollowButton',
-                                           'laneSpeed', 'dynamicCameraOffset', 'modelLongButton' 'trafficModelEvent' ])
+                                           'laneSpeed', 'dynamicCameraOffset', 'modelLongButton', 'trafficModelEvent' ])
 
     self.op_params = opParams()
     self.df_manager = dfManager(self.op_params)
     self.hide_auto_df_alerts = self.op_params.get('hide_auto_df_alerts')
-    self.support_white_panda = self.op_params.get('support_white_panda')
     self.traffic_light_alerts = self.op_params.get('traffic_light_alerts')
+    self.support_white_panda = self.op_params.get('support_white_panda')
     self.last_model_long = False
 
     self.can_sock = can_sock
@@ -463,7 +463,7 @@ class Controls:
 
     return actuators, v_acc_sol, a_acc_sol, lac_log
 
-  def publish_logs(self, CS, start_time, actuators, v_acc, a_acc, lac_log):
+  def publish_logs(self, CS, start_time, actuators, v_acc, a_acc, lac_log, sm_smiskol):
     """Send actuators and hud commands to the car, send controlsstate and MPC logging"""
 
     CC = car.CarControl.new_message()
@@ -636,7 +636,7 @@ class Controls:
     self.prof.checkpoint("State Control")
 
     # Publish data
-    self.publish_logs(CS, start_time, actuators, v_acc, a_acc, lac_log)
+    self.publish_logs(CS, start_time, actuators, v_acc, a_acc, lac_log, sm_smiskol)
     self.prof.checkpoint("Sent")
 
   def controlsd_thread(self):

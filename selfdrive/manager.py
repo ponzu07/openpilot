@@ -11,6 +11,8 @@ import datetime
 import textwrap
 from typing import Dict, List
 from selfdrive.swaglog import cloudlog, add_logentries_handler
+from common.basedir import BASEDIR, PARAMS
+from common.android import ANDROID
 from common.op_params import opParams
 op_params = opParams()
 
@@ -22,7 +24,7 @@ WEBCAM = os.getenv("WEBCAM") is not None
 sys.path.append(os.path.join(BASEDIR, "pyextra"))
 os.environ['BASEDIR'] = BASEDIR
 
-TOTAL_SCONS_NODES = 1020
+TOTAL_SCONS_NODES = 1140
 prebuilt = os.path.exists(os.path.join(BASEDIR, 'prebuilt'))
 
 op_params = opParams()
@@ -126,6 +128,7 @@ if not prebuilt:
     if scons.returncode != 0:
       # Read remaining output
       r = scons.stderr.read().split(b'\n')   # type: ignore
+
       compile_output += r
 
       if retry:
