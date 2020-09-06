@@ -10,6 +10,8 @@ from datetime import datetime
 from selfdrive.swaglog import cloudlog
 from common.android import ANDROID
 
+CRASHES_DIR = '/sdcard/crash_logs/'
+
 if os.getenv("NOLOG") or os.getenv("NOCRASH") or not ANDROID:
   def capture_exception(*args, **kwargs):
     pass

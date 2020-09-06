@@ -19,6 +19,7 @@ class CarInterface(CarInterfaceBase):
     ret = CarInterfaceBase.get_std_params(candidate, fingerprint, has_relay)
     ret.carName = "nissan"
     ret.safetyModel = car.CarParams.SafetyModel.nissan
+    ret.lateralTuning.init('pid')
 
     # Nissan port is a community feature, since we don't own one to test
     ret.communityFeature = True
