@@ -1988,6 +1988,15 @@ struct DynamicFollowButton {
   status @0 :UInt16;
 }
 
+struct TrafficModelRaw {
+  prediction @0 :List(Float32);
+}
+
+struct TrafficModelEvent {
+  status @0 :Text;
+  confidence @1 :Float32;
+}
+
 struct LaneSpeed {
   fastestLane @0 :Text;
   state @1 :Text;
@@ -2103,5 +2112,7 @@ struct Event {
     laneSpeedButton @77 :LaneSpeedButton;
     dynamicCameraOffset @78 :DynamicCameraOffset;
     modelLongButton @79 :ModelLongButton;
+    trafficModelRaw @80: TrafficModelRaw;
+    trafficModelEvent @81: TrafficModelEvent;
   }
 }
