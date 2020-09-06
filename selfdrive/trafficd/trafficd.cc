@@ -11,12 +11,11 @@ volatile sig_atomic_t do_exit = 0;
 const std::vector<std::string> modelLabels = {"SLOW", "GREEN", "NONE"};
 const int numLabels = modelLabels.size();
 const double modelRate = 1 / 3.;  // 5 Hz
-//const bool debug_mode = true;
 
 const int original_shape[3] = {874, 1164, 3};   // global constants
-//const int original_size = 874 * 1164 * 3;
-//const int cropped_shape[3] = {665, 814, 3};
-//const int cropped_size = 665 * 814 * 3;
+const int original_size = 874 * 1164 * 3;
+const int cropped_shape[3] = {665, 814, 3};
+const int cropped_size = 665 * 814 * 3;
 
 const int horizontal_crop = 175;
 const int top_crop = 0;
