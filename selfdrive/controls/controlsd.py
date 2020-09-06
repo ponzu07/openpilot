@@ -308,7 +308,7 @@ class Controls:
 
     # Update carState from CAN
     can_strs = messaging.drain_sock_raw(self.can_sock, wait_for_one=True)
-    CS = self.CI.update(self.CC, can_strs)
+    CS, sm_smiskol = self.CI.update(self.CC, can_strs)
 
     self.sm.update(0)
     self.sm_smiskol.update(0)
@@ -620,7 +620,7 @@ class Controls:
     self.prof.checkpoint("Ratekeeper", ignore=True)
 
     # Sample data from sockets and get a carState
-    CS = self.data_sample()
+    CS, sm_smiskol = self.data_sample()
     self.prof.checkpoint("Sample")
 
     self.update_events(CS)
@@ -636,7 +636,7 @@ class Controls:
     self.prof.checkpoint("State Control")
 
     # Publish data
-    self.publish_logs(CS, start_time, actuators, v_acc, a_acc, lac_log) #, sm_smiskol
+    self.publish_logs(CS, start_time, actuators, v_acc, a_acc, lac_log, sm_smiskol)
     self.prof.checkpoint("Sent")
 
   def controlsd_thread(self):
