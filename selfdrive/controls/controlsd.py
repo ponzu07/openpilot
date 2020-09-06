@@ -636,7 +636,7 @@ class Controls:
     self.prof.checkpoint("State Control")
 
     # Publish data
-    self.publish_logs(CS, start_time, actuators, v_acc, a_acc, lac_log, sm_smiskol)
+    self.publish_logs(CS, start_time, actuators, v_acc, a_acc, lac_log) #, sm_smiskol
     self.prof.checkpoint("Sent")
 
   def controlsd_thread(self):
