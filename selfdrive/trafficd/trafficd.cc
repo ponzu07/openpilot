@@ -105,7 +105,7 @@ void sendPrediction(std::vector<float> modelOutputVec, PubSocket* traffic_lights
 
     kj::ArrayPtr<const float> modelOutput_vs(&modelOutput[0], numLabels);
     capnp::MallocMessageBuilder msg;
-    cereal::EventArne182::Builder event = msg.initRoot<cereal::EventArne182>();
+    cereal::Event::Builder event = msg.initRoot<cereal::Event>();
     event.setLogMonoTime(nanos_since_boot());
 
     auto traffic_lights = event.initTrafficModelRaw();
