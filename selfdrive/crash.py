@@ -7,10 +7,10 @@ from datetime import datetime
 import traceback
 from selfdrive.version import version, dirty
 from selfdrive.swaglog import cloudlog
-from common.android import ANDROID
+from common.hardware import PC
 CRASHES_DIR = '/sdcard/crash_logs/'
 
-if os.getenv("NOLOG") or os.getenv("NOCRASH") or not ANDROID:
+if os.getenv("NOLOG") or os.getenv("NOCRASH") or PC:
   def capture_exception(*args, **kwargs):
     pass
 
