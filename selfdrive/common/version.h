@@ -1,1 +1,1 @@
-#define COMMA_VERSION "0.7.9-JPN"
+#define COMMA_VERSION "0.7.10-JPN"
