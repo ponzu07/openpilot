@@ -1,0 +1,44 @@
+{
+  "Offroad_ChargeDisabled": {
+    "text": "30時間以上車のエンジンが切れているためEONへの給電が無効になりました。エンジンをかけて給電を再開しましょう",
+    "severity": 0
+  },
+  "Offroad_TemperatureTooHigh": {
+    "text": "デバイスの温度が高すぎるためシステムが起動しません",
+    "severity": 1
+  },
+  "Offroad_ConnectivityNeededPrompt": {
+    "text": "すぐにインターネットに接続してアップデートを確認してくださいインターネットに接続していない場合オープンパイロットは使用できなくなります。",
+    "severity": 0,
+    "_comment": "Append the number of days at the end of the text"
+  },
+  "Offroad_ConnectivityNeeded": {
+    "text": "インターネットに接続してアップデートを確認してください。オープンパイロットはアップデートを確認するまで作動しません。",
+    "severity": 1
+  },
+  "Offroad_UpdateFailed": {
+    "text": "アップデートをダウンロードできません\n",
+    "severity": 1,
+    "_comment": "Append the command and error to the text."
+  },
+  "Offroad_PandaFirmwareMismatch": {
+    "text": "予期しないパンダのファームウェアバージョンです。パンダに再フラッシュするためデバイスを再起動してください。",
+    "severity": 1
+  },
+  "Offroad_InvalidTime": {
+    "text": "無効な日付と時刻のため、システムが起動しません。インターネットに接続して時刻を設定してください。",
+    "severity": 1
+  },
+  "Offroad_IsTakingSnapshot": {
+    "text": "カメラのスナップショットを撮影します。終了するまでシステムは起動しません。",
+    "severity": 0
+  },
+  "Offroad_NeosUpdate": {
+    "text": "デバイスOSの更新プログラムがバックグラウンドでダウンロードされています。インストールの準備ができたらアップデートを促すメッセージが表示されます。",
+    "severity": 0
+  },
+  "Offroad_HardwareUnsupported": {
+    "text": "ホワイトパンダとグレーパンダはサポートされていません。コンマ2かブラックパンダにアップグレードしてください。",
+    "severity": 0
+  }
+}
