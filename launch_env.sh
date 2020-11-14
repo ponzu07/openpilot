@@ -7,7 +7,11 @@ export OPENBLAS_NUM_THREADS=1
 export VECLIB_MAXIMUM_THREADS=1
 
 if [ -z "$REQUIRED_NEOS_VERSION" ]; then
+<<<<<<< HEAD
   export REQUIRED_NEOS_VERSION="14"
+=======
+  export REQUIRED_NEOS_VERSION="15-1"
+>>>>>>> origin/ci-clean
 fi
 
 if [ -z "$PASSIVE" ]; then

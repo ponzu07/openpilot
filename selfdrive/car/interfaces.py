@@ -42,15 +42,26 @@ class CarInterfaceBase():
     raise NotImplementedError
 
   @staticmethod
+<<<<<<< HEAD
   def get_params(candidate, fingerprint=gen_empty_fingerprint(), has_relay=False, car_fw=None):
+=======
+  def get_params(candidate, fingerprint=gen_empty_fingerprint(), car_fw=None):
+>>>>>>> origin/ci-clean
     raise NotImplementedError
 
   # returns a set of default params to avoid repetition in car specific params
   @staticmethod
+<<<<<<< HEAD
   def get_std_params(candidate, fingerprint, has_relay):
     ret = car.CarParams.new_message()
     ret.carFingerprint = candidate
     ret.isPandaBlack = has_relay
+=======
+  def get_std_params(candidate, fingerprint):
+    ret = car.CarParams.new_message()
+    ret.carFingerprint = candidate
+    ret.isPandaBlack = True # TODO: deprecate this field
+>>>>>>> origin/ci-clean
 
     # standard ALC params
     ret.steerControlType = car.CarParams.SteerControlType.torque
@@ -149,9 +160,18 @@ class CarStateBase:
   def __init__(self, CP):
     self.CP = CP
     self.car_fingerprint = CP.carFingerprint
+<<<<<<< HEAD
     self.cruise_buttons = 0
     self.out = car.CarState.new_message()
 
+=======
+    self.out = car.CarState.new_message()
+
+    self.cruise_buttons = 0
+    self.left_blinker_cnt = 0
+    self.right_blinker_cnt = 0
+
+>>>>>>> origin/ci-clean
     # Q = np.matrix([[10.0, 0.0], [0.0, 100.0]])
     # R = 1e3
     self.v_ego_kf = KF1D(x0=[[0.0], [0.0]],
@@ -166,6 +186,14 @@ class CarStateBase:
     v_ego_x = self.v_ego_kf.update(v_ego_raw)
     return float(v_ego_x[0]), float(v_ego_x[1])
 
+<<<<<<< HEAD
+=======
+  def update_blinker(self, blinker_time: int, left_blinker_lamp: bool, right_blinker_lamp: bool):
+    self.left_blinker_cnt = blinker_time if left_blinker_lamp else max(self.left_blinker_cnt - 1, 0)
+    self.right_blinker_cnt = blinker_time if right_blinker_lamp else max(self.right_blinker_cnt - 1, 0)
+    return self.left_blinker_cnt > 0, self.right_blinker_cnt > 0
+
+>>>>>>> origin/ci-clean
   @staticmethod
   def parse_gear_shifter(gear):
     return {'P': GearShifter.park, 'R': GearShifter.reverse, 'N': GearShifter.neutral,

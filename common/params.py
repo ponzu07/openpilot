@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 #!/usr/bin/env python3
 """ROS has a parameter server, we have files.
 
@@ -407,3 +408,9 @@ def put_nonblocking(key, val):
   t = threading.Thread(target=f, args=(key, val))
   t.start()
   return t
+=======
+from common.params_pyx import Params, UnknownKeyName, put_nonblocking # pylint: disable=no-name-in-module, import-error
+assert Params
+assert UnknownKeyName
+assert put_nonblocking
+>>>>>>> origin/ci-clean

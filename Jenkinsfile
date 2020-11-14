@@ -34,6 +34,12 @@ pipeline {
     COMMA_JWT = credentials('athena-test-jwt')
     TEST_DIR = "/data/openpilot"
   }
+<<<<<<< HEAD
+=======
+  options {
+      timeout(time: 1, unit: 'HOURS')
+  }
+>>>>>>> origin/ci-clean
 
   stages {
 
@@ -58,7 +64,11 @@ pipeline {
       when {
         not {
           anyOf {
+<<<<<<< HEAD
             branch 'master-ci'; branch 'devel'; branch 'devel-staging'; branch 'release2'; branch 'release2-staging'; branch 'dashcam'; branch 'dashcam-staging'
+=======
+            branch 'master-ci'; branch 'devel'; branch 'devel-staging'; branch 'release2'; branch 'release2-staging'; branch 'dashcam'; branch 'dashcam-staging'; branch 'testing-closet*'
+>>>>>>> origin/ci-clean
           }
         }
       }
@@ -133,6 +143,10 @@ pipeline {
                       ["test sounds", "nosetests -s selfdrive/test/test_sounds.py"],
                       ["test boardd loopback", "nosetests -s selfdrive/boardd/tests/test_boardd_loopback.py"],
                       ["test loggerd", "CI=1 python selfdrive/loggerd/tests/test_loggerd.py"],
+<<<<<<< HEAD
+=======
+                      //["test camerad", "CI=1 python selfdrive/camerad/test/test_camerad.py"], // wait for shelf refactor
+>>>>>>> origin/ci-clean
                       //["test updater", "python installer/updater/test_updater.py"],
                     ])
                   }

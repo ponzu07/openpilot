@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+from common.numpy_fast import mean
+>>>>>>> origin/ci-clean
 from common.kalman.simple_kalman import KF1D
 from selfdrive.config import RADAR_TO_CAMERA
 
@@ -54,9 +58,12 @@ class Track():
     self.aLeadK = aLeadK
     self.aLeadTau = aLeadTau
 
+<<<<<<< HEAD
 def mean(l):
   return sum(l) / len(l)
 
+=======
+>>>>>>> origin/ci-clean
 
 class Cluster():
   def __init__(self):

@@ -29,8 +29,13 @@ class CarState(CarStateBase):
     ret.steeringAngle = cp.vl["SAS11"]['SAS_Angle']
     ret.steeringRate = cp.vl["SAS11"]['SAS_Speed']
     ret.yawRate = cp.vl["ESP12"]['YAW_RATE']
+<<<<<<< HEAD
     ret.leftBlinker = cp.vl["CGW1"]['CF_Gway_TSigLHSw'] != 0
     ret.rightBlinker = cp.vl["CGW1"]['CF_Gway_TSigRHSw'] != 0
+=======
+    ret.leftBlinker, ret.rightBlinker = self.update_blinker(50, cp.vl["CGW1"]['CF_Gway_TurnSigLh'],
+                                                            cp.vl["CGW1"]['CF_Gway_TurnSigRh'])
+>>>>>>> origin/ci-clean
     ret.steeringTorque = cp.vl["MDPS12"]['CR_Mdps_StrColTq']
     ret.steeringTorqueEps = cp.vl["MDPS12"]['CR_Mdps_OutTq']
     ret.steeringPressed = abs(ret.steeringTorque) > STEER_THRESHOLD
@@ -151,9 +156,13 @@ class CarState(CarStateBase):
       ("CF_Gway_AstDrSw", "CGW1", 0),       # Passenger door
       ("CF_Gway_RLDrSw", "CGW2", 0),        # Rear reft door
       ("CF_Gway_RRDrSw", "CGW2", 0),        # Rear right door
+<<<<<<< HEAD
       ("CF_Gway_TSigLHSw", "CGW1", 0),
       ("CF_Gway_TurnSigLh", "CGW1", 0),
       ("CF_Gway_TSigRHSw", "CGW1", 0),
+=======
+      ("CF_Gway_TurnSigLh", "CGW1", 0),
+>>>>>>> origin/ci-clean
       ("CF_Gway_TurnSigRh", "CGW1", 0),
       ("CF_Gway_ParkBrakeSw", "CGW1", 0),
 

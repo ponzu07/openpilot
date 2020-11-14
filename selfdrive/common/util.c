@@ -4,6 +4,7 @@
 #include <assert.h>
 #include <unistd.h>
 #include <fcntl.h>
+<<<<<<< HEAD
 #include <errno.h> 
 #ifdef __linux__
 #include <sys/prctl.h>
@@ -11,6 +12,18 @@
 #define __USE_GNU
 #include <sched.h>
 #endif
+=======
+#include <errno.h>
+
+#ifdef __linux__
+#include <sys/prctl.h>
+#include <sys/syscall.h>
+#ifndef __USE_GNU
+#define __USE_GNU
+#endif
+#include <sched.h>
+#endif // __linux__
+>>>>>>> origin/ci-clean
 
 void* read_file(const char* path, size_t* out_len) {
   FILE* f = fopen(path, "r");
@@ -49,7 +62,11 @@ int write_file(const char* path, const void* data, size_t size) {
   }
   ssize_t n = write(fd, data, size);
   close(fd);
+<<<<<<< HEAD
   return n == size ? 0 : -1;
+=======
+  return (n >= 0 && (size_t)n == size) ? 0 : -1;
+>>>>>>> origin/ci-clean
 }
 
 void set_thread_name(const char* name) {

@@ -5,7 +5,11 @@ import time
 import multiprocessing
 
 from common.hardware import PC
+<<<<<<< HEAD
 from common.common_pyx import sec_since_boot  # pylint: disable=no-name-in-module, import-error
+=======
+from common.clock import sec_since_boot  # pylint: disable=no-name-in-module, import-error
+>>>>>>> origin/ci-clean
 
 
 # time step for each process

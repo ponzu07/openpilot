@@ -6,6 +6,7 @@ from common.basedir import BASEDIR
 
 
 class TextWindow:
+<<<<<<< HEAD
   def __init__(self, s, noop=False):
     # text window is only implemented for android currently
     self.text_proc = None
@@ -17,6 +18,16 @@ class TextWindow:
                                           close_fds=True)
       except OSError:
         self.text_proc = None
+=======
+  def __init__(self, text):
+    try:
+      self.text_proc = subprocess.Popen(["./text", text],
+                                        stdin=subprocess.PIPE,
+                                        cwd=os.path.join(BASEDIR, "selfdrive", "ui"),
+                                        close_fds=True)
+    except OSError:
+      self.text_proc = None
+>>>>>>> origin/ci-clean
 
   def get_status(self):
     if self.text_proc is not None:

@@ -4,14 +4,21 @@ import inspect
 import json
 import os
 import random
+<<<<<<< HEAD
 import re
 import subprocess
+=======
+import requests
+>>>>>>> origin/ci-clean
 import threading
 import time
 import traceback
 
+<<<<<<< HEAD
 import requests
 
+=======
+>>>>>>> origin/ci-clean
 from cereal import log
 from common.hardware import HARDWARE
 from common.api import Api
@@ -74,6 +81,7 @@ def clear_locks(root):
 def is_on_wifi():
   return HARDWARE.get_network_type() == NetworkType.wifi
 
+<<<<<<< HEAD
 def is_on_hotspot():
   try:
     result = subprocess.check_output(["ifconfig", "wlan0"], stderr=subprocess.STDOUT, encoding='utf8')
@@ -84,6 +92,8 @@ def is_on_hotspot():
   except Exception:
     return False
 
+=======
+>>>>>>> origin/ci-clean
 class Uploader():
   def __init__(self, dongle_id, root):
     self.dongle_id = dongle_id
@@ -238,6 +248,7 @@ def uploader_fn(exit_event):
 
   backoff = 0.1
   counter = 0
+<<<<<<< HEAD
   should_upload = False
   while not exit_event.is_set():
     offroad = params.get("IsOffroad") == b'1'
@@ -250,13 +261,28 @@ def uploader_fn(exit_event):
 
     d = uploader.next_file_to_upload(with_raw=allow_raw_upload and should_upload)
     counter += 1
+=======
+  on_wifi = False
+  while not exit_event.is_set():
+    offroad = params.get("IsOffroad") == b'1'
+    allow_raw_upload = (params.get("IsUploadRawEnabled") != b"0") and offroad
+    if offroad and counter % 12 == 0:
+      on_wifi = is_on_wifi()
+    counter += 1
+
+    d = uploader.next_file_to_upload(with_raw=allow_raw_upload and on_wifi and offroad)
+>>>>>>> origin/ci-clean
     if d is None:  # Nothing to upload
       time.sleep(60 if offroad else 5)
       continue
 
     key, fn = d
 
+<<<<<<< HEAD
     cloudlog.event("uploader_netcheck", is_on_hotspot=on_hotspot, is_on_wifi=on_wifi)
+=======
+    cloudlog.event("uploader_netcheck", is_on_wifi=on_wifi)
+>>>>>>> origin/ci-clean
     cloudlog.info("to upload %r", d)
     success = uploader.upload(key, fn)
     if success:

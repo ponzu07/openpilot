@@ -77,6 +77,11 @@ def main(sm=None, pm=None):
   CP = car.CarParams.from_bytes(params_reader.get("CarParams", block=True))
   cloudlog.info("paramsd got CarParams")
 
+<<<<<<< HEAD
+=======
+  min_sr, max_sr = 0.5 * CP.steerRatio, 2.0 * CP.steerRatio
+
+>>>>>>> origin/ci-clean
   params = params_reader.get("LiveParameters")
 
   # Check if car model matches
@@ -86,6 +91,15 @@ def main(sm=None, pm=None):
       cloudlog.info("Parameter learner found parameters for wrong car.")
       params = None
 
+<<<<<<< HEAD
+=======
+  if (params is not None) and not all((
+      abs(params['angleOffsetAverage']) < 10.0,
+      min_sr <= params['steerRatio'] <= max_sr)):
+    cloudlog.info(f"Invalid starting values found {params}")
+    params = None
+
+>>>>>>> origin/ci-clean
   if params is None:
     params = {
       'carFingerprint': CP.carFingerprint,
@@ -100,7 +114,10 @@ def main(sm=None, pm=None):
   params['stiffnessFactor'] = 1.0
 
   learner = ParamsLearner(CP, params['steerRatio'], params['stiffnessFactor'], math.radians(params['angleOffsetAverage']))
+<<<<<<< HEAD
   min_sr, max_sr = 0.5 * CP.steerRatio, 2.0 * CP.steerRatio
+=======
+>>>>>>> origin/ci-clean
 
   while True:
     sm.update()

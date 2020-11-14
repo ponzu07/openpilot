@@ -11,10 +11,22 @@
 
 #include "sensors/sensor.hpp"
 #include "sensors/constants.hpp"
+<<<<<<< HEAD
+=======
+
+>>>>>>> origin/ci-clean
 #include "sensors/bmx055_accel.hpp"
 #include "sensors/bmx055_gyro.hpp"
 #include "sensors/bmx055_magn.hpp"
 #include "sensors/bmx055_temp.hpp"
+<<<<<<< HEAD
+=======
+
+#include "sensors/lsm6ds3_accel.hpp"
+#include "sensors/lsm6ds3_gyro.hpp"
+#include "sensors/lsm6ds3_temp.hpp"
+
+>>>>>>> origin/ci-clean
 #include "sensors/light_sensor.hpp"
 
 volatile sig_atomic_t do_exit = 0;
@@ -36,18 +48,42 @@ int sensor_loop() {
     return -1;
   }
 
+<<<<<<< HEAD
   BMX055_Accel accel(i2c_bus_imu);
   BMX055_Gyro gyro(i2c_bus_imu);
   BMX055_Magn magn(i2c_bus_imu);
   BMX055_Temp temp(i2c_bus_imu);
+=======
+  BMX055_Accel bmx055_accel(i2c_bus_imu);
+  BMX055_Gyro bmx055_gyro(i2c_bus_imu);
+  BMX055_Magn bmx055_magn(i2c_bus_imu);
+  BMX055_Temp bmx055_temp(i2c_bus_imu);
+
+  LSM6DS3_Accel lsm6ds3_accel(i2c_bus_imu);
+  LSM6DS3_Gyro lsm6ds3_gyro(i2c_bus_imu);
+  LSM6DS3_Temp lsm6ds3_temp(i2c_bus_imu);
+
+>>>>>>> origin/ci-clean
   LightSensor light("/sys/class/i2c-adapter/i2c-2/2-0038/iio:device1/in_intensity_both_raw");
 
   // Sensor init
   std::vector<Sensor *> sensors;
+<<<<<<< HEAD
   sensors.push_back(&accel);
   sensors.push_back(&gyro);
   sensors.push_back(&magn);
   sensors.push_back(&temp);
+=======
+  sensors.push_back(&bmx055_accel);
+  sensors.push_back(&bmx055_gyro);
+  sensors.push_back(&bmx055_magn);
+  sensors.push_back(&bmx055_temp);
+
+  sensors.push_back(&lsm6ds3_accel);
+  sensors.push_back(&lsm6ds3_gyro);
+  sensors.push_back(&lsm6ds3_temp);
+
+>>>>>>> origin/ci-clean
   sensors.push_back(&light);
 
 

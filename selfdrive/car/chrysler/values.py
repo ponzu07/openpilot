@@ -91,8 +91,11 @@ DBC = {
 }
 
 STEER_THRESHOLD = 120
+<<<<<<< HEAD
 
 
 ECU_FINGERPRINT = {
   Ecu.fwdCamera: [0x292],  # lkas cmd
 }
+=======
+>>>>>>> origin/ci-clean

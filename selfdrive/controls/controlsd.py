@@ -52,7 +52,11 @@ class Controls:
 
     self.sm = sm
     if self.sm is None:
+<<<<<<< HEAD
       self.sm = messaging.SubMaster(['thermal', 'health', 'frame', 'model', 'liveCalibration',
+=======
+      self.sm = messaging.SubMaster(['thermal', 'health', 'model', 'liveCalibration', 'frontFrame',
+>>>>>>> origin/ci-clean
                                      'dMonitoringState', 'plan', 'pathPlan', 'liveLocationKalman'])
 
     self.can_sock = can_sock
@@ -61,12 +65,19 @@ class Controls:
       self.can_sock = messaging.sub_sock('can', timeout=can_timeout)
 
     # wait for one health and one CAN packet
+<<<<<<< HEAD
     hw_type = messaging.recv_one(self.sm.sock['health']).health.hwType
     has_relay = hw_type in [HwType.blackPanda, HwType.uno, HwType.dos]
     print("Waiting for CAN messages...")
     get_one_can(self.can_sock)
 
     self.CI, self.CP = get_car(self.can_sock, self.pm.sock['sendcan'], has_relay)
+=======
+    print("Waiting for CAN messages...")
+    get_one_can(self.can_sock)
+
+    self.CI, self.CP = get_car(self.can_sock, self.pm.sock['sendcan'])
+>>>>>>> origin/ci-clean
 
     # read params
     params = Params()
@@ -121,10 +132,18 @@ class Controls:
     self.last_blinker_frame = 0
     self.saturated_count = 0
     self.distance_traveled = 0
+<<<<<<< HEAD
     self.events_prev = []
     self.current_alert_types = [ET.PERMANENT]
 
     self.sm['liveCalibration'].calStatus = Calibration.INVALID
+=======
+    self.last_functional_fan_frame = 0
+    self.events_prev = []
+    self.current_alert_types = [ET.PERMANENT]
+
+    self.sm['liveCalibration'].calStatus = Calibration.CALIBRATED
+>>>>>>> origin/ci-clean
     self.sm['thermal'].freeSpace = 1.
     self.sm['dMonitoringState'].events = []
     self.sm['dMonitoringState'].awarenessStatus = 1.
@@ -140,8 +159,11 @@ class Controls:
       self.events.add(EventName.communityFeatureDisallowed, static=True)
     if not car_recognized:
       self.events.add(EventName.carUnrecognized, static=True)
+<<<<<<< HEAD
     if hw_type == HwType.whitePanda:
       self.events.add(EventName.whitePandaUnsupported, static=True)
+=======
+>>>>>>> origin/ci-clean
 
     # controlsd is driven by can recv, expected at 100Hz
     self.rk = Ratekeeper(100, print_delay_threshold=None)
@@ -171,6 +193,17 @@ class Controls:
     if self.sm['thermal'].memUsedPercent > 90:
       self.events.add(EventName.lowMemory)
 
+<<<<<<< HEAD
+=======
+    # Alert if fan isn't spinning for 5 seconds
+    if self.sm['health'].hwType in [HwType.uno, HwType.dos]:
+      if self.sm['health'].fanSpeedRpm == 0 and self.sm['thermal'].fanSpeed > 50:
+        if (self.sm.frame - self.last_functional_fan_frame) * DT_CTRL > 5.0:
+          self.events.add(EventName.fanMalfunction)
+      else:
+        self.last_functional_fan_frame = self.sm.frame
+
+>>>>>>> origin/ci-clean
     # Handle calibration status
     cal_status = self.sm['liveCalibration'].calStatus
     if cal_status != Calibration.CALIBRATED:
@@ -196,7 +229,12 @@ class Controls:
 
     if self.can_rcv_error or (not CS.canValid and self.sm.frame > 5 / DT_CTRL):
       self.events.add(EventName.canError)
+<<<<<<< HEAD
     if self.mismatch_counter >= 200:
+=======
+    if (self.sm['health'].safetyModel != self.CP.safetyModel and self.sm.frame > 2 / DT_CTRL) or \
+       self.mismatch_counter >= 200:
+>>>>>>> origin/ci-clean
       self.events.add(EventName.controlsMismatch)
     if not self.sm.alive['plan'] and self.sm.alive['pathPlan']:
       # only plan not being received: radar not communicating
@@ -218,9 +256,12 @@ class Controls:
       self.events.add(EventName.posenetInvalid)
     if not self.sm['liveLocationKalman'].deviceStable:
       self.events.add(EventName.deviceFalling)
+<<<<<<< HEAD
     if not self.sm['frame'].recoverState < 2:
       # counter>=2 is active
       self.events.add(EventName.focusRecoverActive)
+=======
+>>>>>>> origin/ci-clean
     if not self.sm['plan'].radarValid:
       self.events.add(EventName.radarFault)
     if self.sm['plan'].radarCanError:
@@ -229,8 +270,15 @@ class Controls:
       self.events.add(EventName.relayMalfunction)
     if self.sm['plan'].fcw:
       self.events.add(EventName.fcw)
+<<<<<<< HEAD
     if self.sm['model'].frameDropPerc > 1 and (not SIMULATION):
         self.events.add(EventName.modeldLagging)
+=======
+    if self.sm['model'].frameDropPerc > 1 and not SIMULATION:
+       self.events.add(EventName.modeldLagging)
+    if not self.sm.alive['frontFrame'] and (self.sm.frame > 5 / DT_CTRL) and not SIMULATION:
+       self.events.add(EventName.cameraMalfunction)
+>>>>>>> origin/ci-clean
 
     # Only allow engagement with brake pressed when stopped behind another stopped car
     if CS.brakePressed and self.sm['plan'].vTargetFuture >= STARTING_TARGET_SPEED \
@@ -438,9 +486,16 @@ class Controls:
     if CC.hudControl.rightLaneDepart or CC.hudControl.leftLaneDepart:
       self.events.add(EventName.ldw)
 
+<<<<<<< HEAD
     alerts = self.events.create_alerts(self.current_alert_types, [self.CP, self.sm, self.is_metric])
     self.AM.add_many(self.sm.frame, alerts, self.enabled)
     self.AM.process_alerts(self.sm.frame)
+=======
+    clear_event = ET.WARNING if ET.WARNING not in self.current_alert_types else None
+    alerts = self.events.create_alerts(self.current_alert_types, [self.CP, self.sm, self.is_metric])
+    self.AM.add_many(self.sm.frame, alerts, self.enabled)
+    self.AM.process_alerts(self.sm.frame, clear_event)
+>>>>>>> origin/ci-clean
     CC.hudControl.visualAlert = self.AM.visual_alert
 
     if not self.read_only:
@@ -449,7 +504,11 @@ class Controls:
       self.pm.send('sendcan', can_list_to_can_capnp(can_sends, msgtype='sendcan', valid=CS.canValid))
 
     force_decel = (self.sm['dMonitoringState'].awarenessStatus < 0.) or \
+<<<<<<< HEAD
                     (self.state == State.softDisabling)
+=======
+                  (self.state == State.softDisabling)
+>>>>>>> origin/ci-clean
 
     steer_angle_rad = (CS.steeringAngle - self.sm['pathPlan'].angleOffset) * CV.DEG_TO_RAD
 

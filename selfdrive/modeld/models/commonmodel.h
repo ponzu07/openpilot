@@ -8,6 +8,10 @@
 #include <CL/cl.h>
 #endif
 
+<<<<<<< HEAD
+=======
+#include <float.h>
+>>>>>>> origin/ci-clean
 #include "common/mat.h"
 #include "transforms/transform.h"
 #include "transforms/loadyuv.h"
@@ -16,6 +20,10 @@
 extern "C" {
 #endif
 
+<<<<<<< HEAD
+=======
+void softmax(const float* input, float* output, size_t len);
+>>>>>>> origin/ci-clean
 float softplus(float input);
 float sigmoid(float input);
 

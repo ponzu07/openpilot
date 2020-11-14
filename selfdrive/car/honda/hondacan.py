@@ -7,6 +7,7 @@ from selfdrive.car.honda.values import HONDA_BOSCH
 # 2 = ACC-CAN - camera side
 # 3 = F-CAN A - OBDII port
 
+<<<<<<< HEAD
 # CAN bus layout with giraffe
 # 0 = F-CAN B - powertrain
 # 1 = ACC-CAN - camera side
@@ -25,6 +26,21 @@ def get_lkas_cmd_bus(car_fingerprint, has_relay, radar_disabled=False):
 
 
 def create_brake_command(packer, apply_brake, pump_on, pcm_override, pcm_cancel_cmd, fcw, idx, car_fingerprint, has_relay, stock_brake):
+=======
+def get_pt_bus(car_fingerprint):
+  return 1 if car_fingerprint in HONDA_BOSCH else 0
+
+
+def get_lkas_cmd_bus(car_fingerprint, radar_disabled=False):
+  if radar_disabled:
+    # when radar is disabled, steering commands are sent directly to powertrain bus
+    return get_pt_bus(car_fingerprint)
+  # normally steering commands are sent to radar, which forwards them to powertrain bus
+  return 0
+
+
+def create_brake_command(packer, apply_brake, pump_on, pcm_override, pcm_cancel_cmd, fcw, idx, car_fingerprint, stock_brake):
+>>>>>>> origin/ci-clean
   # TODO: do we loose pressure if we keep pump off for long?
   brakelights = apply_brake > 0
   brake_rq = apply_brake > 0
@@ -45,6 +61,7 @@ def create_brake_command(packer, apply_brake, pump_on, pcm_override, pcm_cancel_
     "AEB_REQ_2": 0,
     "AEB_STATUS": 0,
   }
+<<<<<<< HEAD
   bus = get_pt_bus(car_fingerprint, has_relay)
   return packer.make_can_msg("BRAKE_COMMAND", bus, values, idx)
 
@@ -52,6 +69,15 @@ def create_brake_command(packer, apply_brake, pump_on, pcm_override, pcm_cancel_
 def create_acc_commands(packer, enabled, accel, gas, idx, stopping, starting, car_fingerprint, has_relay):
   commands = []
   bus = get_pt_bus(car_fingerprint, has_relay)
+=======
+  bus = get_pt_bus(car_fingerprint)
+  return packer.make_can_msg("BRAKE_COMMAND", bus, values, idx)
+
+
+def create_acc_commands(packer, enabled, accel, gas, idx, stopping, starting, car_fingerprint):
+  commands = []
+  bus = get_pt_bus(car_fingerprint)
+>>>>>>> origin/ci-clean
 
   control_on = 5 if enabled else 0
   # no gas = -30000
@@ -84,22 +110,35 @@ def create_acc_commands(packer, enabled, accel, gas, idx, stopping, starting, ca
 
   return commands
 
+<<<<<<< HEAD
 def create_steering_control(packer, apply_steer, lkas_active, car_fingerprint, idx, has_relay, radar_disabled):
+=======
+def create_steering_control(packer, apply_steer, lkas_active, car_fingerprint, idx, radar_disabled):
+>>>>>>> origin/ci-clean
   values = {
     "STEER_TORQUE": apply_steer if lkas_active else 0,
     "STEER_TORQUE_REQUEST": lkas_active,
   }
+<<<<<<< HEAD
   bus = get_lkas_cmd_bus(car_fingerprint, has_relay, radar_disabled)
   return packer.make_can_msg("STEERING_CONTROL", bus, values, idx)
 
 
 def create_bosch_supplemental_1(packer, car_fingerprint, idx, has_relay):
+=======
+  bus = get_lkas_cmd_bus(car_fingerprint, radar_disabled)
+  return packer.make_can_msg("STEERING_CONTROL", bus, values, idx)
+
+
+def create_bosch_supplemental_1(packer, car_fingerprint, idx):
+>>>>>>> origin/ci-clean
   # non-active params
   values = {
     "SET_ME_X04": 0x04,
     "SET_ME_X80": 0x80,
     "SET_ME_X10": 0x10,
   }
+<<<<<<< HEAD
   bus = get_lkas_cmd_bus(car_fingerprint, has_relay)
   return packer.make_can_msg("BOSCH_SUPPLEMENTAL_1", bus, values, idx)
 
@@ -109,6 +148,17 @@ def create_ui_commands(packer, pcm_speed, hud, car_fingerprint, is_metric, idx, 
   bus_pt = get_pt_bus(car_fingerprint, has_relay)
   radar_disabled = car_fingerprint in HONDA_BOSCH and openpilot_longitudinal_control
   bus_lkas = get_lkas_cmd_bus(car_fingerprint, has_relay, radar_disabled)
+=======
+  bus = get_lkas_cmd_bus(car_fingerprint)
+  return packer.make_can_msg("BOSCH_SUPPLEMENTAL_1", bus, values, idx)
+
+
+def create_ui_commands(packer, pcm_speed, hud, car_fingerprint, is_metric, idx, openpilot_longitudinal_control, stock_hud):
+  commands = []
+  bus_pt = get_pt_bus(car_fingerprint)
+  radar_disabled = car_fingerprint in HONDA_BOSCH and openpilot_longitudinal_control
+  bus_lkas = get_lkas_cmd_bus(car_fingerprint, radar_disabled)
+>>>>>>> origin/ci-clean
 
   if openpilot_longitudinal_control:
     if car_fingerprint in HONDA_BOSCH:
@@ -158,10 +208,18 @@ def create_ui_commands(packer, pcm_speed, hud, car_fingerprint, is_metric, idx, 
   return commands
 
 
+<<<<<<< HEAD
 def spam_buttons_command(packer, button_val, idx, car_fingerprint, has_relay):
+=======
+def spam_buttons_command(packer, button_val, idx, car_fingerprint):
+>>>>>>> origin/ci-clean
   values = {
     'CRUISE_BUTTONS': button_val,
     'CRUISE_SETTING': 0,
   }
+<<<<<<< HEAD
   bus = get_pt_bus(car_fingerprint, has_relay)
+=======
+  bus = get_pt_bus(car_fingerprint)
+>>>>>>> origin/ci-clean
   return packer.make_can_msg("SCM_BUTTONS", bus, values, idx)

@@ -9,9 +9,14 @@ from selfdrive.swaglog import cloudlog
 import cereal.messaging as messaging
 from selfdrive.car import gen_empty_fingerprint
 
+<<<<<<< HEAD
 from cereal import car, log
 EventName = car.CarEvent.EventName
 HwType = log.HealthData.HwType
+=======
+from cereal import car
+EventName = car.CarEvent.EventName
+>>>>>>> origin/ci-clean
 
 
 def get_startup_event(car_recognized, controller_available):
@@ -82,11 +87,19 @@ def only_toyota_left(candidate_cars):
 
 
 # **** for use live only ****
+<<<<<<< HEAD
 def fingerprint(logcan, sendcan, has_relay):
   fixed_fingerprint = os.environ.get('FINGERPRINT', "")
   skip_fw_query = os.environ.get('SKIP_FW_QUERY', False)
 
   if has_relay and not fixed_fingerprint and not skip_fw_query:
+=======
+def fingerprint(logcan, sendcan):
+  fixed_fingerprint = os.environ.get('FINGERPRINT', "")
+  skip_fw_query = os.environ.get('SKIP_FW_QUERY', False)
+
+  if not fixed_fingerprint and not skip_fw_query:
+>>>>>>> origin/ci-clean
     # Vin query only reliably works thorugh OBDII
     bus = 1
 
@@ -142,8 +155,12 @@ def fingerprint(logcan, sendcan, has_relay):
       # Toyota needs higher time to fingerprint, since DSU does not broadcast immediately
       if only_toyota_left(candidate_cars[b]):
         frame_fingerprint = 100  # 1s
+<<<<<<< HEAD
       if len(candidate_cars[b]) == 1:
         if frame > frame_fingerprint:
+=======
+      if len(candidate_cars[b]) == 1 and frame > frame_fingerprint:
+>>>>>>> origin/ci-clean
           # fingerprint done
           car_fingerprint = candidate_cars[b][0]
 
@@ -169,15 +186,24 @@ def fingerprint(logcan, sendcan, has_relay):
   return car_fingerprint, finger, vin, car_fw, source
 
 
+<<<<<<< HEAD
 def get_car(logcan, sendcan, has_relay=False):
   candidate, fingerprints, vin, car_fw, source = fingerprint(logcan, sendcan, has_relay)
+=======
+def get_car(logcan, sendcan):
+  candidate, fingerprints, vin, car_fw, source = fingerprint(logcan, sendcan)
+>>>>>>> origin/ci-clean
 
   if candidate is None:
     cloudlog.warning("car doesn't match any fingerprints: %r", fingerprints)
     candidate = "mock"
 
   CarInterface, CarController, CarState = interfaces[candidate]
+<<<<<<< HEAD
   car_params = CarInterface.get_params(candidate, fingerprints, has_relay, car_fw)
+=======
+  car_params = CarInterface.get_params(candidate, fingerprints, car_fw)
+>>>>>>> origin/ci-clean
   car_params.carVin = vin
   car_params.carFw = car_fw
   car_params.fingerprintSource = source

@@ -13,13 +13,21 @@ from typing import Dict, List
 from selfdrive.swaglog import cloudlog, add_logentries_handler
 
 
+<<<<<<< HEAD
 from common.basedir import BASEDIR, PARAMS
+=======
+from common.basedir import BASEDIR
+>>>>>>> origin/ci-clean
 from common.hardware import HARDWARE, ANDROID, PC
 WEBCAM = os.getenv("WEBCAM") is not None
 sys.path.append(os.path.join(BASEDIR, "pyextra"))
 os.environ['BASEDIR'] = BASEDIR
 
+<<<<<<< HEAD
 TOTAL_SCONS_NODES = 1005
+=======
+TOTAL_SCONS_NODES = 1040
+>>>>>>> origin/ci-clean
 prebuilt = os.path.exists(os.path.join(BASEDIR, 'prebuilt'))
 
 # Create folders needed for msgq
@@ -78,7 +86,11 @@ import traceback
 from multiprocessing import Process
 
 # Run scons
+<<<<<<< HEAD
 spinner = Spinner(noop=(__name__ != "__main__" or not ANDROID))
+=======
+spinner = Spinner()
+>>>>>>> origin/ci-clean
 spinner.update("0")
 
 if not prebuilt:
@@ -138,9 +150,14 @@ if not prebuilt:
         cloudlog.error("scons build failed\n" + error_s)
 
         # Show TextWindow
+<<<<<<< HEAD
         no_ui = __name__ != "__main__" or not ANDROID
         error_s = "\n \n".join(["\n".join(textwrap.wrap(e, 65)) for e in errors])
         with TextWindow("openpilot failed to build\n \n" + error_s, noop=no_ui) as t:
+=======
+        error_s = "\n \n".join(["\n".join(textwrap.wrap(e, 65)) for e in errors])
+        with TextWindow("openpilot failed to build\n \n" + error_s) as t:
+>>>>>>> origin/ci-clean
           t.wait_for_exit()
 
         exit(1)
@@ -208,9 +225,12 @@ interrupt_processes: List[str] = []
 # processes to end with SIGKILL instead of SIGTERM
 kill_processes = ['sensord']
 
+<<<<<<< HEAD
 # processes to end if thermal conditions exceed Green parameters
 green_temp_processes = ['uploader']
 
+=======
+>>>>>>> origin/ci-clean
 persistent_processes = [
   'thermald',
   'logmessaged',
@@ -224,6 +244,10 @@ if not PC:
     'updated',
     'logcatd',
     'tombstoned',
+<<<<<<< HEAD
+=======
+    'sensord',
+>>>>>>> origin/ci-clean
   ]
 
 car_started_processes = [
@@ -254,7 +278,10 @@ if WEBCAM:
 if not PC:
   car_started_processes += [
     'ubloxd',
+<<<<<<< HEAD
     'sensord',
+=======
+>>>>>>> origin/ci-clean
     'dmonitoringd',
     'dmonitoringmodeld',
   ]
@@ -401,8 +428,15 @@ def cleanup_all_processes(signal, frame):
 
 
 def send_managed_process_signal(name, sig):
+<<<<<<< HEAD
   if name not in running or name not in managed_processes:
     return
+=======
+  if name not in running or name not in managed_processes or \
+     running[name].exitcode is not None:
+    return
+
+>>>>>>> origin/ci-clean
   cloudlog.info(f"sending signal {sig} to {name}")
   os.kill(running[name].pid, sig)
 
@@ -481,6 +515,7 @@ def manager_thread():
   while 1:
     msg = messaging.recv_sock(thermal_sock, wait=True)
 
+<<<<<<< HEAD
     # heavyweight batch processes are gated on favorable thermal conditions
     if msg.thermal.thermalStatus >= ThermalStatus.yellow:
       for p in green_temp_processes:
@@ -491,6 +526,8 @@ def manager_thread():
         if p in persistent_processes:
           start_managed_process(p)
 
+=======
+>>>>>>> origin/ci-clean
     if msg.thermal.freeSpace < 0.05:
       logger_dead = True
 
@@ -549,8 +586,11 @@ def uninstall():
   HARDWARE.reboot(reason="recovery")
 
 def main():
+<<<<<<< HEAD
   os.environ['PARAMS_PATH'] = PARAMS
 
+=======
+>>>>>>> origin/ci-clean
   if ANDROID:
     # the flippening!
     os.system('LD_LIBRARY_PATH="" content insert --uri content://settings/system --bind name:s:user_rotation --bind value:i:1')

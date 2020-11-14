@@ -2,6 +2,10 @@ import serial
 
 from common.hardware_base import HardwareBase
 from cereal import log
+<<<<<<< HEAD
+=======
+import subprocess
+>>>>>>> origin/ci-clean
 
 
 NetworkType = log.ThermalData.NetworkType
@@ -40,7 +44,11 @@ class Tici(HardwareBase):
     return ""
 
   def reboot(self, reason=None):
+<<<<<<< HEAD
     print("REBOOT!")
+=======
+    subprocess.check_output(["sudo", "reboot"])
+>>>>>>> origin/ci-clean
 
   def get_network_type(self):
     return NetworkType.wifi

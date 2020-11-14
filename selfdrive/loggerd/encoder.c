@@ -5,8 +5,13 @@
 #include <stdbool.h>
 #include <unistd.h>
 #include <assert.h>
+<<<<<<< HEAD
 
 #include <czmq.h>
+=======
+#include <sys/stat.h>
+#include <fcntl.h>
+>>>>>>> origin/ci-clean
 
 #include <pthread.h>
 
@@ -397,6 +402,7 @@ static void handle_out_buf(EncoderState *s, OMX_BUFFERHEADERTYPE *out_buf) {
     memcpy(s->codec_config, buf_data, out_buf->nFilledLen);
   }
 
+<<<<<<< HEAD
   if (s->stream_sock_raw) {
     //uint64_t current_time = nanos_since_boot();
     //uint64_t diff = current_time - out_buf->nTimeStamp*1000LL;
@@ -406,6 +412,8 @@ static void handle_out_buf(EncoderState *s, OMX_BUFFERHEADERTYPE *out_buf) {
     zmq_send(s->stream_sock_raw, buf_data, out_buf->nFilledLen, 0);
   }
 
+=======
+>>>>>>> origin/ci-clean
   if (s->of) {
     //printf("write %d flags 0x%x\n", out_buf->nFilledLen, out_buf->nFlags);
     fwrite(buf_data, out_buf->nFilledLen, 1, s->of);

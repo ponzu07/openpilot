@@ -1,9 +1,17 @@
 #include <stdio.h>
+<<<<<<< HEAD
+=======
+#include <cmath>
+>>>>>>> origin/ci-clean
 #include <stdlib.h>
 #include <stdbool.h>
 #include <signal.h>
 #include <unistd.h>
 #include <assert.h>
+<<<<<<< HEAD
+=======
+#include <math.h>
+>>>>>>> origin/ci-clean
 #include <poll.h>
 #include <sys/mman.h>
 
@@ -19,11 +27,19 @@ extern volatile sig_atomic_t do_exit;
 int write_param_float(float param, const char* param_name, bool persistent_param) {
   char s[16];
   int size = snprintf(s, sizeof(s), "%f", param);
+<<<<<<< HEAD
   return write_db_value(param_name, s, size < sizeof(s) ? size : sizeof(s), persistent_param);
 }
 
 void ui_init(UIState *s) {
   s->sm = new SubMaster({"model", "controlsState", "uiLayoutState", "liveCalibration", "radarState", "thermal",
+=======
+  return Params(persistent_param).write_db_value(param_name, s, size < sizeof(s) ? size : sizeof(s));
+}
+
+void ui_init(UIState *s) {
+  s->sm = new SubMaster({"modelV2", "controlsState", "uiLayoutState", "liveCalibration", "radarState", "thermal",
+>>>>>>> origin/ci-clean
                          "health", "carParams", "ubloxGnss", "driverState", "dMonitoringState", "sensorEvents"});
 
   s->started = false;
@@ -105,6 +121,7 @@ destroy:
   s->vision_connected = false;
 }
 
+<<<<<<< HEAD
 static inline void fill_path_points(const cereal::ModelData::PathData::Reader &path, float *points) {
   const capnp::List<float>::Reader &poly = path.getPoly();
   for (int i = 0; i < path.getValidLen(); i++) {
@@ -112,6 +129,8 @@ static inline void fill_path_points(const cereal::ModelData::PathData::Reader &p
   }
 }
 
+=======
+>>>>>>> origin/ci-clean
 void update_sockets(UIState *s) {
 
   UIScene &scene = s->scene;
@@ -177,11 +196,32 @@ void update_sockets(UIState *s) {
       scene.extrinsic_matrix.v[i] = extrinsicl[i];
     }
   }
+<<<<<<< HEAD
   if (sm.updated("model")) {
     scene.model = sm["model"].getModel();
     fill_path_points(scene.model.getPath(), scene.path_points);
     fill_path_points(scene.model.getLeftLane(), scene.left_lane_points);
     fill_path_points(scene.model.getRightLane(), scene.right_lane_points);
+=======
+  if (sm.updated("modelV2")) {
+    scene.model = sm["modelV2"].getModelV2();
+    scene.max_distance = fmin(scene.model.getPosition().getX()[TRAJECTORY_SIZE - 1], MAX_DRAW_DISTANCE);
+    for (int ll_idx = 0; ll_idx < 4; ll_idx++) {
+      if (scene.model.getLaneLineProbs().size() > ll_idx) {
+        scene.lane_line_probs[ll_idx] = scene.model.getLaneLineProbs()[ll_idx];
+      } else {
+        scene.lane_line_probs[ll_idx] = 0.0;
+      }
+    }
+
+    for (int re_idx = 0; re_idx < 2; re_idx++) {
+      if (scene.model.getRoadEdgeStds().size() > re_idx) {
+        scene.road_edge_stds[re_idx] = scene.model.getRoadEdgeStds()[re_idx];
+      } else {
+        scene.road_edge_stds[re_idx] = 1.0;
+      }
+    }
+>>>>>>> origin/ci-clean
   }
   if (sm.updated("uiLayoutState")) {
     auto data = sm["uiLayoutState"].getUiLayoutState();
@@ -217,16 +257,29 @@ void update_sockets(UIState *s) {
   } else if ((sm.frame - sm.rcv_frame("dMonitoringState")) > UI_FREQ/2) {
     scene.frontview = false;
   }
+<<<<<<< HEAD
 
 #ifdef QCOM2 // TODO: use this for QCOM too
+=======
+>>>>>>> origin/ci-clean
   if (sm.updated("sensorEvents")) {
     for (auto sensor : sm["sensorEvents"].getSensorEvents()) {
       if (sensor.which() == cereal::SensorEventData::LIGHT) {
         s->light_sensor = sensor.getLight();
+<<<<<<< HEAD
       }
     }
   }
 #endif
+=======
+      } else if (!s->started && sensor.which() == cereal::SensorEventData::ACCELERATION) {
+        s->accel_sensor = sensor.getAcceleration().getV()[2];
+      } else if (!s->started && sensor.which() == cereal::SensorEventData::GYRO_UNCALIBRATED) {
+        s->gyro_sensor = sensor.getGyroUncalibrated().getV()[1];
+      }
+    }
+  }
+>>>>>>> origin/ci-clean
 
   s->started = scene.thermal.getStarted() || scene.frontview;
 }
@@ -241,6 +294,10 @@ void ui_update(UIState *s) {
     s->status = STATUS_OFFROAD;
     s->active_app = cereal::UiLayoutState::App::HOME;
     s->scene.uilayout_sidebarcollapsed = false;
+<<<<<<< HEAD
+=======
+    s->sound->stop();
+>>>>>>> origin/ci-clean
   } else if (s->started && s->status == STATUS_OFFROAD) {
     s->status = STATUS_DISENGAGED;
     s->started_frame = s->sm->frame;
@@ -256,18 +313,32 @@ void ui_update(UIState *s) {
   if (s->started && !s->scene.frontview && ((s->sm)->frame - s->started_frame) > 5*UI_FREQ) {
     if ((s->sm)->rcv_frame("controlsState") < s->started_frame) {
       // car is started, but controlsState hasn't been seen at all
+<<<<<<< HEAD
       s->scene.alert_text1 = "openpilot Unavailable";
       s->scene.alert_text2 = "Waiting for controls to start";
       s->scene.alert_size = cereal::ControlsState::AlertSize::MID;
     } else if (((s->sm)->frame - (s->sm)->rcv_frame("controlsState")) > 5*UI_FREQ) {
       // car is started, but controls is lagging or died
       if (s->scene.alert_text2 != "Controls Unresponsive") {
+=======
+      s->scene.alert_text1 = "オープンパイロットは利用不可";
+      s->scene.alert_text2 = "コントロールの開始を待機しています";
+      s->scene.alert_size = cereal::ControlsState::AlertSize::MID;
+    } else if (((s->sm)->frame - (s->sm)->rcv_frame("controlsState")) > 5*UI_FREQ) {
+      // car is started, but controls is lagging or died
+      if (s->scene.alert_text2 != "コントロールから反応なし") {
+>>>>>>> origin/ci-clean
         s->sound->play(AudibleAlert::CHIME_WARNING_REPEAT);
         LOGE("Controls unresponsive");
       }
 
+<<<<<<< HEAD
       s->scene.alert_text1 = "TAKE CONTROL IMMEDIATELY";
       s->scene.alert_text2 = "Controls Unresponsive";
+=======
+      s->scene.alert_text1 = "すぐに運転を交代して下さい";
+      s->scene.alert_text2 = "コントロールから反応なし";
+>>>>>>> origin/ci-clean
       s->scene.alert_size = cereal::ControlsState::AlertSize::FULL;
       s->status = STATUS_ALERT;
     }

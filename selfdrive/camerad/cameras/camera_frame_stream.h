@@ -1,5 +1,9 @@
+<<<<<<< HEAD
 #ifndef CAMERA_FRAME_STREAM_H
 #define CAMERA_FRAME_STREAM_H
+=======
+#pragma once
+>>>>>>> origin/ci-clean
 
 #include <stdbool.h>
 
@@ -10,14 +14,18 @@
 #include <CL/cl.h>
 #endif
 
+<<<<<<< HEAD
 #include "common/mat.h"
 
 #include "buffering.h"
 #include "common/visionbuf.h"
+=======
+>>>>>>> origin/ci-clean
 #include "camera_common.h"
 
 #define FRAME_BUF_COUNT 16
 
+<<<<<<< HEAD
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -39,12 +47,27 @@ typedef struct CameraState {
   mat3 transform;
 } CameraState;
 
+=======
+typedef struct CameraState {
+  int camera_id;
+  CameraInfo ci;
+
+  int fps;
+  float digital_gain;
+  float cur_gain_frac;
+
+  mat3 transform;
+
+  CameraBuf buf;
+} CameraState;
+>>>>>>> origin/ci-clean
 
 typedef struct MultiCameraState {
   int ispif_fd;
 
   CameraState rear;
   CameraState front;
+<<<<<<< HEAD
 } MultiCameraState;
 
 void cameras_init(MultiCameraState *s);
@@ -57,3 +80,15 @@ void camera_autoexposure(CameraState *s, float grey_frac);
 #endif
 
 #endif
+=======
+
+  SubMaster *sm;
+  PubMaster *pm;
+} MultiCameraState;
+
+void cameras_init(MultiCameraState *s, cl_device_id device_id, cl_context ctx);
+void cameras_open(MultiCameraState *s);
+void cameras_run(MultiCameraState *s);
+void cameras_close(MultiCameraState *s);
+void camera_autoexposure(CameraState *s, float grey_frac);
+>>>>>>> origin/ci-clean

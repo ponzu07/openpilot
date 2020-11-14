@@ -1,7 +1,17 @@
+<<<<<<< HEAD
 #include <stdio.h>
 #include <signal.h>
 #include <cassert>
 #include <vector>
+=======
+#include <thread>
+#include <stdio.h>
+#include <signal.h>
+#include <poll.h>
+#include <assert.h>
+#include <unistd.h>
+#include <sys/socket.h>
+>>>>>>> origin/ci-clean
 
 #if defined(QCOM) && !defined(QCOM_REPLAY)
 #include "cameras/camera_qcom.h"
@@ -13,6 +23,7 @@
 #include "cameras/camera_frame_stream.h"
 #endif
 
+<<<<<<< HEAD
 #include "common/util.h"
 #include "common/params.h"
 #include "common/swaglog.h"
@@ -51,6 +62,25 @@ void set_do_exit(int sig) {
 TODO: refactor out camera specific things from here
 */
 
+=======
+#include <libyuv.h>
+
+#include "clutil.h"
+#include "common/ipc.h"
+#include "common/params.h"
+#include "common/swaglog.h"
+#include "common/util.h"
+#include "common/visionipc.h"
+
+#define MAX_CLIENTS 6
+
+volatile sig_atomic_t do_exit = 0;
+
+static void set_do_exit(int sig) {
+  do_exit = 1;
+}
+
+>>>>>>> origin/ci-clean
 struct VisionState;
 
 struct VisionClientState {
@@ -69,6 +99,7 @@ struct VisionClientStreamState {
 };
 
 struct VisionState {
+<<<<<<< HEAD
   int frame_width, frame_height;
   int frame_stride;
   int frame_size;
@@ -175,10 +206,14 @@ struct VisionState {
 
   PubMaster *pm;
 
+=======
+  MultiCameraState cameras;
+>>>>>>> origin/ci-clean
   pthread_mutex_t clients_lock;
   VisionClientState clients[MAX_CLIENTS];
 };
 
+<<<<<<< HEAD
 // frontview thread
 void* frontview_thread(void *arg) {
   int err;
@@ -883,6 +918,19 @@ void* processing_thread(void *arg) {
 
   clReleaseCommandQueue(q);
   return NULL;
+=======
+static CameraBuf *get_camerabuf_by_type(VisionState *s, VisionStreamType type) {
+  assert(type >= 0 && type < VISION_STREAM_MAX);
+  if (type == VISION_STREAM_RGB_BACK || type == VISION_STREAM_YUV) {
+    return &s->cameras.rear.buf;
+  } else if (type == VISION_STREAM_RGB_FRONT || type == VISION_STREAM_YUV_FRONT) {
+    return &s->cameras.front.buf;
+  }
+#ifdef QCOM2
+  return &s->cameras.wide.buf;
+#endif
+  assert(0);
+>>>>>>> origin/ci-clean
 }
 
 // visionserver
@@ -894,15 +942,19 @@ void* visionserver_client_thread(void* arg) {
 
   set_thread_name("clientthread");
 
+<<<<<<< HEAD
   zsock_t *terminate = zsock_new_sub(">inproc://terminate", "");
   assert(terminate);
   void* terminate_raw = zsock_resolve(terminate);
 
+=======
+>>>>>>> origin/ci-clean
   VisionClientStreamState streams[VISION_STREAM_MAX] = {{0}};
 
   LOGW("client start fd %d", fd);
 
   while (true) {
+<<<<<<< HEAD
     zmq_pollitem_t polls[2+VISION_STREAM_MAX] = {{0}};
     polls[0].socket = terminate_raw;
     polls[0].events = ZMQ_POLLIN;
@@ -914,6 +966,17 @@ void* visionserver_client_thread(void* arg) {
     for (int i=0; i<VISION_STREAM_MAX; i++) {
       if (!streams[i].subscribed) continue;
       polls[num_polls].events = ZMQ_POLLIN;
+=======
+    struct pollfd polls[1+VISION_STREAM_MAX] = {{0}};
+    polls[0].fd = fd;
+    polls[0].events = POLLIN;
+
+    int poll_to_stream[1+VISION_STREAM_MAX] = {0};
+    int num_polls = 1;
+    for (int i=0; i<VISION_STREAM_MAX; i++) {
+      if (!streams[i].subscribed) continue;
+      polls[num_polls].events = POLLIN;
+>>>>>>> origin/ci-clean
       if (streams[i].bufs_outstanding >= 2) {
         continue;
       }
@@ -925,18 +988,29 @@ void* visionserver_client_thread(void* arg) {
       poll_to_stream[num_polls] = i;
       num_polls++;
     }
+<<<<<<< HEAD
     int ret = zmq_poll(polls, num_polls, -1);
+=======
+    int ret = poll(polls, num_polls, -1);
+>>>>>>> origin/ci-clean
     if (ret < 0) {
       if (errno == EINTR || errno == EAGAIN) continue;
       LOGE("poll failed (%d - %d)", ret, errno);
       break;
     }
+<<<<<<< HEAD
     if (polls[0].revents) {
       break;
     } else if (polls[1].revents) {
       VisionPacket p;
       err = vipc_recv(fd, &p);
       // printf("recv %d\n", p.type);
+=======
+    if (do_exit) break;
+    if (polls[0].revents) {
+      VisionPacket p;
+      err = vipc_recv(fd, &p);
+>>>>>>> origin/ci-clean
       if (err <= 0) {
         break;
       } else if (p.type == VIPC_STREAM_SUBSCRIBE) {
@@ -950,6 +1024,7 @@ void* visionserver_client_thread(void* arg) {
         stream->tb = p.d.stream_sub.tbuffer;
 
         VisionStreamBufs *stream_bufs = &rep.d.stream_bufs;
+<<<<<<< HEAD
         if (stream_type == VISION_STREAM_RGB_BACK) {
           stream_bufs->width = s->rgb_width;
           stream_bufs->height = s->rgb_height;
@@ -1037,11 +1112,47 @@ void* visionserver_client_thread(void* arg) {
 
         } else {
           assert(false);
+=======
+        CameraBuf *b = get_camerabuf_by_type(s, stream_type);
+        if (stream_type == VISION_STREAM_RGB_BACK ||
+            stream_type == VISION_STREAM_RGB_FRONT ||
+            stream_type == VISION_STREAM_RGB_WIDE) {
+          stream_bufs->width = b->rgb_width;
+          stream_bufs->height = b->rgb_height;
+          stream_bufs->stride = b->rgb_stride;
+          stream_bufs->buf_len = b->rgb_bufs[0].len;
+          rep.num_fds = UI_BUF_COUNT;
+          for (int i = 0; i < rep.num_fds; i++) {
+            rep.fds[i] = b->rgb_bufs[i].fd;
+          }
+          if (stream->tb) {
+            stream->tbuffer = &b->ui_tb;
+          } else {
+            assert(false);
+          }
+        } else {
+          stream_bufs->width = b->yuv_width;
+          stream_bufs->height = b->yuv_height;
+          stream_bufs->stride = b->yuv_width;
+          stream_bufs->buf_len = b->yuv_buf_size;
+          rep.num_fds = YUV_COUNT;
+          for (int i = 0; i < rep.num_fds; i++) {
+            rep.fds[i] = b->yuv_ion[i].fd;
+          }
+          if (stream->tb) {
+            stream->tbuffer = b->yuv_tb;
+          } else {
+            stream->queue = pool_get_queue(&b->yuv_pool);
+          }
+>>>>>>> origin/ci-clean
         }
         vipc_send(fd, &rep);
         streams[stream_type].subscribed = true;
       } else if (p.type == VIPC_STREAM_RELEASE) {
+<<<<<<< HEAD
         // printf("client release f %d  %d\n", p.d.stream_rel.type, p.d.stream_rel.idx);
+=======
+>>>>>>> origin/ci-clean
         int si = p.d.stream_rel.type;
         assert(si < VISION_STREAM_MAX);
         if (streams[si].tb) {
@@ -1055,7 +1166,11 @@ void* visionserver_client_thread(void* arg) {
       }
     } else {
       int stream_i = VISION_STREAM_MAX;
+<<<<<<< HEAD
       for (int i=2; i<num_polls; i++) {
+=======
+      for (int i=1; i<num_polls; i++) {
+>>>>>>> origin/ci-clean
         int si = poll_to_stream[i];
         if (!streams[si].subscribed) continue;
         if (polls[i].revents) {
@@ -1081,6 +1196,7 @@ void* visionserver_client_thread(void* arg) {
             .idx = idx,
           }},
         };
+<<<<<<< HEAD
         if (stream_i == VISION_STREAM_YUV) {
           rep.d.stream_acq.extra.frame_id = s->yuv_metas[idx].frame_id;
           rep.d.stream_acq.extra.timestamp_eof = s->yuv_metas[idx].timestamp_eof;
@@ -1090,6 +1206,14 @@ void* visionserver_client_thread(void* arg) {
         } else if (stream_i == VISION_STREAM_YUV_WIDE) {
           rep.d.stream_acq.extra.frame_id = s->yuv_wide_metas[idx].frame_id;
           rep.d.stream_acq.extra.timestamp_eof = s->yuv_wide_metas[idx].timestamp_eof;
+=======
+        if (stream_i == VISION_STREAM_YUV ||
+            stream_i == VISION_STREAM_YUV_FRONT ||
+            stream_i == VISION_STREAM_YUV_WIDE) {
+          CameraBuf *b = get_camerabuf_by_type(s, (VisionStreamType)stream_i);
+          rep.d.stream_acq.extra.frame_id = b->yuv_metas[idx].frame_id;
+          rep.d.stream_acq.extra.timestamp_eof = b->yuv_metas[idx].timestamp_eof;
+>>>>>>> origin/ci-clean
         }
         vipc_send(fd, &rep);
       }
@@ -1108,7 +1232,10 @@ void* visionserver_client_thread(void* arg) {
   }
 
   close(fd);
+<<<<<<< HEAD
   zsock_destroy(&terminate);
+=======
+>>>>>>> origin/ci-clean
 
   pthread_mutex_lock(&s->clients_lock);
   client->running = false;
@@ -1123,6 +1250,7 @@ void* visionserver_thread(void* arg) {
 
   set_thread_name("visionserver");
 
+<<<<<<< HEAD
   zsock_t *terminate = zsock_new_sub(">inproc://terminate", "");
   assert(terminate);
   void* terminate_raw = zsock_resolve(terminate);
@@ -1136,14 +1264,28 @@ void* visionserver_thread(void* arg) {
     polls[1].events = ZMQ_POLLIN;
 
     int ret = zmq_poll(polls, ARRAYSIZE(polls), -1);
+=======
+  int sock = ipc_bind(VIPC_SOCKET_PATH);
+  while (!do_exit) {
+    struct pollfd polls[1] = {{0}};
+    polls[0].fd = sock;
+    polls[0].events = POLLIN;
+
+    int ret = poll(polls, ARRAYSIZE(polls), 1000);
+>>>>>>> origin/ci-clean
     if (ret < 0) {
       if (errno == EINTR || errno == EAGAIN) continue;
       LOGE("poll failed (%d - %d)", ret, errno);
       break;
     }
+<<<<<<< HEAD
     if (polls[0].revents) {
       break;
     } else if (!polls[1].revents) {
+=======
+    if (do_exit) break;
+    if (!polls[0].revents) {
+>>>>>>> origin/ci-clean
       continue;
     }
 
@@ -1188,11 +1330,15 @@ void* visionserver_thread(void* arg) {
   }
 
   close(sock);
+<<<<<<< HEAD
   zsock_destroy(&terminate);
+=======
+>>>>>>> origin/ci-clean
 
   return NULL;
 }
 
+<<<<<<< HEAD
 
 ////////// cl stuff
 
@@ -1551,10 +1697,24 @@ void party(VisionState *s) {
 
   // priority for cameras
   err = set_realtime_priority(51);
+=======
+void party(cl_device_id device_id, cl_context context) {
+  VisionState state = {};
+  VisionState *s = &state;
+  
+  cameras_init(&s->cameras, device_id, context);
+  cameras_open(&s->cameras);
+
+  std::thread server_thread(visionserver_thread, s);
+  
+  // priority for cameras
+  int err = set_realtime_priority(51);
+>>>>>>> origin/ci-clean
   LOG("setpriority returns %d", err);
 
   cameras_run(&s->cameras);
 
+<<<<<<< HEAD
   tbuffer_stop(&s->ui_tb);
   tbuffer_stop(&s->ui_front_tb);
   pool_stop(&s->yuv_pool);
@@ -1585,10 +1745,14 @@ void party(VisionState *s) {
   assert(err == 0);
 
   zsock_destroy (&s->terminate_pub);
+=======
+  server_thread.join();
+>>>>>>> origin/ci-clean
 }
 
 int main(int argc, char *argv[]) {
   set_realtime_priority(51);
+<<<<<<< HEAD
 #ifdef QCOM
   set_core_affinity(2);
 #endif
@@ -1632,4 +1796,24 @@ int main(int argc, char *argv[]) {
 
   free_buffers(s);
   cl_free(s);
+=======
+#if defined(QCOM)
+  set_core_affinity(2);
+#elif defined(QCOM2)
+  set_core_affinity(6);
+#endif
+
+  signal(SIGINT, (sighandler_t)set_do_exit);
+  signal(SIGTERM, (sighandler_t)set_do_exit);
+
+  int err;
+  clu_init();
+  cl_device_id device_id = cl_get_device_id(CL_DEVICE_TYPE_DEFAULT);
+  cl_context context = clCreateContext(NULL, 1, &device_id, NULL, NULL, &err);
+  assert(err == 0);
+
+  party(device_id, context);
+
+  clReleaseContext(context);
+>>>>>>> origin/ci-clean
 }

@@ -19,7 +19,11 @@ def snapshot():
   params = Params()
   front_camera_allowed = int(params.get("RecordFront"))
 
+<<<<<<< HEAD
   if params.get("IsTakingSnapshot") == b"1":
+=======
+  if params.get("IsOffroad") != b"1" or params.get("IsTakingSnapshot") == b"1":
+>>>>>>> origin/ci-clean
     return None
 
   params.put("IsTakingSnapshot", "1")

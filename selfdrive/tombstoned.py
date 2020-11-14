@@ -17,10 +17,19 @@ def get_tombstones():
   files = []
   for folder in ["/data/tombstones/", "/var/crash/"]:
     if os.path.exists(folder):
+<<<<<<< HEAD
       for fn in os.listdir(folder):
         if fn.startswith("tombstone") or fn.endswith(".crash"):
           path = os.path.join(folder, fn)
           files.append((path, int(os.stat(path).st_ctime)))
+=======
+      with os.scandir(folder) as d:
+
+        # Loop over first 1000 directory entries
+        for _, f in zip(range(1000), d):
+          if f.name.startswith("tombstone") or f.name.endswith(".crash"):
+            files.append((f.path, int(f.stat().st_ctime)))
+>>>>>>> origin/ci-clean
   return files
 
 

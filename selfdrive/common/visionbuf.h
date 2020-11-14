@@ -1,5 +1,9 @@
+<<<<<<< HEAD
 #ifndef IONBUF_H
 #define IONBUF_H
+=======
+#pragma once
+>>>>>>> origin/ci-clean
 
 #define CL_USE_DEPRECATED_OPENCL_1_2_APIS
 #ifdef __APPLE__
@@ -29,13 +33,20 @@ typedef struct VisionBuf {
 #define VISIONBUF_SYNC_TO_DEVICE 1
 
 VisionBuf visionbuf_allocate(size_t len);
+<<<<<<< HEAD
 VisionBuf visionbuf_allocate_cl(size_t len, cl_device_id device_id, cl_context ctx, cl_mem *out_mem);
 cl_mem visionbuf_to_cl(const VisionBuf* buf, cl_device_id device_id, cl_context ctx);
+=======
+VisionBuf visionbuf_allocate_cl(size_t len, cl_device_id device_id, cl_context ctx);
+>>>>>>> origin/ci-clean
 void visionbuf_sync(const VisionBuf* buf, int dir);
 void visionbuf_free(const VisionBuf* buf);
 
 #ifdef __cplusplus
 }
 #endif
+<<<<<<< HEAD
 
 #endif
+=======
+>>>>>>> origin/ci-clean

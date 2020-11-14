@@ -31,7 +31,11 @@ class BuildExtWithoutPlatformSuffix(build_ext):
 
 
 sourcefiles = ['messaging_pyx.pyx']
+<<<<<<< HEAD
 extra_compile_args = ["-std=c++14", "-Wno-nullability-completeness"]
+=======
+extra_compile_args = ["-std=c++1z", "-Wno-nullability-completeness"]
+>>>>>>> origin/ci-clean
 libraries = ['zmq']
 ARCH = subprocess.check_output(["uname", "-m"], encoding='utf8').rstrip()  # pylint: disable=unexpected-keyword-arg
 

@@ -36,6 +36,11 @@ monitored_proc_names = [
   'logcatd', 'proclogd', 'boardd', 'pandad', './ui', 'ui', 'calibrationd', 'params_learner', 'modeld', 'dmonitoringd',
   'dmonitoringmodeld', 'camerad', 'sensord', 'updated', 'gpsd', 'athena', 'locationd', 'paramsd',
 
+<<<<<<< HEAD
+=======
+  'ai.comma.plus.offroad',
+
+>>>>>>> origin/ci-clean
   # android procs
   'SurfaceFlinger', 'sensors.qcom'
 ]

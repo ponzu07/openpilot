@@ -6,7 +6,10 @@
 class QtSound : public Sound {
 public:
   QtSound();
+<<<<<<< HEAD
   ~QtSound();
+=======
+>>>>>>> origin/ci-clean
   bool play(AudibleAlert alert);
   void stop();
   void setVolume(int volume);

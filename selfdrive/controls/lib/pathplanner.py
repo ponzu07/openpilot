@@ -7,7 +7,10 @@ from selfdrive.controls.lib.drive_helpers import MPC_COST_LAT
 from selfdrive.controls.lib.lane_planner import LanePlanner
 from selfdrive.config import Conversions as CV
 from common.params import Params
+<<<<<<< HEAD
 from common.hardware import TICI
+=======
+>>>>>>> origin/ci-clean
 import cereal.messaging as messaging
 from cereal import log
 
@@ -44,6 +47,10 @@ DESIRES = {
 def calc_states_after_delay(states, v_ego, steer_angle, curvature_factor, steer_ratio, delay):
   states[0].x = v_ego * delay
   states[0].psi = v_ego * curvature_factor * math.radians(steer_angle) / steer_ratio * delay
+<<<<<<< HEAD
+=======
+  states[0].y = states[0].x * math.sin(states[0].psi / 2)
+>>>>>>> origin/ci-clean
   return states
 
 
@@ -107,7 +114,11 @@ class PathPlanner():
     elif sm['carState'].rightBlinker:
       self.lane_change_direction = LaneChangeDirection.right
 
+<<<<<<< HEAD
     if (not active) or (self.lane_change_timer > LANE_CHANGE_TIME_MAX) or (not one_blinker) or (not self.lane_change_enabled):
+=======
+    if (not active) or (self.lane_change_timer > LANE_CHANGE_TIME_MAX) or (not self.lane_change_enabled):
+>>>>>>> origin/ci-clean
       self.lane_change_state = LaneChangeState.off
       self.lane_change_direction = LaneChangeDirection.none
     else:
@@ -165,6 +176,7 @@ class PathPlanner():
       self.LP.r_prob *= self.lane_change_ll_prob
     self.LP.update_d_poly(v_ego)
 
+<<<<<<< HEAD
     if TICI:
       frame_delay = min((sm.logMonoTime['model'] - sm['model'].timestampEof) / 1e9, 0.250)
       delay = frame_delay + CP.steerActuatorDelay
@@ -173,6 +185,10 @@ class PathPlanner():
 
     # account for actuation + frame delay
     self.cur_state = calc_states_after_delay(self.cur_state, v_ego, angle_steers - angle_offset, curvature_factor, VM.sR, delay)
+=======
+    # account for actuation delay
+    self.cur_state = calc_states_after_delay(self.cur_state, v_ego, angle_steers - angle_offset, curvature_factor, VM.sR, CP.steerActuatorDelay)
+>>>>>>> origin/ci-clean
 
     v_ego_mpc = max(v_ego, 5.0)  # avoid mpc roughness due to low speed
     self.libmpc.run_mpc(self.cur_state, self.mpc_solution,
