@@ -66,7 +66,7 @@ SettingsWindow::SettingsWindow(QWidget *parent) : QWidget(parent) {
 
   QVBoxLayout *settings_list = new QVBoxLayout();
   settings_list->addWidget(new ParamsToggle("OpenpilotEnabledToggle",
-                                            "Enable Openpilot",
+                                            "オープンパイロットを有効化",
                                             "Use the openpilot system for adaptive cruise control and lane keep driver assistance. Your attention is required at all times to use this feature. Changing this setting takes effect when the car is powered off.",
                                             "../assets/offroad/icon_openpilot.png"
                                               ));
