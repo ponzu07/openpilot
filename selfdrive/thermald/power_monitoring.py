@@ -6,7 +6,7 @@ from statistics import mean
 from cereal import log
 from common.realtime import sec_since_boot
 from common.params import Params, put_nonblocking
-from common.hardware import TICI
+from common.hardware import HARDWARE
 from selfdrive.swaglog import cloudlog
 
 <<<<<<< HEAD
@@ -23,6 +23,7 @@ CAR_CHARGING_RATE_W = 45
 VBATT_PAUSE_CHARGING = 11.0
 MAX_TIME_OFFROAD_S = 30*3600
 
+<<<<<<< HEAD
 # Parameters
 def get_battery_capacity():
   return _read_param("/sys/class/power_supply/battery/capacity", int)
@@ -71,6 +72,8 @@ def panda_current_to_actual_current(panda_current):
   return (3.3 - (panda_current * 3.3 / 4096)) / 8.25
 
 
+=======
+>>>>>>> origin/ci-clean
 =======
 >>>>>>> origin/ci-clean
 class PowerMonitoring:
@@ -133,13 +136,13 @@ class PowerMonitoring:
         # No ignition, we integrate the offroad power used by the device
         is_uno = health.health.hwType == log.HealthData.HwType.uno
         # Get current power draw somehow
-        current_power = 0
-        if TICI:
-          with open("/sys/class/hwmon/hwmon1/power1_input") as f:
-            current_power = int(f.read()) / 1e6
-        elif get_battery_status() == 'Discharging':
+        current_power = HARDWARE.get_current_power_draw()
+        if current_power is not None:
+          pass
+        elif HARDWARE.get_battery_status() == 'Discharging':
           # If the battery is discharging, we can use this measurement
           # On C2: this is low by about 10-15%, probably mostly due to UNO draw not being factored in
+<<<<<<< HEAD
           current_power = ((get_battery_voltage() / 1000000) * (get_battery_current() / 1000000))
 <<<<<<< HEAD
         elif (health.health.hwType in [log.HealthData.HwType.whitePanda, log.HealthData.HwType.greyPanda]) and (health.health.current > 1):
@@ -149,6 +152,9 @@ class PowerMonitoring:
           current_power = (PANDA_OUTPUT_VOLTAGE * panda_current_to_actual_current(health.health.current))
 =======
 >>>>>>> origin/ci-clean
+=======
+          current_power = ((HARDWARE.get_battery_voltage() / 1000000) * (HARDWARE.get_battery_current() / 1000000))
+>>>>>>> origin/ci-clean
         elif (self.next_pulsed_measurement_time is not None) and (self.next_pulsed_measurement_time <= now):
           # TODO: Figure out why this is off by a factor of 3/4???
           FUDGE_FACTOR = 1.33
@@ -156,22 +162,22 @@ class PowerMonitoring:
           # Turn off charging for about 10 sec in a thread that does not get killed on SIGINT, and perform measurement here to avoid blocking thermal
           def perform_pulse_measurement(now):
             try:
-              set_battery_charging(False)
+              HARDWARE.set_battery_charging(False)
               time.sleep(5)
 
               # Measure for a few sec to get a good average
               voltages = []
               currents = []
               for _ in range(6):
-                voltages.append(get_battery_voltage())
-                currents.append(get_battery_current())
+                voltages.append(HARDWARE.get_battery_voltage())
+                currents.append(HARDWARE.get_battery_current())
                 time.sleep(1)
               current_power = ((mean(voltages) / 1000000) * (mean(currents) / 1000000))
 
               self._perform_integration(now, current_power * FUDGE_FACTOR)
 
               # Enable charging again
-              set_battery_charging(True)
+              HARDWARE.set_battery_charging(True)
             except Exception:
               cloudlog.exception("Pulsed power measurement failed")
 
@@ -242,6 +248,6 @@ class PowerMonitoring:
     should_shutdown = False
     # Wait until we have shut down charging before powering down
     should_shutdown |= (not panda_charging and self.should_disable_charging(health, offroad_timestamp))
-    should_shutdown |= ((get_battery_capacity() < BATT_PERC_OFF) and (not get_battery_charging()) and ((now - offroad_timestamp) > 60))
+    should_shutdown |= ((HARDWARE.get_battery_capacity() < BATT_PERC_OFF) and (not HARDWARE.get_battery_charging()) and ((now - offroad_timestamp) > 60))
     should_shutdown &= started_seen
     return should_shutdown

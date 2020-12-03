@@ -26,12 +26,7 @@ from selfdrive.controls.lib.alertmanager import set_offroad_alert
 from selfdrive.loggerd.config import get_available_percent
 from selfdrive.pandad import get_expected_signature
 from selfdrive.swaglog import cloudlog
-from selfdrive.thermald.power_monitoring import (PowerMonitoring,
-                                                 get_battery_capacity,
-                                                 get_battery_current,
-                                                 get_battery_status,
-                                                 get_battery_voltage,
-                                                 get_usb_present)
+from selfdrive.thermald.power_monitoring import PowerMonitoring
 from selfdrive.version import get_git_branch, terms_version, training_version
 
 ThermalConfig = namedtuple('ThermalConfig', ['cpu', 'gpu', 'mem', 'bat', 'ambient'])
@@ -306,11 +301,11 @@ def thermald_thread():
     msg.thermal.cpuPerc = int(round(psutil.cpu_percent()))
     msg.thermal.networkType = network_type
     msg.thermal.networkStrength = network_strength
-    msg.thermal.batteryPercent = get_battery_capacity()
-    msg.thermal.batteryStatus = get_battery_status()
-    msg.thermal.batteryCurrent = get_battery_current()
-    msg.thermal.batteryVoltage = get_battery_voltage()
-    msg.thermal.usbOnline = get_usb_present()
+    msg.thermal.batteryPercent = HARDWARE.get_battery_capacity()
+    msg.thermal.batteryStatus = HARDWARE.get_battery_status()
+    msg.thermal.batteryCurrent = HARDWARE.get_battery_current()
+    msg.thermal.batteryVoltage = HARDWARE.get_battery_voltage()
+    msg.thermal.usbOnline = HARDWARE.get_usb_present()
 
     # Fake battery levels on uno for frame
     if (not EON) or is_uno:
@@ -367,6 +362,7 @@ def thermald_thread():
 
     # show invalid date/time alert
 <<<<<<< HEAD
+<<<<<<< HEAD
     time_valid = now.year >= 2019
     if time_valid and not time_valid_prev:
       set_offroad_alert("Offroad_InvalidTime", False)
@@ -375,6 +371,9 @@ def thermald_thread():
     time_valid_prev = time_valid
 =======
     startup_conditions["time_valid"] = now.year >= 2019
+=======
+    startup_conditions["time_valid"] = (now.year > 2020) or (now.year == 2020 and now.month >= 10)
+>>>>>>> origin/ci-clean
     set_offroad_alert_if_changed("Offroad_InvalidTime", (not startup_conditions["time_valid"]))
 >>>>>>> origin/ci-clean
 
@@ -511,7 +510,6 @@ def thermald_thread():
       if started_ts is None:
         started_ts = sec_since_boot()
         started_seen = True
-        os.system('echo performance > /sys/class/devfreq/soc:qcom,cpubw/governor')
     else:
 <<<<<<< HEAD
       if should_start_prev or (count == 0):
@@ -526,7 +524,6 @@ def thermald_thread():
       started_ts = None
       if off_ts is None:
         off_ts = sec_since_boot()
-        os.system('echo powersave > /sys/class/devfreq/soc:qcom,cpubw/governor')
 
     # Offroad power monitoring
     pm.calculate(health)

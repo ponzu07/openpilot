@@ -1,5 +1,7 @@
 #pragma once
 
+#include <string>
+
 #include <QWidget>
 #include <QTimer>
 <<<<<<< HEAD
@@ -12,8 +14,11 @@
 #include <QStackedLayout>
 
 #include "qt/qt_sound.hpp"
+#include "offroad/settings.hpp"
+#include "offroad/onboarding.hpp"
 #include "ui/ui.hpp"
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 class MainWindow : public QWidget
 {
@@ -47,6 +52,8 @@ const int vwp_h = 1080;
 class GLWindow : public QOpenGLWidget, protected QOpenGLFunctions
 {
 =======
+=======
+>>>>>>> origin/ci-clean
 
 class GLWindow : public QOpenGLWidget, protected QOpenGLFunctions {
 >>>>>>> origin/ci-clean
@@ -55,6 +62,7 @@ class GLWindow : public QOpenGLWidget, protected QOpenGLFunctions {
 public:
   using QOpenGLWidget::QOpenGLWidget;
   explicit GLWindow(QWidget *parent = 0);
+  void wake();
   ~GLWindow();
 
 protected:
@@ -72,8 +80,12 @@ private:
   QTimer * timer;
   QTimer * backlight_timer;
 
+<<<<<<< HEAD
 >>>>>>> origin/ci-clean
   UIState * ui_state;
+=======
+  UIState * ui_state = nullptr;
+>>>>>>> origin/ci-clean
   QtSound sound;
 
   bool onroad = true;
@@ -96,4 +108,24 @@ public slots:
 
 signals:
   void openSettings();
+};
+
+class MainWindow : public QWidget {
+  Q_OBJECT
+
+protected:
+  bool eventFilter(QObject *obj, QEvent *event) override;
+
+public:
+  explicit MainWindow(QWidget *parent = 0);
+
+private:
+  QStackedLayout *main_layout;
+  GLWindow *glWindow;
+  SettingsWindow *settingsWindow;
+  OnboardingWindow *onboardingWindow;
+
+public slots:
+  void openSettings();
+  void closeSettings();
 };

@@ -313,7 +313,7 @@ static void ui_draw_line(UIState *s, const vertex_data *v, const int cnt, NVGcol
 static void update_track_data(UIState *s, const cereal::ModelDataV2::XYZTData::Reader &line, track_vertices_data *pvd) {
   const UIScene *scene = &s->scene;
   const float off = 0.5;
-  int max_idx;
+  int max_idx = 0;
   float lead_d;
   if(s->sm->updated("radarState")) {
     lead_d = scene->lead_data[0].getDRel()*2.;
@@ -467,7 +467,7 @@ static void ui_draw_vision_lane_lines(UIState *s) {
     NVGcolor color = nvgRGBAf(1.0, 1.0, 1.0, scene->lane_line_probs[ll_idx]);
     ui_draw_line(s, (pvd_ll + ll_idx)->v, (pvd_ll + ll_idx)->cnt, &color, nullptr);
   }
-  
+
   // paint road edges
   line_vertices_data *pvd_re = &s->road_edge_vertices[0];
   for (int re_idx = 0; re_idx < 2; re_idx++) {
@@ -477,7 +477,7 @@ static void ui_draw_vision_lane_lines(UIState *s) {
     NVGcolor color = nvgRGBAf(1.0, 0.0, 0.0, std::clamp<float>(1.0-scene->road_edge_stds[re_idx], 0.0, 1.0));
     ui_draw_line(s, (pvd_re + re_idx)->v, (pvd_re + re_idx)->cnt, &color, nullptr);
   }
-  
+
   // paint path
   if(s->sm->updated("modelV2")) {
     update_track_data(s, scene->model.getPosition(), &s->track_vertices);
@@ -775,7 +775,7 @@ void ui_draw_vision_alert(UIState *s, cereal::ControlsState::AlertSize va_size, 
   }
 }
 
-static void ui_draw_vision(UIState *s) {
+static void ui_draw_vision_frame(UIState *s) {
   const UIScene *scene = &s->scene;
   const Rect &viz_rect = scene->viz_rect;
 <<<<<<< HEAD
@@ -793,6 +793,10 @@ static void ui_draw_vision(UIState *s) {
   glDisable(GL_SCISSOR_TEST);
 
   glViewport(0, 0, s->fb_w, s->fb_h);
+}
+
+static void ui_draw_vision(UIState *s) {
+  const UIScene *scene = &s->scene;
 
   // Draw augmented elements
   if (!scene->frontview && scene->world_objects_visible) {
@@ -825,7 +829,7 @@ static void ui_draw_background(UIState *s) {
 }
 
 void ui_draw(UIState *s) {
-  s->scene.viz_rect = Rect{bdr_s * 3, bdr_s, s->fb_w - 4 * bdr_s, s->fb_h - 2 * bdr_s};
+  s->scene.viz_rect = Rect{bdr_s, bdr_s, s->fb_w - 2 * bdr_s, s->fb_h - 2 * bdr_s};
   s->scene.ui_viz_ro = 0;
   if (!s->scene.uilayout_sidebarcollapsed) {
     s->scene.viz_rect.x = sbr_w + bdr_s;
@@ -833,14 +837,22 @@ void ui_draw(UIState *s) {
     s->scene.ui_viz_ro = -(sbr_w - 6 * bdr_s);
   }
 
+  const bool draw_vision = s->started && s->active_app == cereal::UiLayoutState::App::NONE &&
+                           s->status != STATUS_OFFROAD && s->vision_connected;
+
+  // GL drawing functions
   ui_draw_background(s);
+  if (draw_vision) {
+    ui_draw_vision_frame(s);
+  }
   glEnable(GL_BLEND);
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
   glViewport(0, 0, s->fb_w, s->fb_h);
+
+  // NVG drawing functions - should be no GL inside NVG frame
   nvgBeginFrame(s->vg, s->fb_w, s->fb_h, 1.0f);
   ui_draw_sidebar(s);
-  if (s->started && s->active_app == cereal::UiLayoutState::App::NONE &&
-      s->status != STATUS_OFFROAD && s->vision_connected) {
+  if (draw_vision) {
     ui_draw_vision(s);
   }
   nvgEndFrame(s->vg);
@@ -1020,12 +1032,16 @@ void ui_nvg_init(UIState *s) {
   }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
   // frame from 4/3 to box size with a 2x zoom
   const mat4 frame_transform = {{
     (float)(2*(4./3.)/((float)(s->fb_w-(bdr_s*2))/(s->fb_h-(bdr_s*2)))), 0.0, 0.0, 0.0,
     0.0, 2.0, 0.0, 0.0,
 =======
   s->video_rect = Rect{bdr_s * 3, bdr_s, s->fb_w - 4 * bdr_s, s->fb_h - 2 * bdr_s};
+=======
+  s->video_rect = Rect{bdr_s, bdr_s, s->fb_w - 2 * bdr_s, s->fb_h - 2 * bdr_s};
+>>>>>>> origin/ci-clean
   float zx = zoom * 2 * intrinsic_matrix.v[2] / s->video_rect.w;
   float zy = zoom * 2 * intrinsic_matrix.v[5] / s->video_rect.h;
 

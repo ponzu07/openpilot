@@ -7,6 +7,7 @@
 =======
 #pragma once
 
+#include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
 #include <memory>
@@ -46,11 +47,18 @@
 #define LOG_CAMERA_ID_MAX 4
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 =======
+>>>>>>> origin/ci-clean
+=======
+const bool env_send_front = getenv("SEND_FRONT") != NULL;
+const bool env_send_rear = getenv("SEND_REAR") != NULL;
+const bool env_send_wide = getenv("SEND_WIDE") != NULL;
+
 >>>>>>> origin/ci-clean
 typedef struct CameraInfo {
   const char* name;
@@ -76,6 +84,7 @@ typedef struct LogCameraInfo {
 
 typedef struct FrameMetadata {
   uint32_t frame_id;
+  uint64_t timestamp_sof; // only set on tici
   uint64_t timestamp_eof;
   unsigned int frame_length;
   unsigned int integ_lines;
@@ -155,6 +164,7 @@ public:
 typedef void (*process_thread_cb)(MultiCameraState *s, CameraState *c, int cnt);
 
 void fill_frame_data(cereal::FrameData::Builder &framed, const FrameMetadata &frame_data, uint32_t cnt);
+void fill_frame_image(cereal::FrameData::Builder &framed, uint8_t *dat, int w, int h, int stride);
 void create_thumbnail(MultiCameraState *s, CameraState *c, uint8_t *bgr_ptr);
 void set_exposure_target(CameraState *c, const uint8_t *pix_ptr, int x_start, int x_end, int x_skip, int y_start, int y_end, int y_skip);
 std::thread start_process_thread(MultiCameraState *cameras, const char *tname,

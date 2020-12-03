@@ -155,11 +155,8 @@ int main(int argc, char **argv) {
 
   // cl init
   cl_device_id device_id = cl_get_device_id(device_type);
-  cl_context context = clCreateContext(NULL, 1, &device_id, NULL, NULL, &err);
-  assert(err == 0);
-
-  cl_command_queue q = clCreateCommandQueue(context, device_id, 0, &err);
-  assert(err == 0);
+  cl_context context = CL_CHECK_ERR(clCreateContext(NULL, 1, &device_id, NULL, NULL, &err));
+  cl_command_queue q = CL_CHECK_ERR(clCreateCommandQueue(context, device_id, 0, &err));
 
   // init the models
   ModelState model;
@@ -180,7 +177,7 @@ int main(int argc, char **argv) {
 
     // setup filter to track dropped frames
     const float dt = 1. / MODEL_FREQ;
-    const float ts = 5.0;  // 5 s filter time constant
+    const float ts = 10.0;  // filter time constant (s)
     const float frame_filter_k = (dt / ts) / (1. + dt / ts);
     float frames_dropped = 0;
 
@@ -195,6 +192,7 @@ int main(int argc, char **argv) {
     uint32_t frame_id = 0, last_vipc_frame_id = 0;
     double last = 0;
     int desire = -1;
+    uint32_t run_count = 0;
     while (!do_exit) {
       VIPCBuf *buf;
       VIPCBufExtra extra;
@@ -221,6 +219,8 @@ int main(int argc, char **argv) {
 
       double mt1 = 0, mt2 = 0;
       if (run_model_this_iter) {
+        run_count++;
+
         float vec_desire[DESIRE_LEN] = {0};
         if (desire >= 0 && desire < DESIRE_LEN) {
           vec_desire[desire] = 1.0;
@@ -239,20 +239,28 @@ int main(int argc, char **argv) {
 >>>>>>> origin/ci-clean
                              model_transform, NULL, vec_desire);
         mt2 = millis_since_boot();
+        float model_execution_time = (mt2 - mt1) / 1000.0;
 
         // tracked dropped frames
         uint32_t vipc_dropped_frames = extra.frame_id - last_vipc_frame_id - 1;
         frames_dropped = (1. - frame_filter_k) * frames_dropped + frame_filter_k * (float)std::min(vipc_dropped_frames, 10U);
-        float frame_drop_perc = frames_dropped / MODEL_FREQ;
+        if (run_count < 10) frames_dropped = 0;  // let frame drops warm up
+        float frame_drop_ratio = frames_dropped / (1 + frames_dropped);
 
+<<<<<<< HEAD
         model_publish(pm, extra.frame_id, frame_id,  vipc_dropped_frames, frame_drop_perc, model_buf, extra.timestamp_eof);
 <<<<<<< HEAD
 =======
         model_publish_v2(pm, extra.frame_id, frame_id,  vipc_dropped_frames, frame_drop_perc, model_buf, extra.timestamp_eof);
 >>>>>>> origin/ci-clean
         posenet_publish(pm, extra.frame_id, frame_id, vipc_dropped_frames, frame_drop_perc, model_buf, extra.timestamp_eof);
+=======
+        model_publish(pm, extra.frame_id, frame_id,  vipc_dropped_frames, frame_drop_ratio, model_buf, extra.timestamp_eof, model_execution_time);
+        model_publish_v2(pm, extra.frame_id, frame_id,  vipc_dropped_frames, frame_drop_ratio, model_buf, extra.timestamp_eof, model_execution_time);
+        posenet_publish(pm, extra.frame_id, frame_id, vipc_dropped_frames, frame_drop_ratio, model_buf, extra.timestamp_eof);
+>>>>>>> origin/ci-clean
 
-        LOGD("model process: %.2fms, from last %.2fms, vipc_frame_id %zu, frame_id, %zu, frame_drop %.3f", mt2-mt1, mt1-last, extra.frame_id, frame_id, frame_drop_perc);
+        LOGD("model process: %.2fms, from last %.2fms, vipc_frame_id %zu, frame_id, %zu, frame_drop %.3f", mt2-mt1, mt1-last, extra.frame_id, frame_id, frame_drop_ratio);
         last = mt1;
         last_vipc_frame_id = extra.frame_id;
       }
@@ -267,8 +275,8 @@ int main(int argc, char **argv) {
   LOG("joining live_thread");
   err = pthread_join(live_thread_handle, NULL);
   assert(err == 0);
-  clReleaseCommandQueue(q);
-  clReleaseContext(context);
+  CL_CHECK(clReleaseContext(context));
+  CL_CHECK(clReleaseCommandQueue(q));
 
   pthread_mutex_destroy(&transform_lock);
   return 0;

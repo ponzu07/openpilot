@@ -21,11 +21,14 @@ elif arch == "larch64":
 =======
   libs += ['atomic']
   cameras = ['cameras/camera_qcom2.cc']
+<<<<<<< HEAD
 >>>>>>> origin/ci-clean
   # no screen
   # env = env.Clone()
   # env.Append(CXXFLAGS = '-DNOSCREEN')
   # env.Append(CFLAGS = '-DNOSCREEN')
+=======
+>>>>>>> origin/ci-clean
 else:
 <<<<<<< HEAD
   if webcam:

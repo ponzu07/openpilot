@@ -1212,6 +1212,7 @@ void* visionserver_client_thread(void* arg) {
             stream_i == VISION_STREAM_YUV_WIDE) {
           CameraBuf *b = get_camerabuf_by_type(s, (VisionStreamType)stream_i);
           rep.d.stream_acq.extra.frame_id = b->yuv_metas[idx].frame_id;
+          rep.d.stream_acq.extra.timestamp_sof = b->yuv_metas[idx].timestamp_sof;
           rep.d.stream_acq.extra.timestamp_eof = b->yuv_metas[idx].timestamp_eof;
 >>>>>>> origin/ci-clean
         }
@@ -1806,14 +1807,16 @@ int main(int argc, char *argv[]) {
   signal(SIGINT, (sighandler_t)set_do_exit);
   signal(SIGTERM, (sighandler_t)set_do_exit);
 
-  int err;
   clu_init();
   cl_device_id device_id = cl_get_device_id(CL_DEVICE_TYPE_DEFAULT);
-  cl_context context = clCreateContext(NULL, 1, &device_id, NULL, NULL, &err);
-  assert(err == 0);
+  cl_context context = CL_CHECK_ERR(clCreateContext(NULL, 1, &device_id, NULL, NULL, &err));
 
   party(device_id, context);
 
+<<<<<<< HEAD
   clReleaseContext(context);
+>>>>>>> origin/ci-clean
+=======
+  CL_CHECK(clReleaseContext(context));
 >>>>>>> origin/ci-clean
 }
