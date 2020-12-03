@@ -80,6 +80,8 @@ from multiprocessing import Process
 # Run scons
 spinner = Spinner()
 spinner.update("0")
+if __name__ != "__main__":
+  spinner.close()
 
 if not prebuilt:
   for retry in [True, False]:
@@ -105,8 +107,7 @@ if not prebuilt:
         prefix = b'progress: '
         if line.startswith(prefix):
           i = int(line[len(prefix):])
-          if spinner is not None:
-            spinner.update("%d" % (70.0 * (i / TOTAL_SCONS_NODES)))
+          spinner.update("%d" % (70.0 * (i / TOTAL_SCONS_NODES)))
         elif len(line):
           compile_output.append(line)
           print(line.decode('utf8', 'replace'))
@@ -125,7 +126,8 @@ if not prebuilt:
             print("....%d" % i)
             time.sleep(1)
           subprocess.check_call(["scons", "-c"], cwd=BASEDIR, env=env)
-          shutil.rmtree("/tmp/scons_cache")
+          shutil.rmtree("/tmp/scons_cache", ignore_errors=True)
+          shutil.rmtree("/data/scons_cache", ignore_errors=True)
         else:
           print("scons build failed after retry")
           sys.exit(1)
@@ -138,10 +140,10 @@ if not prebuilt:
         cloudlog.error("scons build failed\n" + error_s)
 
         # Show TextWindow
+        spinner.close()
         error_s = "\n \n".join(["\n".join(textwrap.wrap(e, 65)) for e in errors])
         with TextWindow("openpilot failed to build\n \n" + error_s) as t:
           t.wait_for_exit()
-
         exit(1)
     else:
       break
@@ -370,11 +372,8 @@ def kill_managed_process(name):
         join_process(running[name], 15)
         if running[name].exitcode is None:
           cloudlog.critical("unkillable process %s failed to die!" % name)
-          # TODO: Use method from HARDWARE
-          if ANDROID:
-            cloudlog.critical("FORCE REBOOTING PHONE!")
-            os.system("date >> /sdcard/unkillable_reboot")
-            os.system("reboot")
+          os.system("date >> /sdcard/unkillable_reboot")
+          HARDWARE.reboot()
           raise RuntimeError
       else:
         cloudlog.info("killing %s with SIGKILL" % name)
@@ -609,6 +608,7 @@ if __name__ == "__main__":
     # Show last 3 lines of traceback
     error = traceback.format_exc(-3)
     error = "Manager failed to start\n \n" + error
+    spinner.close()
     with TextWindow(error) as t:
       t.wait_for_exit()
 

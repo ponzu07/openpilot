@@ -24,6 +24,12 @@
 #include "common/util.h"
 #include "imgproc/utils.h"
 
+const int env_xmin = getenv("XMIN") ? atoi(getenv("XMIN")) : 0;
+const int env_xmax = getenv("XMAX") ? atoi(getenv("XMAX")) : -1;
+const int env_ymin = getenv("YMIN") ? atoi(getenv("YMIN")) : 0;
+const int env_ymax = getenv("YMAX") ? atoi(getenv("YMAX")) : -1;
+const int env_scale = getenv("SCALE") ? atoi(getenv("SCALE")) : 1;
+
 static cl_program build_debayer_program(cl_device_id device_id, cl_context context, const CameraInfo *ci, const CameraBuf *b) {
   char args[4096];
   snprintf(args, sizeof(args),
@@ -97,23 +103,20 @@ void CameraBuf::init(cl_device_id device_id, cl_context context, CameraState *s,
     yuv_bufs[i].v = yuv_bufs[i].u + (yuv_width / 2 * yuv_height / 2);
   }
 
-  int err;
   if (ci->bayer) {
     cl_program prg_debayer = build_debayer_program(device_id, context, ci, this);
-    krnl_debayer = clCreateKernel(prg_debayer, "debayer10", &err);
-    assert(err == 0);
-    assert(clReleaseProgram(prg_debayer) == 0);
+    krnl_debayer = CL_CHECK_ERR(clCreateKernel(prg_debayer, "debayer10", &err));
+    CL_CHECK(clReleaseProgram(prg_debayer));
   }
 
   rgb_to_yuv_init(&rgb_to_yuv_state, context, device_id, yuv_width, yuv_height, rgb_stride);
 
 #ifdef __APPLE__
-  q = clCreateCommandQueue(context, device_id, 0, &err);
+  q = CL_CHECK_ERR(clCreateCommandQueue(context, device_id, 0, &err));
 #else
   const cl_queue_properties props[] = {0};  //CL_QUEUE_PRIORITY_KHR, CL_QUEUE_PRIORITY_HIGH_KHR, 0};
-  q = clCreateCommandQueueWithProperties(context, device_id, props, &err);
+  q = CL_CHECK_ERR(clCreateCommandQueueWithProperties(context, device_id, props, &err));
 #endif
-  assert(err == 0);
 }
 
 CameraBuf::~CameraBuf() {
@@ -126,8 +129,8 @@ CameraBuf::~CameraBuf() {
   for (int i = 0; i < YUV_COUNT; i++) {
     visionbuf_free(&yuv_ion[i]);
   }
-  clReleaseKernel(krnl_debayer);
-  clReleaseCommandQueue(q);
+  CL_CHECK(clReleaseKernel(krnl_debayer));
+  CL_CHECK(clReleaseCommandQueue(q));
 }
 
 bool CameraBuf::acquire() {
@@ -150,33 +153,32 @@ bool CameraBuf::acquire() {
   cl_event debayer_event;
   cl_mem camrabuf_cl = camera_bufs[buf_idx].buf_cl;
   if (camera_state->ci.bayer) {
-    assert(clSetKernelArg(krnl_debayer, 0, sizeof(cl_mem), &camrabuf_cl) == 0);
-    assert(clSetKernelArg(krnl_debayer, 1, sizeof(cl_mem), &cur_rgb_buf->buf_cl) == 0);
+    CL_CHECK(clSetKernelArg(krnl_debayer, 0, sizeof(cl_mem), &camrabuf_cl));
+    CL_CHECK(clSetKernelArg(krnl_debayer, 1, sizeof(cl_mem), &cur_rgb_buf->buf_cl));
 #ifdef QCOM2
-    assert(clSetKernelArg(krnl_debayer, 2, camera_state->debayer_cl_localMemSize, 0) == 0);
-    assert(clEnqueueNDRangeKernel(q, krnl_debayer, 2, NULL,
+    CL_CHECK(clSetKernelArg(krnl_debayer, 2, camera_state->debayer_cl_localMemSize, 0));
+    CL_CHECK(clEnqueueNDRangeKernel(q, krnl_debayer, 2, NULL,
                                   camera_state->debayer_cl_globalWorkSize, camera_state->debayer_cl_localWorkSize,
-                                  0, 0, &debayer_event) == 0);
+                                  0, 0, &debayer_event));
 #else
     float digital_gain = camera_state->digital_gain;
     if ((int)digital_gain == 0) {
       digital_gain = 1.0;
     }
-    assert(clSetKernelArg(krnl_debayer, 2, sizeof(float), &digital_gain) == 0);
+    CL_CHECK(clSetKernelArg(krnl_debayer, 2, sizeof(float), &digital_gain));
     const size_t debayer_work_size = rgb_height;  // doesn't divide evenly, is this okay?
-    const size_t debayer_local_work_size = 128;
-    assert(clEnqueueNDRangeKernel(q, krnl_debayer, 1, NULL,
-                                  &debayer_work_size, &debayer_local_work_size, 0, 0, &debayer_event) == 0);
+    CL_CHECK(clEnqueueNDRangeKernel(q, krnl_debayer, 1, NULL,
+                                  &debayer_work_size, NULL, 0, 0, &debayer_event));
 #endif
   } else {
     assert(cur_rgb_buf->len >= frame_size);
     assert(rgb_stride == camera_state->ci.frame_stride);
-    assert(clEnqueueCopyBuffer(q, camrabuf_cl, cur_rgb_buf->buf_cl, 0, 0,
-                               cur_rgb_buf->len, 0, 0, &debayer_event) == 0);
+    CL_CHECK(clEnqueueCopyBuffer(q, camrabuf_cl, cur_rgb_buf->buf_cl, 0, 0,
+                               cur_rgb_buf->len, 0, 0, &debayer_event));
   }
 
   clWaitForEvents(1, &debayer_event);
-  clReleaseEvent(debayer_event);
+  CL_CHECK(clReleaseEvent(debayer_event));
 
   tbuffer_release(&camera_tb, buf_idx);
   visionbuf_sync(cur_rgb_buf, VISIONBUF_SYNC_FROM_DEVICE);
@@ -190,11 +192,12 @@ bool CameraBuf::acquire() {
   pool_acquire(&yuv_pool, cur_yuv_idx);
   pool_push(&yuv_pool, cur_yuv_idx);
 
+  tbuffer_dispatch(&ui_tb, cur_rgb_idx);
+
   return true;
 }
 
 void CameraBuf::release() {
-  tbuffer_dispatch(&ui_tb, cur_rgb_idx);
   pool_release(&yuv_pool, cur_yuv_idx);
 }
 
@@ -208,7 +211,6 @@ void CameraBuf::stop() {
 
 void fill_frame_data(cereal::FrameData::Builder &framed, const FrameMetadata &frame_data, uint32_t cnt) {
   framed.setFrameId(frame_data.frame_id);
-  framed.setEncodeId(cnt);
   framed.setTimestampEof(frame_data.timestamp_eof);
   framed.setFrameLength(frame_data.frame_length);
   framed.setIntegLines(frame_data.integ_lines);
@@ -218,6 +220,27 @@ void fill_frame_data(cereal::FrameData::Builder &framed, const FrameMetadata &fr
   framed.setLensErr(frame_data.lens_err);
   framed.setLensTruePos(frame_data.lens_true_pos);
   framed.setGainFrac(frame_data.gain_frac);
+}
+
+void fill_frame_image(cereal::FrameData::Builder &framed, uint8_t *dat, int w, int h, int stride) {
+  if (dat != nullptr) {
+    int scale = env_scale;
+    int x_min = env_xmin; int y_min = env_ymin; int x_max = w-1; int y_max = h-1;
+    if (env_xmax != -1) x_max = env_xmax;
+    if (env_ymax != -1) y_max = env_ymax;
+    int new_width = (x_max - x_min + 1) / scale;
+    int new_height = (y_max - y_min + 1) / scale;
+    uint8_t *resized_dat = new uint8_t[new_width*new_height*3];
+
+    int goff = x_min*3 + y_min*stride;
+    for (int r=0;r<new_height;r++) {
+      for (int c=0;c<new_width;c++) {
+        memcpy(&resized_dat[(r*new_width+c)*3], &dat[goff+r*stride*scale+c*3*scale], 3*sizeof(uint8_t));
+      }
+    }
+    framed.setImage(kj::arrayPtr((const uint8_t*)resized_dat, new_width*new_height*3));
+    delete[] resized_dat;
+  }
 }
 
 void create_thumbnail(MultiCameraState *s, CameraState *c, uint8_t *bgr_ptr) {
@@ -403,5 +426,8 @@ void common_camera_process_front(SubMaster *sm, PubMaster *pm, CameraState *c, i
   auto framed = msg.initEvent().initFrontFrame();
   framed.setFrameType(cereal::FrameData::FrameType::FRONT);
   fill_frame_data(framed, b->cur_frame_data, cnt);
+  if (env_send_front) {
+    fill_frame_image(framed, (uint8_t*)b->cur_rgb_buf->addr, b->rgb_width, b->rgb_height, b->rgb_stride);
+  }
   pm->send("frontFrame", msg);
 }
