@@ -15,21 +15,6 @@ def cputime_total(ct):
 
 def print_cpu_usage(first_proc, last_proc):
   procs = [
-<<<<<<< HEAD
-    ("selfdrive.controls.controlsd", 45.0),
-    ("./loggerd", 33.90),
-    ("selfdrive.locationd.locationd", 29.5),
-    ("selfdrive.controls.plannerd", 11.84),
-    ("selfdrive.locationd.paramsd", 10.5),
-    ("./_modeld", 7.12),
-    ("selfdrive.controls.radard", 9.54),
-    ("./camerad", 7.07),
-    ("./_sensord", 6.17),
-    ("./_ui", 5.82),
-    ("./boardd", 3.63),
-    ("./_dmonitoringmodeld", 2.67),
-    ("selfdrive.logmessaged", 2.71),
-=======
     ("selfdrive.controls.controlsd", 47.0),
     ("./loggerd", 42.0),
     ("selfdrive.locationd.locationd", 35.0),
@@ -43,7 +28,6 @@ def print_cpu_usage(first_proc, last_proc):
     ("./boardd", 3.63),
     ("./_dmonitoringmodeld", 2.67),
     ("selfdrive.logmessaged", 1.7),
->>>>>>> origin/ci-clean
     ("selfdrive.thermald.thermald", 2.41),
     ("selfdrive.locationd.calibrationd", 2.0),
     ("selfdrive.monitoring.dmonitoringd", 1.90),

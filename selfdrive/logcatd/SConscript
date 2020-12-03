@@ -1,10 +1,6 @@
 Import('env', 'cereal', 'messaging', 'arch')
 
 if arch == "aarch64":
-<<<<<<< HEAD
-  env.Program('logcatd', 'logcatd_android.cc', LIBS=[cereal, messaging, 'cutils', 'zmq', 'czmq', 'capnp', 'kj'])
-=======
   env.Program('logcatd', 'logcatd_android.cc', LIBS=[cereal, messaging, 'cutils', 'zmq', 'capnp', 'kj'])
->>>>>>> origin/ci-clean
 else:
   env.Program('logcatd', 'logcatd_systemd.cc', LIBS=[cereal, messaging, 'zmq', 'capnp', 'kj', 'systemd', 'json11'])

@@ -8,10 +8,8 @@
 #include <CL/cl.h>
 #endif
 
-<<<<<<< HEAD
-=======
 #include <float.h>
->>>>>>> origin/ci-clean
+#include <stdlib.h>
 #include "common/mat.h"
 #include "transforms/transform.h"
 #include "transforms/loadyuv.h"
@@ -20,10 +18,9 @@
 extern "C" {
 #endif
 
-<<<<<<< HEAD
-=======
+const bool send_raw_pred = getenv("SEND_RAW_PRED") != NULL;
+
 void softmax(const float* input, float* output, size_t len);
->>>>>>> origin/ci-clean
 float softplus(float input);
 float sigmoid(float input);
 

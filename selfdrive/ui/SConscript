@@ -1,13 +1,3 @@
-<<<<<<< HEAD
-Import('env', 'qt_env', 'arch', 'common', 'messaging', 'gpucommon', 'visionipc', 'cereal')
-
-src = ['ui.cc', 'paint.cc', 'sidebar.cc', '#phonelibs/nanovg/nanovg.c']
-libs = [common, 'zmq', 'czmq', 'capnp', 'kj', 'm', cereal, messaging, gpucommon, visionipc]
-
-
-if qt_env is None:
-  libs += ['EGL', 'GLESv3', 'gnustl_shared', 'log', 'utils', 'gui', 'hardware', 'ui', 'CB', 'gsl', 'adreno_utils', 'OpenSLES', 'cutils', 'uuid', 'OpenCL']
-=======
 import os
 Import('env', 'arch', 'real_arch', 'common', 'messaging', 'gpucommon', 'visionipc', 'cereal')
 
@@ -60,31 +50,12 @@ libs = [common, 'zmq', 'capnp', 'kj', 'm', cereal, messaging, gpucommon, visioni
 if qt_env is None:
   libs += ['EGL', 'GLESv3', 'gnustl_shared', 'log', 'utils', 'gui', 'hardware',
            'ui', 'CB', 'gsl', 'adreno_utils', 'OpenSLES', 'cutils', 'uuid', 'OpenCL']
->>>>>>> origin/ci-clean
   linkflags = ['-Wl,-rpath=/system/lib64,-rpath=/system/comma/usr/lib']
 
   src += ["android/ui.cc", "android/sl_sound.cc"]
   env.Program('_ui', src,
     LINKFLAGS=linkflags,
     LIBS=libs)
-<<<<<<< HEAD
-
-else:
-  qt_libs = ["pthread"]
-
-  if arch == "Darwin":
-    qt_env["FRAMEWORKS"] += ["QtWidgets", "QtGui", "QtCore", "QtDBus", "QtMultimedia"]
-  else:
-    qt_libs += ["Qt5Widgets", "Qt5Gui", "Qt5Core", "Qt5DBus", "Qt5Multimedia"]
-
-  if arch == "larch64":
-    qt_libs += ["GLESv2", "wayland-client"]
-  else:
-    qt_libs += ["GL"]
-
-  qt_src = ["qt/ui.cc", "qt/window.cc", "qt/settings.cc", "qt/qt_sound.cc"] + src
-  qt_env.Program("_ui", qt_src, LIBS=qt_libs + libs)
-=======
 else:
   qt_libs = ["pthread"]
 
@@ -116,11 +87,6 @@ else:
 
   # setup and installer
   if "BUILD_SETUP" in os.environ:
-<<<<<<< HEAD
-    qt_env.Program("qt/setup/setup", ["qt/setup/setup.cc"], LIBS=qt_libs + libs + ['curl'])
-    qt_env.Program("qt/setup/installer", ["qt/setup/installer.cc"], LIBS=qt_libs + libs)
->>>>>>> origin/ci-clean
-=======
     qt_env.Program("qt/setup/setup", ["qt/setup/setup.cc"], LIBS=qt_libs + ['curl'])
 
     installers = [
@@ -132,4 +98,3 @@ else:
     for name, branch in installers:
       flags = qt_env["CXXFLAGS"] + [f"-D{branch}"]
       qt_env.Program(f"qt/setup/installer_{name}", ["qt/setup/installer.cc"], LIBS=qt_libs, CXXFLAGS=flags)
->>>>>>> origin/ci-clean

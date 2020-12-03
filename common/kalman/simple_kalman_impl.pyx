@@ -1,7 +1,4 @@
-<<<<<<< HEAD
-=======
 # distutils: language = c++
->>>>>>> origin/ci-clean
 # cython: language_level=3
 
 cdef class KF1D:

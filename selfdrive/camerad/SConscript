@@ -1,12 +1,6 @@
-<<<<<<< HEAD
-Import('env', 'arch', 'cereal', 'messaging', 'common', 'gpucommon', 'visionipc', 'webcam', 'QCOM_REPLAY')
-
-libs = ['m', 'pthread', common, 'jpeg', 'OpenCL', cereal, messaging, 'czmq', 'zmq', 'capnp', 'kj', visionipc, gpucommon]
-=======
 Import('env', 'arch', 'cereal', 'messaging', 'common', 'gpucommon', 'visionipc', 'USE_WEBCAM', 'QCOM_REPLAY')
 
 libs = ['m', 'pthread', common, 'jpeg', 'OpenCL', cereal, messaging, 'zmq', 'capnp', 'kj', visionipc, gpucommon]
->>>>>>> origin/ci-clean
 
 if arch == "aarch64":
   libs += ['gsl', 'CB', 'adreno_utils', 'EGL', 'GLESv3', 'cutils', 'ui']
@@ -15,26 +9,10 @@ if arch == "aarch64":
   else:
     cameras = ['cameras/camera_qcom.cc']
 elif arch == "larch64":
-<<<<<<< HEAD
-  libs += []
-  cameras = ['cameras/camera_qcom2.c']
-=======
   libs += ['atomic']
   cameras = ['cameras/camera_qcom2.cc']
-<<<<<<< HEAD
->>>>>>> origin/ci-clean
-  # no screen
-  # env = env.Clone()
-  # env.Append(CXXFLAGS = '-DNOSCREEN')
-  # env.Append(CFLAGS = '-DNOSCREEN')
-=======
->>>>>>> origin/ci-clean
 else:
-<<<<<<< HEAD
-  if webcam:
-=======
   if USE_WEBCAM:
->>>>>>> origin/ci-clean
     libs += ['opencv_core', 'opencv_highgui', 'opencv_imgproc', 'opencv_videoio']
     cameras = ['cameras/camera_webcam.cc']
     env = env.Clone()
@@ -46,24 +24,16 @@ else:
 
   if arch == "Darwin":
     del libs[libs.index('OpenCL')]
-<<<<<<< HEAD
-    env = env.Clone()
-    env['FRAMEWORKS'] = ['OpenCL']
-=======
     del libs[libs.index(gpucommon)][gpucommon.index('GL')]
     env = env.Clone()
     env['FRAMEWORKS'] = ['OpenCL', 'OpenGL']
->>>>>>> origin/ci-clean
 
 env.SharedLibrary('snapshot/visionipc',
   ["#selfdrive/common/visionipc.c", "#selfdrive/common/ipc.c"])
 
 env.Program('camerad', [
     'main.cc',
-<<<<<<< HEAD
-=======
     'cameras/camera_common.cc',
->>>>>>> origin/ci-clean
     'transforms/rgb_to_yuv.c',
     'imgproc/utils.cc',
     cameras,

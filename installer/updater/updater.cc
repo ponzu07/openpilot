@@ -231,11 +231,8 @@ struct Updater {
                           &fb_w, &fb_h);
     assert(fb);
 
-<<<<<<< HEAD
-=======
     framebuffer_set_power(fb, HWC_POWER_MODE_NORMAL);
 
->>>>>>> origin/ci-clean
     vg = nvgCreateGLES3(NVG_ANTIALIAS | NVG_STENCIL_STROKES | NVG_DEBUG);
     assert(vg);
 
@@ -614,11 +611,7 @@ struct Updater {
   }
 
   void draw_battery_screen() {
-<<<<<<< HEAD
-    low_battery_title = "Low Battery";
-=======
     low_battery_title = "低バッテリー";
->>>>>>> origin/ci-clean
     low_battery_text = "Please connect EON to your charger. Update will continue once EON battery reaches 35%.";
     low_battery_context = "Current battery charge: " + battery_cap_text + "%";
 

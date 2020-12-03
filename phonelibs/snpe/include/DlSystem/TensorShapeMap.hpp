@@ -1,10 +1,6 @@
 //=============================================================================
 //
-<<<<<<< HEAD
-//  Copyright (c) 2017 Qualcomm Technologies, Inc.
-=======
 //  Copyright (c) 2017-2020 Qualcomm Technologies, Inc.
->>>>>>> origin/ci-clean
 //  All Rights Reserved.
 //  Confidential and Proprietary - Qualcomm Technologies, Inc.
 //
@@ -12,10 +8,6 @@
 #include <initializer_list>
 #include <cstdio>
 #include <memory>
-<<<<<<< HEAD
-#include <vector>
-=======
->>>>>>> origin/ci-clean
 #include "ZdlExportDefine.hpp"
 #include "DlSystem/TensorShape.hpp"
 #include "DlSystem/StringList.hpp"

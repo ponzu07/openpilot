@@ -1,10 +1,6 @@
 //=============================================================================
 //
-<<<<<<< HEAD
-//  Copyright (c) 2017 Qualcomm Technologies, Inc.
-=======
 //  Copyright (c) 2017, 2020 Qualcomm Technologies, Inc.
->>>>>>> origin/ci-clean
 //  All Rights Reserved.
 //  Confidential and Proprietary - Qualcomm Technologies, Inc.
 //
@@ -16,14 +12,7 @@
 #include <cstdio>
 #include <string>
 #include <ostream>
-<<<<<<< HEAD
-
-#ifndef ZDL_EXPORT
-#define ZDL_EXPORT __attribute__((visibility("default")))
-#endif
-=======
 #include "DlSystem/ZdlExportDefine.hpp"
->>>>>>> origin/ci-clean
 
 namespace zdl
 {
@@ -113,7 +102,3 @@ ZDL_EXPORT std::ostream& operator<<(std::ostream& os, const String& str) noexcep
 /** @} */ /* end_addtogroup c_plus_plus_apis C++ */
 
 #endif // PLATFORM_STANDARD_STRING_HPP
-<<<<<<< HEAD
-
-=======
->>>>>>> origin/ci-clean

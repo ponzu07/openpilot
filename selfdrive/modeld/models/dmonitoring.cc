@@ -25,11 +25,7 @@ void dmonitoring_init(DMonitoringModelState* s) {
 
   int runtime = USE_DSP_RUNTIME;
   s->m = new DefaultRunModel(model_path, (float*)&s->output, OUTPUT_SIZE, runtime);
-<<<<<<< HEAD
-  s->is_rhd = read_db_bool("IsRHD");
-=======
   s->is_rhd = Params().read_db_bool("IsRHD");
->>>>>>> origin/ci-clean
 }
 
 template <class T>
@@ -185,7 +181,7 @@ DMonitoringResult dmonitoring_eval_frame(DMonitoringModelState* s, void* stream_
   return ret;
 }
 
-void dmonitoring_publish(PubMaster &pm, uint32_t frame_id, const DMonitoringResult &res, float execution_time){
+void dmonitoring_publish(PubMaster &pm, uint32_t frame_id, const DMonitoringResult &res, const float* raw_pred, float execution_time){
   // make msg
   MessageBuilder msg;
   auto framed = msg.initEvent().initDriverState();
@@ -202,6 +198,9 @@ void dmonitoring_publish(PubMaster &pm, uint32_t frame_id, const DMonitoringResu
   framed.setLeftBlinkProb(res.left_blink_prob);
   framed.setRightBlinkProb(res.right_blink_prob);
   framed.setSgProb(res.sg_prob);
+  if (send_raw_pred) {
+    framed.setRawPred(kj::arrayPtr((const uint8_t*)raw_pred, OUTPUT_SIZE*sizeof(float)));
+  }
 
   pm.send("driverState", msg);
 }

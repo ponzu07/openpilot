@@ -43,10 +43,7 @@ volatile sig_atomic_t do_exit = 0;
 bool spoofing_started = false;
 bool fake_send = false;
 bool connected_once = false;
-<<<<<<< HEAD
-=======
 bool ignition = false;
->>>>>>> origin/ci-clean
 
 struct tm get_time(){
   time_t rawtime;
@@ -76,11 +73,7 @@ void safety_setter_thread() {
       return;
     };
 
-<<<<<<< HEAD
-    std::vector<char> value_vin = read_db_bytes("CarVin");
-=======
     std::vector<char> value_vin = Params().read_db_bytes("CarVin");
->>>>>>> origin/ci-clean
     if (value_vin.size() > 0) {
       // sanity check VIN format
       assert(value_vin.size() == 17);
@@ -102,11 +95,7 @@ void safety_setter_thread() {
       return;
     };
 
-<<<<<<< HEAD
-    params = read_db_bytes("CarParams");
-=======
     params = Params().read_db_bytes("CarParams");
->>>>>>> origin/ci-clean
     if (params.size() > 0) break;
     usleep(100*1000);
   }
@@ -120,11 +109,8 @@ void safety_setter_thread() {
   cereal::CarParams::Reader car_params = cmsg.getRoot<cereal::CarParams>();
   cereal::CarParams::SafetyModel safety_model = car_params.getSafetyModel();
 
-<<<<<<< HEAD
-=======
   panda->set_unsafe_mode(0);  // see safety_declarations.h for allowed values
 
->>>>>>> origin/ci-clean
   auto safety_param = car_params.getSafetyParam();
   LOGW("setting safety model: %d with param %d", (int)safety_model, safety_param);
 
@@ -142,22 +128,15 @@ bool usb_connect() {
     return false;
   }
 
-<<<<<<< HEAD
-=======
   Params params = Params();
 
->>>>>>> origin/ci-clean
   if (getenv("BOARDD_LOOPBACK")) {
     panda->set_loopback(true);
   }
 
   const char *fw_sig_buf = panda->get_firmware_version();
   if (fw_sig_buf){
-<<<<<<< HEAD
-    write_db_value("PandaFirmware", fw_sig_buf, 128);
-=======
     params.write_db_value("PandaFirmware", fw_sig_buf, 128);
->>>>>>> origin/ci-clean
 
     // Convert to hex for offroad
     char fw_sig_hex_buf[16] = {0};
@@ -166,11 +145,7 @@ bool usb_connect() {
       fw_sig_hex_buf[2*i+1] = NIBBLE_TO_HEX((uint8_t)fw_sig_buf[i] & 0xF);
     }
 
-<<<<<<< HEAD
-    write_db_value("PandaFirmwareHex", fw_sig_hex_buf, 16);
-=======
     params.write_db_value("PandaFirmwareHex", fw_sig_hex_buf, 16);
->>>>>>> origin/ci-clean
     LOGW("fw signature: %.*s", 16, fw_sig_hex_buf);
 
     delete[] fw_sig_buf;
@@ -181,11 +156,7 @@ bool usb_connect() {
   if (serial_buf) {
     size_t serial_sz = strnlen(serial_buf, 16);
 
-<<<<<<< HEAD
-    write_db_value("PandaDongleId", serial_buf, serial_sz);
-=======
     params.write_db_value("PandaDongleId", serial_buf, serial_sz);
->>>>>>> origin/ci-clean
     LOGW("panda serial: %.*s", serial_sz, serial_buf);
 
     delete[] serial_buf;
@@ -226,15 +197,8 @@ void can_recv(PubMaster &pm) {
   // create message
   MessageBuilder msg;
   auto event = msg.initEvent();
-<<<<<<< HEAD
-  int recv = panda->can_receive(event);
-  if (recv){
-    pm.send("can", msg);
-  }
-=======
   panda->can_receive(event);
   pm.send("can", msg);
->>>>>>> origin/ci-clean
 }
 
 void can_send_thread() {
@@ -295,13 +259,9 @@ void can_recv_thread() {
       useconds_t sleep = remaining / 1000;
       usleep(sleep);
     } else {
-<<<<<<< HEAD
-      LOGW("missed cycles (%d) %lld", (int)-1*remaining/dt, remaining);
-=======
       if (ignition){
         LOGW("missed cycles (%d) %lld", (int)-1*remaining/dt, remaining);
       }
->>>>>>> origin/ci-clean
       next_frame_time = cur_time;
     }
 
@@ -315,10 +275,7 @@ void can_health_thread() {
 
   uint32_t no_ignition_cnt = 0;
   bool ignition_last = false;
-<<<<<<< HEAD
-=======
   Params params = Params();
->>>>>>> origin/ci-clean
 
   // Broadcast empty health message when panda is not yet connected
   while (!panda){
@@ -346,11 +303,7 @@ void can_health_thread() {
       panda->set_safety_model(cereal::CarParams::SafetyModel::NO_OUTPUT);
     }
 
-<<<<<<< HEAD
-    bool ignition = ((health.ignition_line != 0) || (health.ignition_can != 0));
-=======
     ignition = ((health.ignition_line != 0) || (health.ignition_can != 0));
->>>>>>> origin/ci-clean
 
     if (ignition) {
       no_ignition_cnt = 0;
@@ -372,15 +325,9 @@ void can_health_thread() {
 
     // clear VIN, CarParams, and set new safety on car start
     if (ignition && !ignition_last) {
-<<<<<<< HEAD
-      int result = delete_db_value("CarVin");
-      assert((result == 0) || (result == ERR_NO_VALUE));
-      result = delete_db_value("CarParams");
-=======
       int result = params.delete_db_value("CarVin");
       assert((result == 0) || (result == ERR_NO_VALUE));
       result = params.delete_db_value("CarParams");
->>>>>>> origin/ci-clean
       assert((result == 0) || (result == ERR_NO_VALUE));
 
       if (!safety_setter_thread_running) {
@@ -445,12 +392,6 @@ void hardware_control_thread() {
   LOGD("start hardware control thread");
   SubMaster sm({"thermal", "frontFrame"});
 
-<<<<<<< HEAD
-  // Other pandas don't have hardware to control
-  if (panda->hw_type != cereal::HealthData::HwType::UNO && panda->hw_type != cereal::HealthData::HwType::DOS) return;
-
-=======
->>>>>>> origin/ci-clean
   uint64_t last_front_frame_t = 0;
   uint16_t prev_fan_speed = 999;
   uint16_t ir_pwr = 0;
@@ -464,20 +405,8 @@ void hardware_control_thread() {
     cnt++;
     sm.update(1000); // TODO: what happens if EINTR is sent while in sm.update?
 
-<<<<<<< HEAD
-    if (sm.updated("thermal")){
-      // Fan speed
-      uint16_t fan_speed = sm["thermal"].getThermal().getFanSpeed();
-      if (fan_speed != prev_fan_speed || cnt % 100 == 0){
-        panda->set_fan_speed(fan_speed);
-        prev_fan_speed = fan_speed;
-      }
-
-#ifdef QCOM
-=======
 #ifdef QCOM
     if (sm.updated("thermal")){
->>>>>>> origin/ci-clean
       // Charging mode
       bool charging_disabled = sm["thermal"].getThermal().getChargingDisabled();
       if (charging_disabled != prev_charging_disabled){
@@ -490,9 +419,6 @@ void hardware_control_thread() {
         }
         prev_charging_disabled = charging_disabled;
       }
-<<<<<<< HEAD
-#endif
-=======
     }
 #endif
 
@@ -505,7 +431,6 @@ void hardware_control_thread() {
         panda->set_fan_speed(fan_speed);
         prev_fan_speed = fan_speed;
       }
->>>>>>> origin/ci-clean
     }
     if (sm.updated("frontFrame")){
       auto event = sm["frontFrame"];

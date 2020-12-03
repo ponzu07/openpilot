@@ -39,11 +39,7 @@ void clu_init(void) {
 cl_device_id cl_get_device_id(cl_device_type device_type) {
   bool opencl_platform_found = false;
   cl_device_id device_id = NULL;
-<<<<<<< HEAD
-  
-=======
 
->>>>>>> origin/ci-clean
   cl_uint num_platforms = 0;
   CL_CHECK(clGetPlatformIDs(0, NULL, &num_platforms));
   cl_platform_id* platform_ids = malloc(sizeof(cl_platform_id) * num_platforms);
@@ -66,11 +62,7 @@ cl_device_id cl_get_device_id(cl_device_type device_type) {
     break;
   }
   free(platform_ids);
-<<<<<<< HEAD
-  
-=======
 
->>>>>>> origin/ci-clean
   if (!opencl_platform_found) {
     printf("No valid openCL platform found\n");
     assert(opencl_platform_found);

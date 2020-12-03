@@ -56,21 +56,11 @@ typedef struct EncoderState {
   Queue free_in;
   Queue done_out;
 
-<<<<<<< HEAD
-  void *stream_sock_raw;
-
-=======
->>>>>>> origin/ci-clean
   AVFormatContext *ofmt_ctx;
   AVCodecContext *codec_ctx;
   AVStream *out_stream;
   bool remuxing;
 
-<<<<<<< HEAD
-  void *zmq_ctx;
-
-=======
->>>>>>> origin/ci-clean
   bool downscale;
   uint8_t *y_ptr2, *u_ptr2, *v_ptr2;
 } EncoderState;

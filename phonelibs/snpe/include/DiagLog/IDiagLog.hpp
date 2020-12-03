@@ -1,10 +1,6 @@
 //=============================================================================
 //
-<<<<<<< HEAD
-//  Copyright (c) 2015 Qualcomm Technologies, Inc.
-=======
 //  Copyright (c) 2015, 2020 Qualcomm Technologies, Inc.
->>>>>>> origin/ci-clean
 //  All Rights Reserved.
 //  Confidential and Proprietary - Qualcomm Technologies, Inc.
 //
@@ -12,21 +8,11 @@
 #ifndef __IDIAGLOG_HPP_
 #define __IDIAGLOG_HPP_
 
-<<<<<<< HEAD
-#ifndef ZDL_LOGGING_EXPORT
-#define ZDL_LOGGING_EXPORT __attribute__((visibility("default")))
-#endif
-
-=======
->>>>>>> origin/ci-clean
 #include <string>
 
 #include "DiagLog/Options.hpp"
 #include "DlSystem/String.hpp"
-<<<<<<< HEAD
-=======
 #include "DlSystem/ZdlExportDefine.hpp"
->>>>>>> origin/ci-clean
 
 namespace zdl
 {
@@ -37,17 +23,10 @@ namespace DiagLog
 @{ */
 
 /// @brief .
-<<<<<<< HEAD
-/// 
-/// Interface for controlling logging for zdl components.
-
-class ZDL_LOGGING_EXPORT IDiagLog
-=======
 ///
 /// Interface for controlling logging for zdl components.
 
 class ZDL_EXPORT IDiagLog
->>>>>>> origin/ci-clean
 {
 public:
 
@@ -66,11 +45,7 @@ public:
    ///
    /// @return Diag log options object.
    virtual Options getOptions() = 0;
-<<<<<<< HEAD
-   
-=======
 
->>>>>>> origin/ci-clean
    /// @brief .
    ///
    /// Allows for setting the log mask once diag logging has started

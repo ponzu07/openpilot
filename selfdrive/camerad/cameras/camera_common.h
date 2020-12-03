@@ -1,10 +1,3 @@
-<<<<<<< HEAD
-#ifndef CAMERA_COMMON_H
-#define CAMERA_COMMON_H
-
-#include <stdint.h>
-#include <stdbool.h>
-=======
 #pragma once
 
 #include <stdlib.h>
@@ -20,7 +13,6 @@
 #include "imgproc/utils.h"
 #include "messaging.hpp"
 #include "transforms/rgb_to_yuv.h"
->>>>>>> origin/ci-clean
 
 #include "common/visionipc.h"
 
@@ -35,31 +27,18 @@
 #define CAMERA_ID_AR0231 8
 #define CAMERA_ID_MAX 9
 
-<<<<<<< HEAD
-=======
 #define UI_BUF_COUNT 4
 #define YUV_COUNT 40
->>>>>>> origin/ci-clean
 #define LOG_CAMERA_ID_FCAMERA 0
 #define LOG_CAMERA_ID_DCAMERA 1
 #define LOG_CAMERA_ID_ECAMERA 2
 #define LOG_CAMERA_ID_QCAMERA 3
 #define LOG_CAMERA_ID_MAX 4
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-=======
->>>>>>> origin/ci-clean
-=======
 const bool env_send_front = getenv("SEND_FRONT") != NULL;
 const bool env_send_rear = getenv("SEND_REAR") != NULL;
 const bool env_send_wide = getenv("SEND_WIDE") != NULL;
 
->>>>>>> origin/ci-clean
 typedef struct CameraInfo {
   const char* name;
   int frame_width, frame_height;
@@ -96,15 +75,6 @@ typedef struct FrameMetadata {
   float gain_frac;
 } FrameMetadata;
 
-<<<<<<< HEAD
-extern CameraInfo cameras_supported[CAMERA_ID_MAX];
-
-#ifdef __cplusplus
-}
-#endif
-
-#endif
-=======
 typedef struct CameraExpInfo {
   int op_id;
   float grey_frac;
@@ -170,4 +140,3 @@ void set_exposure_target(CameraState *c, const uint8_t *pix_ptr, int x_start, in
 std::thread start_process_thread(MultiCameraState *cameras, const char *tname,
                                     CameraState *cs, int priority, process_thread_cb callback);
 void common_camera_process_front(SubMaster *sm, PubMaster *pm, CameraState *c, int cnt);
->>>>>>> origin/ci-clean

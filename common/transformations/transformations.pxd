@@ -1,7 +1,4 @@
-<<<<<<< HEAD
-=======
 #cython: language_level=3
->>>>>>> origin/ci-clean
 from libcpp cimport bool
 
 cdef extern from "orientation.cc":

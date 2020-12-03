@@ -12,14 +12,10 @@
 
 #ifdef QCOM2
 // TODO: decide if we want to isntall libi2c-dev everywhere
-<<<<<<< HEAD
-#include <linux/i2c-dev.h>
-=======
 extern "C" {
   #include <linux/i2c-dev.h>
   #include <i2c/smbus.h>
 }
->>>>>>> origin/ci-clean
 
 I2CBus::I2CBus(uint8_t bus_id){
   char bus_name[20];

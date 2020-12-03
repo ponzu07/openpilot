@@ -2,10 +2,7 @@
 import numpy as np
 import sympy as sp
 import cereal.messaging as messaging
-<<<<<<< HEAD
-=======
 from cereal import log
->>>>>>> origin/ci-clean
 import common.transformations.coordinates as coord
 from common.transformations.orientation import ecef_euler_from_ned, \
                                                euler_from_quat, \
@@ -23,11 +20,8 @@ from selfdrive.swaglog import cloudlog
 from sympy.utilities.lambdify import lambdify
 from rednose.helpers.sympy_helpers import euler_rotate
 
-<<<<<<< HEAD
-=======
 SensorSource = log.SensorEventData.SensorSource
 
->>>>>>> origin/ci-clean
 
 VISION_DECIMATION = 2
 SENSOR_DECIMATION = 10
@@ -244,13 +238,10 @@ class Localizer():
   def handle_sensors(self, current_time, log):
     # TODO does not yet account for double sensor readings in the log
     for sensor_reading in log:
-<<<<<<< HEAD
-=======
       # TODO: handle messages from two IMUs at the same time
       if sensor_reading.source == SensorSource.lsm6ds3:
         continue
 
->>>>>>> origin/ci-clean
       # Gyro Uncalibrated
       if sensor_reading.sensor == 5 and sensor_reading.type == 16:
         self.gyro_counter += 1

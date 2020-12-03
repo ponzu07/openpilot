@@ -71,13 +71,6 @@ FINGERPRINTS = {
   ],
 }
 
-<<<<<<< HEAD
-ECU_FINGERPRINT = {
-  Ecu.fwdCamera: [579],   # steer torque cmd
-}
-
-=======
->>>>>>> origin/ci-clean
 
 DBC = {
   CAR.CX5: dbc_dict('mazda_2017', None),

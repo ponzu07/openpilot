@@ -571,11 +571,7 @@ struct ControlsState @0x97ff69c53601abf1 {
 
   enum AlertStatus {
     normal @0;       # low priority alert for user's convenience
-<<<<<<< HEAD
-    userPrompt @1;   # mid piority alert that might require user intervention
-=======
     userPrompt @1;   # mid priority alert that might require user intervention
->>>>>>> origin/ci-clean
     critical @2;     # high priority alert that needs immediate user intervention
   }
 
@@ -709,13 +705,9 @@ struct ModelDataV2 {
   orientationRate @7 :XYZTData;
   laneLines @8 :List(XYZTData);
   laneLineProbs @9 :List(Float32);
-<<<<<<< HEAD
-  roadEdges @10 :List(XYZTData);
-=======
   laneLineStds @13 :List(Float32);
   roadEdges @10 :List(XYZTData);
   roadEdgeStds @14 :List(Float32);
->>>>>>> origin/ci-clean
   leads @11 :List(LeadDataV2);
 
   meta @12 :MetaData;
@@ -2002,10 +1994,7 @@ struct Boot {
   wallTimeNanos @0 :UInt64;
   lastKmsg @1 :Data;
   lastPmsg @2 :Data;
-<<<<<<< HEAD
-=======
   launchLog @3 :Text;
->>>>>>> origin/ci-clean
 }
 
 struct LiveParametersData {

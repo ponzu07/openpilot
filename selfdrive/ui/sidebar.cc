@@ -120,30 +120,13 @@ static void ui_draw_sidebar_temp_metric(UIState *s) {
       {cereal::ThermalData::ThermalStatus::RED, 2},
       {cereal::ThermalData::ThermalStatus::DANGER, 3}};
   std::string temp_val = std::to_string((int)s->scene.thermal.getAmbient()) + "°C";
-<<<<<<< HEAD
-  ui_draw_sidebar_metric(s, "TEMP", temp_val.c_str(), temp_severity_map[s->scene.thermal.getThermalStatus()], 0, NULL);
-=======
   ui_draw_sidebar_metric(s, "温度", temp_val.c_str(), temp_severity_map[s->scene.thermal.getThermalStatus()], 0, NULL);
->>>>>>> origin/ci-clean
 }
 
 static void ui_draw_sidebar_panda_metric(UIState *s) {
   const int panda_y_offset = 32 + 148;
 
   int panda_severity = 0;
-<<<<<<< HEAD
-  std::string panda_message = "VEHICLE\nONLINE";
-  if (s->scene.hwType == cereal::HealthData::HwType::UNKNOWN) {
-    panda_severity = 2;
-    panda_message = "NO\nVEHICLE";
-  } else if (s->started) {
-    if (s->scene.satelliteCount < 6) {
-      panda_severity = 1;
-      panda_message = "VEHICLE\nNO GPS";
-    } else {
-      panda_severity = 0;
-      panda_message = "VEHICLE\nGOOD GPS";
-=======
   std::string panda_message = "車\nONLINE";
   if (s->scene.hwType == cereal::HealthData::HwType::UNKNOWN) {
     panda_severity = 2;
@@ -155,7 +138,6 @@ static void ui_draw_sidebar_panda_metric(UIState *s) {
     } else {
       panda_severity = 0;
       panda_message = "車\nGOOD GPS";
->>>>>>> origin/ci-clean
     }
   }
   ui_draw_sidebar_metric(s, NULL, NULL, panda_severity, panda_y_offset, panda_message.c_str());
@@ -163,15 +145,9 @@ static void ui_draw_sidebar_panda_metric(UIState *s) {
 
 static void ui_draw_sidebar_connectivity(UIState *s) {
   static std::map<NetStatus, std::pair<const char *, int>> connectivity_map = {
-<<<<<<< HEAD
-    {NET_ERROR, {"CONNECT\nERROR", 2}},
-    {NET_CONNECTED, {"CONNECT\nONLINE", 0}},
-    {NET_DISCONNECTED, {"CONNECT\nOFFLINE", 1}},
-=======
     {NET_ERROR, {"接続\nERROR", 2}},
     {NET_CONNECTED, {"接続\nONLINE", 0}},
     {NET_DISCONNECTED, {"接続\nOFFLINE", 1}},
->>>>>>> origin/ci-clean
   };
   auto net_params = connectivity_map[s->scene.athenaStatus];
   ui_draw_sidebar_metric(s, NULL, NULL, net_params.second, 180+158, net_params.first);

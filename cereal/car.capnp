@@ -25,10 +25,6 @@ struct CarEvent @0x9b1657f34caf3ad3 {
     canError @0;
     steerUnavailable @1;
     brakeUnavailable @2;
-<<<<<<< HEAD
-    gasUnavailable @3;
-=======
->>>>>>> origin/ci-clean
     wrongGear @4;
     doorOpen @5;
     seatbeltNotLatched @6;
@@ -77,10 +73,6 @@ struct CarEvent @0x9b1657f34caf3ad3 {
     preLaneChangeLeft @57;
     preLaneChangeRight @58;
     laneChange @59;
-<<<<<<< HEAD
-    invalidGiraffeToyota @60;
-=======
->>>>>>> origin/ci-clean
     internetConnectivityNeeded @61;
     communityFeatureDisallowed @62;
     lowMemory @63;
@@ -101,17 +93,6 @@ struct CarEvent @0x9b1657f34caf3ad3 {
     startupMaster @78;
     fcw @79;
     steerSaturated @80;
-<<<<<<< HEAD
-    whitePandaUnsupported @81;
-    belowEngageSpeed @84;
-    noGps @85;
-    focusRecoverActive @86;
-    wrongCruiseMode @87;
-    neosUpdateRequired @88;
-    modeldLagging @89;
-    deviceFalling @90;
-
-=======
     belowEngageSpeed @84;
     noGps @85;
     wrongCruiseMode @87;
@@ -121,7 +102,6 @@ struct CarEvent @0x9b1657f34caf3ad3 {
     cameraMalfunction @92;
 
     gasUnavailableDEPRECATED @3;
->>>>>>> origin/ci-clean
     dataNeededDEPRECATED @16;
     modelCommIssueDEPRECATED @27;
     ipasOverrideDEPRECATED @33;
@@ -130,21 +110,13 @@ struct CarEvent @0x9b1657f34caf3ad3 {
     driverMonitorOffDEPRECATED @42;
     calibrationProgressDEPRECATED @47;
     invalidGiraffeHondaDEPRECATED @49;
-<<<<<<< HEAD
-    canErrorPersistentDEPRECATED @83;
-    startupWhitePandaDEPRECATED @82;
-=======
     invalidGiraffeToyotaDEPRECATED @60;
     whitePandaUnsupportedDEPRECATED @81;
     startupGreyPandaDEPRECATED @82;
     canErrorPersistentDEPRECATED @83;
     focusRecoverActiveDEPRECATED @86;
     neosUpdateRequiredDEPRECATED @88;
-<<<<<<< HEAD
->>>>>>> origin/ci-clean
-=======
     modelLagWarningDEPRECATED @93;
->>>>>>> origin/ci-clean
   }
 }
 

@@ -1,13 +1,8 @@
 #!/usr/bin/env python3
 from cereal import car
 from selfdrive.config import Conversions as CV
-<<<<<<< HEAD
-from selfdrive.car.mazda.values import CAR, LKAS_LIMITS, FINGERPRINTS, ECU_FINGERPRINT, Ecu
-from selfdrive.car import STD_CARGO_KG, scale_rot_inertia, scale_tire_stiffness, gen_empty_fingerprint, is_ecu_disconnected
-=======
 from selfdrive.car.mazda.values import CAR, LKAS_LIMITS
 from selfdrive.car import STD_CARGO_KG, scale_rot_inertia, scale_tire_stiffness, gen_empty_fingerprint
->>>>>>> origin/ci-clean
 from selfdrive.car.interfaces import CarInterfaceBase
 
 ButtonType = car.CarState.ButtonEvent.Type
@@ -20,13 +15,8 @@ class CarInterface(CarInterfaceBase):
     return float(accel) / 4.0
 
   @staticmethod
-<<<<<<< HEAD
-  def get_params(candidate, fingerprint=gen_empty_fingerprint(), has_relay=False, car_fw=None):
-    ret = CarInterfaceBase.get_std_params(candidate, fingerprint, has_relay)
-=======
   def get_params(candidate, fingerprint=gen_empty_fingerprint(), car_fw=None):
     ret = CarInterfaceBase.get_std_params(candidate, fingerprint)
->>>>>>> origin/ci-clean
 
     ret.carName = "mazda"
     ret.safetyModel = car.CarParams.SafetyModel.mazda
@@ -77,11 +67,7 @@ class CarInterface(CarInterfaceBase):
     ret.tireStiffnessFront, ret.tireStiffnessRear = scale_tire_stiffness(ret.mass, ret.wheelbase, ret.centerToFront,
                                                                          tire_stiffness_factor=tire_stiffness_factor)
 
-<<<<<<< HEAD
-    ret.enableCamera = is_ecu_disconnected(fingerprint[0], FINGERPRINTS, ECU_FINGERPRINT, candidate, Ecu.fwdCamera) or has_relay
-=======
     ret.enableCamera = True
->>>>>>> origin/ci-clean
 
     return ret
 

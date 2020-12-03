@@ -32,12 +32,6 @@ class AlertManager:
     self.activealerts: List[Alert] = []
     self.clear_current_alert()
 
-<<<<<<< HEAD
-  def alert_present(self) -> bool:
-    return len(self.activealerts) > 0
-
-=======
->>>>>>> origin/ci-clean
   def clear_current_alert(self) -> None:
     self.alert_type: str = ""
     self.alert_text_1: str = ""
@@ -49,30 +43,6 @@ class AlertManager:
     self.alert_rate: float = 0.
 
   def add_many(self, frame: int, alerts: List[Alert], enabled: bool = True) -> None:
-<<<<<<< HEAD
-    for a in alerts:
-      self.add(frame, a, enabled=enabled)
-
-  def add(self, frame: int, alert: Alert, enabled: bool = True) -> None:
-    added_alert = copy.copy(alert)
-    added_alert.start_time = frame * DT_CTRL
-
-    # if new alert is higher priority, log it
-    if not self.alert_present() or added_alert.alert_priority > self.activealerts[0].alert_priority:
-      cloudlog.event('alert_add', alert_type=added_alert.alert_type, enabled=enabled)
-
-    self.activealerts.append(added_alert)
-
-    # sort by priority first and then by start_time
-    self.activealerts.sort(key=lambda k: (k.alert_priority, k.start_time), reverse=True)
-
-  def process_alerts(self, frame: int) -> None:
-    cur_time = frame * DT_CTRL
-
-    # first get rid of all the expired alerts
-    self.activealerts = [a for a in self.activealerts if a.start_time +
-                         max(a.duration_sound, a.duration_hud_alert, a.duration_text) > cur_time]
-=======
     for alert in alerts:
       added_alert = copy.copy(alert)
       added_alert.start_time = frame * DT_CTRL
@@ -92,19 +62,13 @@ class AlertManager:
 
     # sort by priority first and then by start_time
     self.activealerts.sort(key=lambda k: (k.alert_priority, k.start_time), reverse=True)
->>>>>>> origin/ci-clean
 
     # start with assuming no alerts
     self.clear_current_alert()
 
-<<<<<<< HEAD
-    current_alert = self.activealerts[0] if self.alert_present() else None
-    if current_alert is not None:
-=======
     if len(self.activealerts):
       current_alert = self.activealerts[0]
 
->>>>>>> origin/ci-clean
       self.alert_type = current_alert.alert_type
 
       if current_alert.start_time + current_alert.duration_sound > cur_time:

@@ -78,13 +78,6 @@ STEER_THRESHOLD = {
   CAR.OUTBACK_PREGLOBAL_2018: 75,
 }
 
-<<<<<<< HEAD
-ECU_FINGERPRINT = {
-  Ecu.fwdCamera: [290, 356],   # steer torque cmd
-}
-
-=======
->>>>>>> origin/ci-clean
 DBC = {
   CAR.ASCENT: dbc_dict('subaru_global_2017_generated', None),
   CAR.IMPREZA: dbc_dict('subaru_global_2017_generated', None),

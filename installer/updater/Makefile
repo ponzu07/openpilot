@@ -10,11 +10,7 @@ WARN_FLAGS = -Werror=implicit-function-declaration \
              -Werror=format-extra-args
 
 CFLAGS = -std=gnu11 -g -fPIC -O2 $(WARN_FLAGS)
-<<<<<<< HEAD
-CXXFLAGS = -std=c++11 -g -fPIC -O2 $(WARN_FLAGS)
-=======
 CXXFLAGS = -std=c++1z -g -fPIC -O2 $(WARN_FLAGS)
->>>>>>> origin/ci-clean
 
 CURL_FLAGS = -I$(PHONELIBS)/curl/include
 CURL_LIBS = $(PHONELIBS)/curl/lib/libcurl.a \
@@ -38,10 +34,7 @@ all: updater
 OBJS = opensans_regular.ttf.o \
 			 opensans_semibold.ttf.o \
 			 opensans_bold.ttf.o \
-<<<<<<< HEAD
-=======
        ../../selfdrive/common/util.o \
->>>>>>> origin/ci-clean
        ../../selfdrive/common/touch.o \
        ../../selfdrive/common/framebuffer.o \
        $(PHONELIBS)/json11/json11.o \

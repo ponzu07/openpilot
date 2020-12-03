@@ -14,24 +14,6 @@
 #include "commonmodel.h"
 #include "runners/run.h"
 
-<<<<<<< HEAD
-#include <czmq.h>
-#include <memory>
-#include "messaging.hpp"
-
-#define MODEL_WIDTH 512
-#define MODEL_HEIGHT 256
-#define MODEL_FRAME_SIZE MODEL_WIDTH * MODEL_HEIGHT * 3 / 2
-#define MODEL_NAME "supercombo_dlc"
-
-#define DESIRE_LEN 8
-#define TRAFFIC_CONVENTION_LEN 2
-#define LEAD_MDN_N 5 // probs for 5 groups
-#define MDN_VALS 4 // output xyva for each lead group
-#define SELECTION 3 //output 3 group (lead now, in 2s and 6s)
-#define MDN_GROUP_SIZE 11
-#define TIME_DISTANCE 100
-=======
 #include <memory>
 #include "messaging.hpp"
 
@@ -54,23 +36,11 @@
 #define LEAD_MHP_SELECTION 3
 #define LEAD_MHP_GROUP_SIZE (2*LEAD_MHP_VALS + LEAD_MHP_SELECTION)
 
->>>>>>> origin/ci-clean
 #define POSE_SIZE 12
 
 #define MODEL_FREQ 20
 
 struct ModelDataRaw {
-<<<<<<< HEAD
-    float *path;
-    float *left_lane;
-    float *right_lane;
-    float *lead;
-    float *long_x;
-    float *long_v;
-    float *long_a;
-    float *desire_state;
-    float *meta;
-=======
     float *plan;
     float *lane_lines;
     float *lane_lines_prob;
@@ -80,7 +50,6 @@ struct ModelDataRaw {
     float *desire_state;
     float *meta;
     float *desire_pred;
->>>>>>> origin/ci-clean
     float *pose;
   };
 
@@ -108,20 +77,11 @@ void model_free(ModelState* s);
 void poly_fit(float *in_pts, float *in_stds, float *out);
 
 void model_publish(PubMaster &pm, uint32_t vipc_frame_id, uint32_t frame_id,
-<<<<<<< HEAD
-                   uint32_t vipc_dropped_frames, float frame_drop, const ModelDataRaw &data, uint64_t timestamp_eof);
-<<<<<<< HEAD
-=======
-void model_publish_v2(PubMaster &pm, uint32_t vipc_frame_id, uint32_t frame_id,
-                   uint32_t vipc_dropped_frames, float frame_drop, const ModelDataRaw &data, uint64_t timestamp_eof);
->>>>>>> origin/ci-clean
-=======
-                   uint32_t vipc_dropped_frames, float frame_drop, const ModelDataRaw &data,
+                   uint32_t vipc_dropped_frames, float frame_drop, const ModelDataRaw &data, const float* raw_pred,
                    uint64_t timestamp_eof, float model_execution_time);
 void model_publish_v2(PubMaster &pm, uint32_t vipc_frame_id, uint32_t frame_id,
-                   uint32_t vipc_dropped_frames, float frame_drop, const ModelDataRaw &data,
+                   uint32_t vipc_dropped_frames, float frame_drop, const ModelDataRaw &data, const float* raw_pred,
                    uint64_t timestamp_eof, float model_execution_time);
->>>>>>> origin/ci-clean
 void posenet_publish(PubMaster &pm, uint32_t vipc_frame_id, uint32_t frame_id,
                      uint32_t vipc_dropped_frames, float frame_drop, const ModelDataRaw &data,
                      uint64_t timestamp_eof);

@@ -3,27 +3,11 @@
 #include <cmath>
 #include <iostream>
 #include <fstream>
-<<<<<<< HEAD
-=======
 #include <thread>
->>>>>>> origin/ci-clean
 #include <signal.h>
 
 #include <QVBoxLayout>
 #include <QMouseEvent>
-<<<<<<< HEAD
-#include <QPushButton>
-#include <QGridLayout>
-
-#include "window.hpp"
-#include "settings.hpp"
-
-#include "paint.hpp"
-#include "common/util.h"
-
-volatile sig_atomic_t do_exit = 0;
-
-=======
 
 #include "window.hpp"
 #include "qt_window.hpp"
@@ -59,7 +43,6 @@ static void set_backlight(int brightness){
   }
 }
 
->>>>>>> origin/ci-clean
 MainWindow::MainWindow(QWidget *parent) : QWidget(parent) {
   main_layout = new QStackedLayout;
 
@@ -67,19 +50,7 @@ MainWindow::MainWindow(QWidget *parent) : QWidget(parent) {
   set_core_affinity(7);
 #endif
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-  GLWindow * glWindow = new GLWindow(this);
-  main_layout->addWidget(glWindow);
-
-  SettingsWindow * settingsWindow = new SettingsWindow(this);
-  main_layout->addWidget(settingsWindow);
-
-=======
-  GLWindow *glWindow = new GLWindow(this);
-=======
   glWindow = new GLWindow(this);
->>>>>>> origin/ci-clean
   main_layout->addWidget(glWindow);
 
   settingsWindow = new SettingsWindow(this);
@@ -87,21 +58,17 @@ MainWindow::MainWindow(QWidget *parent) : QWidget(parent) {
 
   onboardingWindow = new OnboardingWindow(this);
   main_layout->addWidget(onboardingWindow);
->>>>>>> origin/ci-clean
 
   main_layout->setMargin(0);
   setLayout(main_layout);
   QObject::connect(glWindow, SIGNAL(openSettings()), this, SLOT(openSettings()));
   QObject::connect(settingsWindow, SIGNAL(closeSettings()), this, SLOT(closeSettings()));
 
-<<<<<<< HEAD
-=======
   // start at onboarding
   main_layout->setCurrentWidget(onboardingWindow);
   QObject::connect(onboardingWindow, SIGNAL(onboardingDone()), this, SLOT(closeSettings()));
   onboardingWindow->updateActiveScreen();
 
->>>>>>> origin/ci-clean
   setStyleSheet(R"(
     * {
       color: white;
@@ -132,13 +99,6 @@ GLWindow::GLWindow(QWidget *parent) : QOpenGLWidget(parent) {
   timer = new QTimer(this);
   QObject::connect(timer, SIGNAL(timeout()), this, SLOT(timerUpdate()));
 
-<<<<<<< HEAD
-  int result = read_param(&brightness_b, "BRIGHTNESS_B", true);
-  result += read_param(&brightness_m, "BRIGHTNESS_M", true);
-  if(result != 0) {
-    brightness_b = 0.0;
-    brightness_m = 5.0;
-=======
   backlight_timer = new QTimer(this);
   QObject::connect(backlight_timer, SIGNAL(timeout()), this, SLOT(backlightUpdate()));
 
@@ -147,7 +107,6 @@ GLWindow::GLWindow(QWidget *parent) : QOpenGLWidget(parent) {
   if(result != 0) {
     brightness_b = 200.0;
     brightness_m = 10.0;
->>>>>>> origin/ci-clean
   }
   smooth_brightness = 512;
 }
@@ -170,44 +129,8 @@ void GLWindow::initializeGL() {
   ui_state->fb_h = vwp_h;
   ui_init(ui_state);
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-  timer->start(50);
-}
-
-void GLWindow::timerUpdate(){
-  // Update brightness
-  float clipped_brightness = std::min(1023.0f, (ui_state->light_sensor*brightness_m) + brightness_b);
-  smooth_brightness = clipped_brightness * 0.01f + smooth_brightness * 0.99f;
-
-  std::ofstream brightness_control("/sys/class/backlight/panel0-backlight/brightness");
-  if (brightness_control.is_open()){
-    brightness_control << int(smooth_brightness) << "\n";
-    brightness_control.close();
-  }
-
-  ui_update(ui_state);
-
-#ifdef QCOM2
-  if (ui_state->started != onroad){
-    onroad = ui_state->started;
-    timer->setInterval(onroad ? 50 : 1000);
-
-    int brightness = onroad ? 1023 : 0;
-    std::ofstream brightness_control("/sys/class/backlight/panel0-backlight/brightness");
-    if (brightness_control.is_open()){
-      brightness_control << int(brightness) << "\n";
-      brightness_control.close();
-    }
-  }
-#endif
-
-  update();
-=======
-=======
   wake();
 
->>>>>>> origin/ci-clean
   timer->start(0);
   backlight_timer->start(BACKLIGHT_DT * 100);
 }
@@ -241,7 +164,6 @@ void GLWindow::timerUpdate(){
 
   ui_update(ui_state);
   repaint();
->>>>>>> origin/ci-clean
 }
 
 void GLWindow::resizeGL(int w, int h) {

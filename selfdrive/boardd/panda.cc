@@ -200,13 +200,10 @@ void Panda::set_safety_model(cereal::CarParams::SafetyModel safety_model, int sa
   usb_write(0xdc, (uint16_t)safety_model, safety_param);
 }
 
-<<<<<<< HEAD
-=======
 void Panda::set_unsafe_mode(uint16_t unsafe_mode) {
   usb_write(0xdf, unsafe_mode, 0);
 }
 
->>>>>>> origin/ci-clean
 cereal::HealthData::HwType Panda::get_hw_type() {
   unsigned char hw_query[1] = {0};
 
@@ -298,10 +295,6 @@ const char* Panda::get_serial(){
 
   delete[] serial_buf;
   return NULL;
-<<<<<<< HEAD
-
-=======
->>>>>>> origin/ci-clean
 }
 
 void Panda::set_power_saving(bool power_saving){
@@ -343,17 +336,10 @@ int Panda::can_receive(cereal::Event::Builder &event){
   uint32_t data[RECV_SIZE/4];
   int recv = usb_bulk_read(0x81, (unsigned char*)data, RECV_SIZE);
 
-<<<<<<< HEAD
-  // return if length is 0
-  if (recv <= 0) {
-    return 0;
-  } else if (recv == RECV_SIZE) {
-=======
   // Not sure if this can happen
   if (recv < 0) recv = 0;
 
   if (recv == RECV_SIZE) {
->>>>>>> origin/ci-clean
     LOGW("Receive buffer full");
   }
 

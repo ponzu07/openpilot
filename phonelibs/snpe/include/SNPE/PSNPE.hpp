@@ -1,10 +1,6 @@
 // =============================================================================
 //
-<<<<<<< HEAD
-// Copyright (c) 2019 Qualcomm Technologies, Inc.
-=======
 // Copyright (c) 2019-2020 Qualcomm Technologies, Inc.
->>>>>>> origin/ci-clean
 // All Rights Reserved.
 // Confidential and Proprietary - Qualcomm Technologies, Inc.
 //
@@ -14,10 +10,6 @@
 #define PSNPE_HPP
 
 #include <cstdlib>
-<<<<<<< HEAD
-#include <unordered_map>
-=======
->>>>>>> origin/ci-clean
 #include <functional>
 #include "SNPE/SNPE.hpp"
 #include "DlSystem/UserBufferMap.hpp"
@@ -80,24 +72,6 @@ struct ZDL_EXPORT InputOutputAsyncCallbackParam
 
      };
 };
-<<<<<<< HEAD
-using OutputAsyncCallbackFunc = std::function<void(OutputAsyncCallbackParam)>;
-using InputOutputAsyncCallbackFunc = std::function<void(InputOutputAsyncCallbackParam)>;
-/**
- * @brief .
- *
- * A structure BulkSNPE configuration
- */
-struct ZDL_EXPORT BuildConfig final
-{
-   BuildMode buildMode = BuildMode::SERIAL;
-   zdl::DlContainer::IDlContainer* container;
-   zdl::DlSystem::StringList outputBufferNames;
-   RuntimeConfigList runtimeConfigList;
-   OutputAsyncCallbackFunc outputCallback;
-   InputOutputAsyncCallbackFunc inputOutputCallback;
-   InputOutputTransmissionMode inputOutputTransmissionMode = InputOutputTransmissionMode::sync;
-=======
 /**
  * @brief  This callback is called when the output data is ready, only use for Output Async mode
  */
@@ -132,7 +106,6 @@ struct ZDL_EXPORT BuildConfig final
    zdl::DlSystem::ProfilingLevel_t profilingLevel = zdl::DlSystem::ProfilingLevel_t::OFF;///< Specify profiling level for Diaglog
    uint64_t encode[2] = {0, 0};
    bool enableInitCache = false;
->>>>>>> origin/ci-clean
 };
 /**
  * @brief .
@@ -174,12 +147,8 @@ class ZDL_EXPORT PSNPE final
     *
     * @return True if executed successfully; flase, otherwise.
     */
-<<<<<<< HEAD
-   bool executeInputOutputAsync(const ApplicationBufferMap& inputMap, size_t dataIndex, bool isTF8buff) noexcept;
-=======
    bool executeInputOutputAsync(const std::vector<std::string>& inputMap, size_t dataIndex, bool isTF8buff) noexcept;
    bool executeInputOutputAsync(const std::vector<std::string>& inputMap, size_t dataIndex, bool isTF8buff,bool isTF8Outputbuff) noexcept;
->>>>>>> origin/ci-clean
    /**
     * @brief Returns the input layer names of the network.
     *
@@ -210,11 +179,8 @@ class ZDL_EXPORT PSNPE final
     */
    const zdl::DlSystem::TensorShape getBufferAttributesDims(const char *name) const noexcept;
 
-<<<<<<< HEAD
-=======
    zdl::DlSystem::Optional<zdl::DlSystem::IBufferAttributes*> getInputOutputBufferAttributes(const char *name) const noexcept;
 
->>>>>>> origin/ci-clean
  private:
    PSNPE(const PSNPE&) = delete;
    PSNPE& operator=(const PSNPE&) = delete;

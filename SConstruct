@@ -3,16 +3,11 @@ import shutil
 import subprocess
 import sys
 import platform
-<<<<<<< HEAD
-
-TICI = os.path.isfile('/TICI')
-=======
 import numpy as np
 from sysconfig import get_paths
 
 TICI = os.path.isfile('/TICI')
 Decider('MD5-timestamp')
->>>>>>> origin/ci-clean
 
 AddOption('--test',
           action='store_true',
@@ -29,11 +24,7 @@ if platform.system() == "Darwin":
 if arch == "aarch64" and TICI:
   arch = "larch64"
 
-<<<<<<< HEAD
-webcam = bool(ARGUMENTS.get("use_webcam", 0))
-=======
 USE_WEBCAM = os.getenv("USE_WEBCAM") is not None
->>>>>>> origin/ci-clean
 QCOM_REPLAY = arch == "aarch64" and os.getenv("QCOM_REPLAY") is not None
 
 if arch == "aarch64" or arch == "larch64":
@@ -114,10 +105,7 @@ else:
     ]
 
   rpath = [
-<<<<<<< HEAD
-=======
     "phonelibs/snpe/x86_64-linux-clang",
->>>>>>> origin/ci-clean
     "external/tensorflow/lib",
     "cereal",
     "selfdrive/common"
@@ -136,13 +124,10 @@ else:
 # change pythonpath to this
 lenv["PYTHONPATH"] = Dir("#").path
 
-<<<<<<< HEAD
-=======
 #Get the path for Python.h for cython linking
 python_path = get_paths()['include']
 numpy_path = np.get_include()
 
->>>>>>> origin/ci-clean
 env = Environment(
   ENV=lenv,
   CCFLAGS=[
@@ -153,10 +138,7 @@ env = Environment(
     "-Werror",
     "-Wno-unknown-warning-option",
     "-Wno-deprecated-register",
-<<<<<<< HEAD
-=======
     "-Wno-register",
->>>>>>> origin/ci-clean
     "-Wno-inconsistent-missing-override",
     "-Wno-c99-designator",
     "-Wno-reorder-init-list",
@@ -177,10 +159,7 @@ env = Environment(
     "#phonelibs/linux/include",
     "#phonelibs/snpe/include",
     "#phonelibs/nanovg",
-<<<<<<< HEAD
-=======
     "#selfdrive/boardd",
->>>>>>> origin/ci-clean
     "#selfdrive/common",
     "#selfdrive/camerad",
     "#selfdrive/camerad/include",
@@ -200,54 +179,6 @@ env = Environment(
   RPATH=rpath,
 
   CFLAGS=["-std=gnu11"] + cflags,
-<<<<<<< HEAD
-  CXXFLAGS=["-std=c++14"] + cxxflags,
-  LIBPATH=libpath + [
-    "#cereal",
-    "#selfdrive/common",
-    "#phonelibs",
-  ]
-)
-
-qt_env = None
-if arch in ["x86_64", "Darwin", "larch64"]:
-  qt_env = env.Clone()
-
-  if arch == "Darwin":
-    qt_env['QTDIR'] = "/usr/local/opt/qt"
-    QT_BASE = "/usr/local/opt/qt/"
-    qt_dirs = [
-      QT_BASE + "include/",
-      QT_BASE + "include/QtWidgets",
-      QT_BASE + "include/QtGui",
-      QT_BASE + "include/QtCore",
-      QT_BASE + "include/QtDBus",
-      QT_BASE + "include/QtMultimedia",
-    ]
-    qt_env["LINKFLAGS"] += ["-F" + QT_BASE + "lib"]
-  else:
-    qt_dirs = [
-      f"/usr/include/{real_arch}-linux-gnu/qt5",
-      f"/usr/include/{real_arch}-linux-gnu/qt5/QtWidgets",
-      f"/usr/include/{real_arch}-linux-gnu/qt5/QtGui",
-      f"/usr/include/{real_arch}-linux-gnu/qt5/QtCore",
-      f"/usr/include/{real_arch}-linux-gnu/qt5/QtDBus",
-      f"/usr/include/{real_arch}-linux-gnu/qt5/QtMultimedia",
-      f"/usr/include/{real_arch}-linux-gnu/qt5/QtGui/5.5.1/QtGui",
-    ]
-
-  qt_env.Tool('qt')
-  qt_env['CPPPATH'] += qt_dirs
-  qt_flags = [
-    "-D_REENTRANT",
-    "-DQT_NO_DEBUG",
-    "-DQT_WIDGETS_LIB",
-    "-DQT_GUI_LIB",
-    "-DQT_CORE_LIB"
-  ]
-  qt_env['CXXFLAGS'] += qt_flags
-
-=======
   CXXFLAGS=["-std=c++1z"] + cxxflags,
   LIBPATH=libpath + [
     "#cereal",
@@ -259,12 +190,7 @@ if arch in ["x86_64", "Darwin", "larch64"]:
   CYTHONCFILESUFFIX=".cpp",
   tools=["default", "cython"]
 )
-<<<<<<< HEAD
-  
->>>>>>> origin/ci-clean
-=======
 
->>>>>>> origin/ci-clean
 if os.environ.get('SCONS_CACHE'):
   cache_dir = '/tmp/scons_cache'
 
@@ -304,11 +230,6 @@ def abspath(x):
     # rpath works elsewhere
     return x[0].path.rsplit("/", 1)[1][:-3]
 
-<<<<<<< HEAD
-# still needed for apks
-zmq = 'zmq'
-Export('env', 'qt_env', 'arch', 'zmq', 'SHARED', 'webcam', 'QCOM_REPLAY')
-=======
 #Cython build enviroment
 envCython = env.Clone()
 envCython["CPPPATH"] += [python_path, numpy_path]
@@ -331,7 +252,6 @@ Export('envCython')
 # still needed for apks
 zmq = 'zmq'
 Export('env', 'arch', 'real_arch', 'zmq', 'SHARED', 'USE_WEBCAM', 'QCOM_REPLAY')
->>>>>>> origin/ci-clean
 
 # cereal and messaging are shared with the system
 SConscript(['cereal/SConscript'])
@@ -384,9 +304,5 @@ SConscript(['selfdrive/ui/SConscript'])
 if arch != "Darwin":
   SConscript(['selfdrive/logcatd/SConscript'])
 
-<<<<<<< HEAD
-
-=======
->>>>>>> origin/ci-clean
 if arch == "x86_64":
   SConscript(['tools/lib/index_log/SConscript'])

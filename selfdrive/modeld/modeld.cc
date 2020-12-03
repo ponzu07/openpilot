@@ -1,10 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <signal.h>
-<<<<<<< HEAD
-=======
 #include <unistd.h>
->>>>>>> origin/ci-clean
 #include <eigen3/Eigen/Dense>
 
 #include "common/visionbuf.h"
@@ -41,23 +38,6 @@ void* live_thread(void *arg) {
     -1.09890110e-03, 0.00000000e+00, 2.81318681e-01,
     -1.84808520e-20, 9.00738606e-04,-4.28751576e-02;
 
-<<<<<<< HEAD
-#ifndef QCOM2
-  Eigen::Matrix<float, 3, 3> eon_intrinsics;
-  eon_intrinsics <<
-    910.0, 0.0, 582.0,
-    0.0, 910.0, 437.0,
-    0.0,   0.0,   1.0;
-#else
-  Eigen::Matrix<float, 3, 3> eon_intrinsics;
-  eon_intrinsics <<
-    2648.0, 0.0, 1928.0/2,
-    0.0, 2648.0, 1208.0/2,
-    0.0,   0.0,   1.0;
-#endif
-
-    // debayering does a 2x downscale
-=======
   Eigen::Matrix<float, 3, 3> fcam_intrinsics;
 #ifndef QCOM2
   fcam_intrinsics <<
@@ -73,16 +53,11 @@ void* live_thread(void *arg) {
   float db_s = 1.0;
 #endif
 
->>>>>>> origin/ci-clean
   mat3 yuv_transform = transform_scale_buffer((mat3){{
     1.0, 0.0, 0.0,
     0.0, 1.0, 0.0,
     0.0, 0.0, 1.0,
-<<<<<<< HEAD
-  }}, 0.5);
-=======
   }}, db_s);
->>>>>>> origin/ci-clean
 
   while (!do_exit) {
     if (sm.update(10) > 0){
@@ -93,11 +68,7 @@ void* live_thread(void *arg) {
         extrinsic_matrix_eigen(i / 4, i % 4) = extrinsic_matrix[i];
       }
 
-<<<<<<< HEAD
-      auto camera_frame_from_road_frame = eon_intrinsics * extrinsic_matrix_eigen;
-=======
       auto camera_frame_from_road_frame = fcam_intrinsics * extrinsic_matrix_eigen;
->>>>>>> origin/ci-clean
       Eigen::Matrix<float, 3, 3> camera_frame_from_ground;
       camera_frame_from_ground.col(0) = camera_frame_from_road_frame.col(0);
       camera_frame_from_ground.col(1) = camera_frame_from_road_frame.col(1);
@@ -140,11 +111,7 @@ int main(int argc, char **argv) {
   assert(err == 0);
 
   // messaging
-<<<<<<< HEAD
-  PubMaster pm({"model", "cameraOdometry"});
-=======
   PubMaster pm({"modelV2", "model", "cameraOdometry"});
->>>>>>> origin/ci-clean
   SubMaster sm({"pathPlan", "frame"});
 
 #if defined(QCOM) || defined(QCOM2)
@@ -182,12 +149,7 @@ int main(int argc, char **argv) {
     float frames_dropped = 0;
 
     // one frame in memory
-<<<<<<< HEAD
-    cl_mem yuv_cl;
-    VisionBuf yuv_ion = visionbuf_allocate_cl(buf_info.buf_len, device_id, context, &yuv_cl);
-=======
     VisionBuf yuv_ion = visionbuf_allocate_cl(buf_info.buf_len, device_id, context);
->>>>>>> origin/ci-clean
 
     uint32_t frame_id = 0, last_vipc_frame_id = 0;
     double last = 0;
@@ -209,11 +171,7 @@ int main(int argc, char **argv) {
 
       if (sm.update(0) > 0){
         // TODO: path planner timeout?
-<<<<<<< HEAD
-        desire = ((int)sm["pathPlan"].getPathPlan().getDesire()) - 1;
-=======
         desire = ((int)sm["pathPlan"].getPathPlan().getDesire());
->>>>>>> origin/ci-clean
         frame_id = sm["frame"].getFrame().getFrameId();
       }
 
@@ -232,11 +190,7 @@ int main(int argc, char **argv) {
         memcpy(yuv_ion.addr, buf->addr, buf_info.buf_len);
 
         ModelDataRaw model_buf =
-<<<<<<< HEAD
-            model_eval_frame(&model, q, yuv_cl, buf_info.width, buf_info.height,
-=======
             model_eval_frame(&model, q, yuv_ion.buf_cl, buf_info.width, buf_info.height,
->>>>>>> origin/ci-clean
                              model_transform, NULL, vec_desire);
         mt2 = millis_since_boot();
         float model_execution_time = (mt2 - mt1) / 1000.0;
@@ -247,18 +201,10 @@ int main(int argc, char **argv) {
         if (run_count < 10) frames_dropped = 0;  // let frame drops warm up
         float frame_drop_ratio = frames_dropped / (1 + frames_dropped);
 
-<<<<<<< HEAD
-        model_publish(pm, extra.frame_id, frame_id,  vipc_dropped_frames, frame_drop_perc, model_buf, extra.timestamp_eof);
-<<<<<<< HEAD
-=======
-        model_publish_v2(pm, extra.frame_id, frame_id,  vipc_dropped_frames, frame_drop_perc, model_buf, extra.timestamp_eof);
->>>>>>> origin/ci-clean
-        posenet_publish(pm, extra.frame_id, frame_id, vipc_dropped_frames, frame_drop_perc, model_buf, extra.timestamp_eof);
-=======
-        model_publish(pm, extra.frame_id, frame_id,  vipc_dropped_frames, frame_drop_ratio, model_buf, extra.timestamp_eof, model_execution_time);
-        model_publish_v2(pm, extra.frame_id, frame_id,  vipc_dropped_frames, frame_drop_ratio, model_buf, extra.timestamp_eof, model_execution_time);
+        const float* raw_pred_ptr = send_raw_pred ? (const float *)model.output : nullptr;
+        model_publish(pm, extra.frame_id, frame_id,  vipc_dropped_frames, frame_drop_ratio, model_buf, raw_pred_ptr, extra.timestamp_eof, model_execution_time);
+        model_publish_v2(pm, extra.frame_id, frame_id,  vipc_dropped_frames, frame_drop_ratio, model_buf, raw_pred_ptr, extra.timestamp_eof, model_execution_time);
         posenet_publish(pm, extra.frame_id, frame_id, vipc_dropped_frames, frame_drop_ratio, model_buf, extra.timestamp_eof);
->>>>>>> origin/ci-clean
 
         LOGD("model process: %.2fms, from last %.2fms, vipc_frame_id %zu, frame_id, %zu, frame_drop %.3f", mt2-mt1, mt1-last, extra.frame_id, frame_id, frame_drop_ratio);
         last = mt1;

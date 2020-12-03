@@ -6,17 +6,10 @@ libs = [cereal, messaging, common, 'OpenCL', 'SNPE', 'symphony-cpu', 'capnp', 'z
 TEST_THNEED = False
 
 common_src = [
-<<<<<<< HEAD
-  "models/commonmodel.c",
-  "runners/snpemodel.cc",
-  "transforms/loadyuv.c",
-  "transforms/transform.c"
-=======
   "models/commonmodel.cc",
   "runners/snpemodel.cc",
   "transforms/loadyuv.c",
   "transforms/transform.cc"
->>>>>>> origin/ci-clean
 ]
 
 if arch == "aarch64":
@@ -34,21 +27,12 @@ elif arch == "larch64":
 else:
   libs += ['pthread']
 
-<<<<<<< HEAD
-  # for tensorflow support
-  common_src += ['runners/tfmodel.cc']
-
-  # tell runners to use tensorflow
-  lenv['CFLAGS'].append("-DUSE_TF_MODEL")
-  lenv['CXXFLAGS'].append("-DUSE_TF_MODEL")
-=======
   # for onnx support
   common_src += ['runners/onnxmodel.cc']
 
   # tell runners to use onnx
   lenv['CFLAGS'].append("-DUSE_ONNX_MODEL")
   lenv['CXXFLAGS'].append("-DUSE_ONNX_MODEL")
->>>>>>> origin/ci-clean
 
   if arch == "Darwin":
     # fix OpenCL

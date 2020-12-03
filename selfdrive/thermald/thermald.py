@@ -3,10 +3,7 @@ import datetime
 import os
 import time
 from collections import namedtuple
-<<<<<<< HEAD
-=======
 from typing import Dict, Optional, Tuple
->>>>>>> origin/ci-clean
 
 import psutil
 from smbus2 import SMBus
@@ -16,11 +13,7 @@ from cereal import log
 from common.filter_simple import FirstOrderFilter
 from common.hardware import EON, HARDWARE, TICI
 from common.numpy_fast import clip, interp
-<<<<<<< HEAD
-from common.params import Params, put_nonblocking
-=======
 from common.params import Params
->>>>>>> origin/ci-clean
 from common.realtime import DT_TRML, sec_since_boot
 from selfdrive.controls.lib.alertmanager import set_offroad_alert
 from selfdrive.loggerd.config import get_available_percent
@@ -42,11 +35,8 @@ DAYS_NO_CONNECTIVITY_MAX = 7  # do not allow to engage after a week without inte
 DAYS_NO_CONNECTIVITY_PROMPT = 4  # send an offroad prompt after 4 days with no internet
 DISCONNECT_TIMEOUT = 5.  # wait 5 seconds before going offroad after disconnect so you get an alert
 
-<<<<<<< HEAD
-=======
 prev_offroad_states: Dict[str, Tuple[bool, Optional[str]]] = {}
 
->>>>>>> origin/ci-clean
 LEON = False
 last_eon_fan_val = None
 
@@ -164,8 +154,6 @@ def handle_fan_uno(max_cpu_temp, bat_temp, fan_speed, ignition):
   return new_speed
 
 
-<<<<<<< HEAD
-=======
 def set_offroad_alert_if_changed(offroad_alert: str, show_alert: bool, extra_text: Optional[str]=None):
   if prev_offroad_states.get(offroad_alert, None) == (show_alert, extra_text):
     return
@@ -173,7 +161,6 @@ def set_offroad_alert_if_changed(offroad_alert: str, show_alert: bool, extra_tex
   set_offroad_alert(offroad_alert, show_alert, extra_text)
 
 
->>>>>>> origin/ci-clean
 def thermald_thread():
   health_timeout = int(1000 * 2.5 * DT_TRML)  # 2.5x the expected health frequency
 
@@ -182,12 +169,6 @@ def thermald_thread():
   health_sock = messaging.sub_sock('health', timeout=health_timeout)
   location_sock = messaging.sub_sock('gpsLocation')
 
-<<<<<<< HEAD
-  ignition = False
-  fan_speed = 0
-  count = 0
-
-=======
   fan_speed = 0
   count = 0
 
@@ -196,18 +177,11 @@ def thermald_thread():
   }
   startup_conditions_prev = startup_conditions.copy()
 
->>>>>>> origin/ci-clean
   off_ts = None
   started_ts = None
   started_seen = False
   thermal_status = ThermalStatus.green
-<<<<<<< HEAD
-  thermal_status_prev = ThermalStatus.green
   usb_power = True
-  usb_power_prev = True
-=======
-  usb_power = True
->>>>>>> origin/ci-clean
   current_branch = get_git_branch()
 
   network_type = NetworkType.none
@@ -216,19 +190,9 @@ def thermald_thread():
   current_filter = FirstOrderFilter(0., CURRENT_TAU, DT_TRML)
   cpu_temp_filter = FirstOrderFilter(0., CPU_TEMP_TAU, DT_TRML)
   health_prev = None
-<<<<<<< HEAD
-  fw_version_match_prev = True
-  current_update_alert = None
-  time_valid_prev = True
   should_start_prev = False
   handle_fan = None
   is_uno = False
-  has_relay = False
-=======
-  should_start_prev = False
-  handle_fan = None
-  is_uno = False
->>>>>>> origin/ci-clean
 
   params = Params()
   pm = PowerMonitoring()
@@ -249,29 +213,16 @@ def thermald_thread():
       if health.health.hwType == log.HealthData.HwType.unknown:
         no_panda_cnt += 1
         if no_panda_cnt > DISCONNECT_TIMEOUT / DT_TRML:
-<<<<<<< HEAD
-          if ignition:
-            cloudlog.error("Lost panda connection while onroad")
-          ignition = False
-      else:
-        no_panda_cnt = 0
-        ignition = health.health.ignitionLine or health.health.ignitionCan
-=======
           if startup_conditions["ignition"]:
             cloudlog.error("Lost panda connection while onroad")
           startup_conditions["ignition"] = False
       else:
         no_panda_cnt = 0
         startup_conditions["ignition"] = health.health.ignitionLine or health.health.ignitionCan
->>>>>>> origin/ci-clean
 
       # Setup fan handler on first connect to panda
       if handle_fan is None and health.health.hwType != log.HealthData.HwType.unknown:
         is_uno = health.health.hwType == log.HealthData.HwType.uno
-<<<<<<< HEAD
-        has_relay = health.health.hwType in [log.HealthData.HwType.blackPanda, log.HealthData.HwType.uno, log.HealthData.HwType.dos]
-=======
->>>>>>> origin/ci-clean
 
         if (not EON) or is_uno:
           cloudlog.info("Setting up UNO fan handler")
@@ -321,22 +272,14 @@ def thermald_thread():
     bat_temp = msg.thermal.bat
 
     if handle_fan is not None:
-<<<<<<< HEAD
-      fan_speed = handle_fan(max_cpu_temp, bat_temp, fan_speed, ignition)
-=======
       fan_speed = handle_fan(max_cpu_temp, bat_temp, fan_speed, startup_conditions["ignition"])
->>>>>>> origin/ci-clean
       msg.thermal.fanSpeed = fan_speed
 
     # If device is offroad we want to cool down before going onroad
     # since going onroad increases load and can make temps go over 107
     # We only do this if there is a relay that prevents the car from faulting
     is_offroad_for_5_min = (started_ts is None) and ((not started_seen) or (off_ts is None) or (sec_since_boot() - off_ts > 60 * 5))
-<<<<<<< HEAD
-    if max_cpu_temp > 107. or bat_temp >= 63. or (has_relay and is_offroad_for_5_min and max_cpu_temp > 70.0):
-=======
     if max_cpu_temp > 107. or bat_temp >= 63. or (is_offroad_for_5_min and max_cpu_temp > 70.0):
->>>>>>> origin/ci-clean
       # onroad not allowed
       thermal_status = ThermalStatus.danger
     elif max_comp_temp > 96.0 or bat_temp > 60.:
@@ -361,21 +304,8 @@ def thermald_thread():
     now = datetime.datetime.utcnow()
 
     # show invalid date/time alert
-<<<<<<< HEAD
-<<<<<<< HEAD
-    time_valid = now.year >= 2019
-    if time_valid and not time_valid_prev:
-      set_offroad_alert("Offroad_InvalidTime", False)
-    if not time_valid and time_valid_prev:
-      set_offroad_alert("Offroad_InvalidTime", True)
-    time_valid_prev = time_valid
-=======
-    startup_conditions["time_valid"] = now.year >= 2019
-=======
     startup_conditions["time_valid"] = (now.year > 2020) or (now.year == 2020 and now.month >= 10)
->>>>>>> origin/ci-clean
     set_offroad_alert_if_changed("Offroad_InvalidTime", (not startup_conditions["time_valid"]))
->>>>>>> origin/ci-clean
 
     # Show update prompt
     try:
@@ -394,73 +324,6 @@ def thermald_thread():
       else:
         extra_text = last_update_exception
 
-<<<<<<< HEAD
-      if current_update_alert != "update" + extra_text:
-        current_update_alert = "update" + extra_text
-        set_offroad_alert("Offroad_ConnectivityNeeded", False)
-        set_offroad_alert("Offroad_ConnectivityNeededPrompt", False)
-        set_offroad_alert("Offroad_UpdateFailed", True, extra_text=extra_text)
-    elif dt.days > DAYS_NO_CONNECTIVITY_MAX and update_failed_count > 1:
-      if current_update_alert != "expired":
-        current_update_alert = "expired"
-        set_offroad_alert("Offroad_UpdateFailed", False)
-        set_offroad_alert("Offroad_ConnectivityNeededPrompt", False)
-        set_offroad_alert("Offroad_ConnectivityNeeded", True)
-    elif dt.days > DAYS_NO_CONNECTIVITY_PROMPT:
-      remaining_time = str(max(DAYS_NO_CONNECTIVITY_MAX - dt.days, 0))
-      if current_update_alert != "prompt" + remaining_time:
-        current_update_alert = "prompt" + remaining_time
-        set_offroad_alert("Offroad_UpdateFailed", False)
-        set_offroad_alert("Offroad_ConnectivityNeeded", False)
-        set_offroad_alert("Offroad_ConnectivityNeededPrompt", True, extra_text=f"{remaining_time} days.")
-    elif current_update_alert is not None:
-      current_update_alert = None
-      set_offroad_alert("Offroad_UpdateFailed", False)
-      set_offroad_alert("Offroad_ConnectivityNeeded", False)
-      set_offroad_alert("Offroad_ConnectivityNeededPrompt", False)
-
-    do_uninstall = params.get("DoUninstall") == b"1"
-    accepted_terms = params.get("HasAcceptedTerms") == terms_version
-    completed_training = params.get("CompletedTrainingVersion") == training_version
-
-    panda_signature = params.get("PandaFirmware")
-    fw_version_match = (panda_signature is None) or (panda_signature == FW_SIGNATURE)   # don't show alert is no panda is connected (None)
-
-    should_start = ignition
-
-    # with 2% left, we killall, otherwise the phone will take a long time to boot
-    should_start = should_start and msg.thermal.freeSpace > 0.02
-
-    # confirm we have completed training and aren't uninstalling
-    should_start = should_start and accepted_terms and completed_training and (not do_uninstall)
-
-    # check for firmware mismatch
-    should_start = should_start and fw_version_match
-
-    # check if system time is valid
-    should_start = should_start and time_valid
-
-    # don't start while taking snapshot
-    if not should_start_prev:
-      is_viewing_driver = params.get("IsDriverViewEnabled") == b"1"
-      is_taking_snapshot = params.get("IsTakingSnapshot") == b"1"
-      should_start = should_start and (not is_taking_snapshot) and (not is_viewing_driver)
-
-    if fw_version_match and not fw_version_match_prev:
-      set_offroad_alert("Offroad_PandaFirmwareMismatch", False)
-    if not fw_version_match and fw_version_match_prev:
-      set_offroad_alert("Offroad_PandaFirmwareMismatch", True)
-
-    # if any CPU gets above 107 or the battery gets above 63, kill all processes
-    # controls will warn with CPU above 95 or battery above 60
-    if thermal_status >= ThermalStatus.danger:
-      should_start = False
-      if thermal_status_prev < ThermalStatus.danger:
-        set_offroad_alert("Offroad_TemperatureTooHigh", True)
-    else:
-      if thermal_status_prev >= ThermalStatus.danger:
-        set_offroad_alert("Offroad_TemperatureTooHigh", False)
-=======
       set_offroad_alert_if_changed("Offroad_ConnectivityNeeded", False)
       set_offroad_alert_if_changed("Offroad_ConnectivityNeededPrompt", False)
       set_offroad_alert_if_changed("Offroad_UpdateFailed", True, extra_text=extra_text)
@@ -500,7 +363,6 @@ def thermald_thread():
     startup_conditions["hardware_supported"] = health is not None and health.health.hwType not in [log.HealthData.HwType.whitePanda,
                                                                                                    log.HealthData.HwType.greyPanda]
     set_offroad_alert_if_changed("Offroad_HardwareUnsupported", health is not None and not startup_conditions["hardware_supported"])
->>>>>>> origin/ci-clean
 
     if should_start:
       if not should_start_prev:
@@ -511,15 +373,10 @@ def thermald_thread():
         started_ts = sec_since_boot()
         started_seen = True
     else:
-<<<<<<< HEAD
-      if should_start_prev or (count == 0):
-        put_nonblocking("IsOffroad", "1")
-=======
       if startup_conditions["ignition"] and (startup_conditions != startup_conditions_prev):
         cloudlog.event("Startup blocked", startup_conditions=startup_conditions)
       if should_start_prev or (count == 0):
         params.put("IsOffroad", "1")
->>>>>>> origin/ci-clean
 
       started_ts = None
       if off_ts is None:
@@ -547,22 +404,10 @@ def thermald_thread():
     msg.thermal.thermalStatus = thermal_status
     thermal_sock.send(msg.to_bytes())
 
-<<<<<<< HEAD
-    if usb_power_prev and not usb_power:
-      set_offroad_alert("Offroad_ChargeDisabled", True)
-    elif usb_power and not usb_power_prev:
-      set_offroad_alert("Offroad_ChargeDisabled", False)
-
-    thermal_status_prev = thermal_status
-    usb_power_prev = usb_power
-    fw_version_match_prev = fw_version_match
-    should_start_prev = should_start
-=======
     set_offroad_alert_if_changed("Offroad_ChargeDisabled", (not usb_power))
 
     should_start_prev = should_start
     startup_conditions_prev = startup_conditions.copy()
->>>>>>> origin/ci-clean
 
     # report to server once per minute
     if (count % int(60. / DT_TRML)) == 0:
