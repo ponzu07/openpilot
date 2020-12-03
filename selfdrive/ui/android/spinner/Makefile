@@ -51,7 +51,7 @@ $(COMMON)/framebuffer.o: $(COMMON)/framebuffer.cc
            -I$(PHONELIBS)/android_hardware_libhardware/include \
            -c -o '$@' '$<'
 
-opensans_semibold.o: $(ROOT_DIR)/selfdrive/assets/fonts/opensans_semibold.ttf
+opensans_semibold.o: $(ROOT_DIR)/selfdrive/assets/fonts/mplus-1p-medium.ttf
 	@echo "[ bin2o ] $@"
 	cd '$(dir $<)' && ld -r -b binary '$(notdir $<)' -o '$(abspath $@)'
 
