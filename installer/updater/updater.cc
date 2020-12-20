@@ -611,7 +611,7 @@ struct Updater {
   }
 
   void draw_battery_screen() {
-    low_battery_title = "低バッテリー";
+    low_battery_title = "Low Battery";
     low_battery_text = "Please connect EON to your charger. Update will continue once EON battery reaches 35%.";
     low_battery_context = "Current battery charge: " + battery_cap_text + "%";
 
