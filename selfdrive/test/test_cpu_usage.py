@@ -18,7 +18,7 @@ def print_cpu_usage(first_proc, last_proc):
     ("./loggerd", 42.0),
     ("selfdrive.locationd.locationd", 35.0),
     ("selfdrive.locationd.paramsd", 12.0),
-    ("selfdrive.controls.plannerd", 10.0),
+    ("selfdrive.controls.plannerd", 20.0),
     ("./_modeld", 7.12),
     ("./camerad", 7.07),
     ("./_sensord", 6.17),
@@ -71,14 +71,13 @@ def test_cpu_usage():
   manager_proc = subprocess.Popen(["python", manager_path])
   try:
     proc_sock = messaging.sub_sock('procLog', conflate=True, timeout=2000)
-    cs_sock = messaging.sub_sock('controlsState', conflate=True)
+    cs_sock = messaging.sub_sock('controlsState')
 
     # wait until everything's started
+    msg = None
     start_time = time.monotonic()
-    while time.monotonic() - start_time < 240:
-      msg = messaging.recv_sock(cs_sock, wait=True)
-      if msg is not None:
-        break
+    while msg is None and time.monotonic() - start_time < 240:
+      msg = messaging.recv_sock(cs_sock)
 
     # take first sample
     time.sleep(15)
