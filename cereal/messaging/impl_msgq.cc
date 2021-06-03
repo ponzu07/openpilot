@@ -6,7 +6,7 @@
 #include <cerrno>
 
 #include "services.h"
-#include "impl_msgq.hpp"
+#include "impl_msgq.h"
 
 
 volatile sig_atomic_t msgq_do_exit = 0;
@@ -28,7 +28,7 @@ static bool service_exists(std::string path){
 static size_t get_size(std::string endpoint){
   size_t sz = DEFAULT_SEGMENT_SIZE;
 
-  if (endpoint == "frame" || endpoint == "frontFrame" || endpoint == "wideFrame"){
+  if (endpoint == "roadCameraState" || endpoint == "driverCameraState" || endpoint == "wideRoadCameraState"){
     sz *= 10;
   }
 
@@ -194,6 +194,10 @@ int MSGQPubSocket::send(char *data, size_t size){
   msg.size = size;
 
   return msgq_msg_send(&msg, q);
+}
+
+bool MSGQPubSocket::all_readers_updated() {
+  return msgq_all_readers_updated(q);
 }
 
 MSGQPubSocket::~MSGQPubSocket(){

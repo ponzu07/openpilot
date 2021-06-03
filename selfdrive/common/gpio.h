@@ -1,7 +1,4 @@
-#ifndef GPIO_H
-#define GPIO_H
-
-#include <stdbool.h>
+#pragma once
 
 // Pin definitions
 #ifdef QCOM2
@@ -20,16 +17,5 @@
   #define GPIO_STM_BOOT0        0
 #endif
 
-
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 int gpio_init(int pin_nr, bool output);
 int gpio_set(int pin_nr, bool high);
-
-#ifdef __cplusplus
-}  // extern "C"
-#endif
-
-#endif

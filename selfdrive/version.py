@@ -39,9 +39,12 @@ def get_git_remote(default: Optional[str] = None) -> Optional[str]:
     return run_cmd_default(["git", "config", "--get", "remote.origin.url"], default=default)
 
 
-with open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "common", "version.h")) as _versionf:
-  version = _versionf.read().split('"')[1]
+def get_version():
+  with open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "common", "version.h")) as _versionf:
+    version = _versionf.read().split('"')[1]
+  return version
 
+version = get_version()
 prebuilt = os.path.exists(os.path.join(BASEDIR, 'prebuilt'))
 
 training_version: bytes = b"0.2.0"
@@ -52,6 +55,7 @@ comma_remote: bool = False
 tested_branch: bool = False
 origin = get_git_remote()
 branch = get_git_full_branchname()
+commit = get_git_commit()
 
 if (origin is not None) and (branch is not None):
   try:
@@ -74,7 +78,7 @@ if (origin is not None) and (branch is not None):
         try:
           dirty_files = run_cmd(["git", "diff-index", branch, "--"])
           cloudlog.event("dirty comma branch", version=version, dirty=dirty, origin=origin, branch=branch,
-                         dirty_files=dirty_files, commit=get_git_commit(), origin_commit=get_git_commit(branch))
+                         dirty_files=dirty_files, commit=commit, origin_commit=get_git_commit(branch))
         except subprocess.CalledProcessError:
           pass
 

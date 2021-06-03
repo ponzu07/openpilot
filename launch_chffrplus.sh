@@ -9,6 +9,7 @@ source "$BASEDIR/launch_env.sh"
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
 
 function two_init {
+
   # Wifi scan
   wpa_cli IFNAME=wlan0 SCAN
 
@@ -54,8 +55,7 @@ function two_init {
   echo 1 > /proc/irq/6/smp_affinity_list  # MDSS
 
   # USB traffic needs realtime handling on cpu 3
-  [ -d "/proc/irq/733" ] && echo 3 > /proc/irq/733/smp_affinity_list # USB for LeEco
-  [ -d "/proc/irq/736" ] && echo 3 > /proc/irq/736/smp_affinity_list # USB for OP3T
+  [ -d "/proc/irq/733" ] && echo 3 > /proc/irq/733/smp_affinity_list
 
   # GPU and camera get cpu 2
   CAM_IRQS="177 178 179 180 181 182 183 184 185 186 192"
@@ -91,23 +91,12 @@ function two_init {
 
     "$DIR/installer/updater/updater" "file://$DIR/installer/updater/update.json"
   fi
-
-  # One-time fix for a subset of OP3T with gyro orientation offsets.
-  # Remove and regenerate qcom sensor registry. Only done on OP3T mainboards.
-  # Performed exactly once. The old registry is preserved just-in-case, and
-  # doubles as a flag denoting we've already done the reset.
-  if ! $(grep -q "letv" /proc/cmdline) && [ ! -f "/persist/comma/op3t-sns-reg-backup" ]; then
-    echo "Performing OP3T sensor registry reset"
-    mv /persist/sensors/sns.reg /persist/comma/op3t-sns-reg-backup &&
-      rm -f /persist/sensors/sensors_settings /persist/sensors/error_log /persist/sensors/gyro_sensitity_cal &&
-      echo "restart" > /sys/kernel/debug/msm_subsys/slpi &&
-      sleep 5  # Give Android sensor subsystem a moment to recover
-  fi
 }
 
 function tici_init {
   sudo su -c 'echo "performance" > /sys/class/devfreq/soc:qcom,memlat-cpu0/governor'
   sudo su -c 'echo "performance" > /sys/class/devfreq/soc:qcom,memlat-cpu4/governor'
+  nmcli connection modify --temporary lte gsm.auto-config yes
 
   # set success flag for current boot slot
   sudo abctl --set_success
@@ -126,7 +115,7 @@ function tici_init {
     echo "Cur slot $CUR_SLOT, target $OTHER_SLOT"
 
     # Get expected hashes from manifest
-    MANIFEST="$DIR/installer/updater/update_agnos.json"
+    MANIFEST="$DIR/selfdrive/hardware/tici/agnos.json"
     SYSTEM_HASH_EXPECTED=$(jq -r ".[] | select(.name == \"system\") | .hash_raw" $MANIFEST)
     SYSTEM_SIZE=$(jq -r ".[] | select(.name == \"system\") | .size" $MANIFEST)
     BOOT_HASH_EXPECTED=$(jq -r ".[] | select(.name == \"boot\") | .hash_raw" $MANIFEST)
@@ -144,6 +133,12 @@ function tici_init {
 
     if [[ "$SYSTEM_HASH" == "$SYSTEM_HASH_EXPECTED" && "$BOOT_HASH" == "$BOOT_HASH_EXPECTED" ]]; then
       echo "Swapping active slot to $OTHER_SLOT_NUMBER"
+
+      # Clean hashes before swapping to prevent looping
+      dd if=/dev/zero of="/dev/disk/by-partlabel/system$OTHER_SLOT" bs=1 seek="$SYSTEM_SIZE" count=64
+      dd if=/dev/zero of="/dev/disk/by-partlabel/boot$OTHER_SLOT" bs=1 seek="$BOOT_SIZE" count=64
+      sync
+
       abctl --set_active "$OTHER_SLOT_NUMBER"
 
       sleep 1
@@ -152,6 +147,12 @@ function tici_init {
       echo "Hash mismatch, downloading agnos"
       if $DIR/selfdrive/hardware/tici/agnos.py $MANIFEST; then
         echo "Download done, swapping active slot to $OTHER_SLOT_NUMBER"
+
+        # Clean hashes before swapping to prevent looping
+        dd if=/dev/zero of="/dev/disk/by-partlabel/system$OTHER_SLOT" bs=1 seek="$SYSTEM_SIZE" count=64
+        dd if=/dev/zero of="/dev/disk/by-partlabel/boot$OTHER_SLOT" bs=1 seek="$BOOT_SIZE" count=64
+        sync
+
         abctl --set_active "$OTHER_SLOT_NUMBER"
       fi
 
@@ -164,6 +165,9 @@ function tici_init {
 function launch {
   # Remove orphaned git lock if it exists on boot
   [ -f "$DIR/.git/index.lock" ] && rm -f $DIR/.git/index.lock
+
+  # Pull time from panda
+  $DIR/selfdrive/boardd/set_time.py
 
   # Check to see if there's a valid overlay-based update available. Conditions
   # are as follows:
@@ -195,6 +199,7 @@ function launch {
 
           echo "Restarting launch script ${LAUNCHER_LOCATION}"
           unset REQUIRED_NEOS_VERSION
+          unset AGNOS_VERSION
           exec "${LAUNCHER_LOCATION}"
         else
           echo "openpilot backup found, not updating"
@@ -219,8 +224,8 @@ function launch {
   tmux capture-pane -pq -S-1000 > /tmp/launch_log
 
   # start manager
-  cd selfdrive
-  ./manager.py
+  cd selfdrive/manager
+  ./build.py && ./manager.py
 
   # if broken, keep on screen error
   while true; do sleep 1; done

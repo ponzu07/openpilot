@@ -1,23 +1,20 @@
 #pragma once
-#include <queue>
-#include <mutex>
-#include <condition_variable>
 
-#include <stdlib.h>
-#include <stdbool.h>
 #include <stdint.h>
+#include <stdlib.h>
+
 #include <memory>
 #include <thread>
-#include "common/mat.h"
-#include "common/swaglog.h"
-#include "visionbuf.h"
-#include "common/visionimg.h"
-#include "imgproc/utils.h"
-#include "messaging.hpp"
-#include "transforms/rgb_to_yuv.h"
 
-#include "visionipc.h"
-#include "visionipc_server.h"
+#include "cereal/messaging/messaging.h"
+#include "cereal/visionipc/visionbuf.h"
+#include "cereal/visionipc/visionipc.h"
+#include "cereal/visionipc/visionipc_server.h"
+#include "selfdrive/camerad/transforms/rgb_to_yuv.h"
+#include "selfdrive/common/mat.h"
+#include "selfdrive/common/queue.h"
+#include "selfdrive/common/swaglog.h"
+#include "selfdrive/common/visionimg.h"
 
 #define CAMERA_ID_IMX298 0
 #define CAMERA_ID_IMX179 1
@@ -38,14 +35,17 @@
 #define LOG_CAMERA_ID_QCAMERA 3
 #define LOG_CAMERA_ID_MAX 4
 
-const bool env_send_front = getenv("SEND_FRONT") != NULL;
-const bool env_send_rear = getenv("SEND_REAR") != NULL;
-const bool env_send_wide = getenv("SEND_WIDE") != NULL;
+#define HLC_THRESH 222
+#define HLC_A 80
+#define HISTO_CEIL_K 5
+
+const bool env_send_driver = getenv("SEND_DRIVER") != NULL;
+const bool env_send_road = getenv("SEND_ROAD") != NULL;
+const bool env_send_wide_road = getenv("SEND_WIDE_ROAD") != NULL;
 
 typedef void (*release_cb)(void *cookie, int buf_idx);
 
 typedef struct CameraInfo {
-  const char* name;
   int frame_width, frame_height;
   int frame_stride;
   bool bayer;
@@ -85,43 +85,36 @@ typedef struct CameraExpInfo {
   float grey_frac;
 } CameraExpInfo;
 
-extern CameraInfo cameras_supported[CAMERA_ID_MAX];
-
 struct MultiCameraState;
 struct CameraState;
 
 class CameraBuf {
-public:
+private:
   VisionIpcServer *vipc_server;
   CameraState *camera_state;
   cl_kernel krnl_debayer;
-  cl_command_queue q;
 
-  RGBToYUVState rgb_to_yuv_state;
-
-  mat3 yuv_transform;
-
-  FrameMetadata yuv_metas[YUV_COUNT];
+  std::unique_ptr<Rgb2Yuv> rgb2yuv;
 
   VisionStreamType rgb_type, yuv_type;
-  int rgb_width, rgb_height, rgb_stride;
 
-  FrameMetadata cur_frame_data;
-
-  VisionBuf *cur_rgb_buf;
-  VisionBuf *cur_yuv_buf;
   int cur_buf_idx;
 
-  std::mutex frame_queue_mutex;
-  std::condition_variable frame_queue_cv;
-  std::queue<size_t> frame_queue;
-
-  std::unique_ptr<VisionBuf[]> camera_bufs;
-  std::unique_ptr<FrameMetadata[]> camera_bufs_metadata;
+  SafeQueue<int> safe_queue;
 
   int frame_buf_count;
-
   release_cb release_callback;
+
+public:
+  cl_command_queue q;
+  FrameMetadata cur_frame_data;
+  VisionBuf *cur_rgb_buf;
+  VisionBuf *cur_yuv_buf;
+  std::unique_ptr<VisionBuf[]> camera_bufs;
+  std::unique_ptr<FrameMetadata[]> camera_bufs_metadata;
+  int rgb_width, rgb_height, rgb_stride;
+
+  mat3 yuv_transform;
 
   CameraBuf() = default;
   ~CameraBuf();
@@ -133,9 +126,14 @@ public:
 
 typedef void (*process_thread_cb)(MultiCameraState *s, CameraState *c, int cnt);
 
-void fill_frame_data(cereal::FrameData::Builder &framed, const FrameMetadata &frame_data, uint32_t cnt);
-void fill_frame_image(cereal::FrameData::Builder &framed, const CameraBuf *b);
-void set_exposure_target(CameraState *c, const uint8_t *pix_ptr, int x_start, int x_end, int x_skip, int y_start, int y_end, int y_skip);
-std::thread start_process_thread(MultiCameraState *cameras, const char *tname,
-                                    CameraState *cs, process_thread_cb callback);
-void common_camera_process_front(SubMaster *sm, PubMaster *pm, CameraState *c, int cnt);
+void fill_frame_data(cereal::FrameData::Builder &framed, const FrameMetadata &frame_data);
+kj::Array<uint8_t> get_frame_image(const CameraBuf *b);
+float set_exposure_target(const CameraBuf *b, int x_start, int x_end, int x_skip, int y_start, int y_end, int y_skip, int analog_gain, bool hist_ceil, bool hl_weighted);
+std::thread start_process_thread(MultiCameraState *cameras, CameraState *cs, process_thread_cb callback);
+void common_process_driver_camera(SubMaster *sm, PubMaster *pm, CameraState *c, int cnt);
+
+void cameras_init(VisionIpcServer *v, MultiCameraState *s, cl_device_id device_id, cl_context ctx);
+void cameras_open(MultiCameraState *s);
+void cameras_run(MultiCameraState *s);
+void cameras_close(MultiCameraState *s);
+void camera_autoexposure(CameraState *s, float grey_frac);

@@ -1,68 +1,61 @@
-#include <cstdio>
-#include <cstdlib>
-#include <cstdint>
-#include <cassert>
-#include <unistd.h>
 #include <errno.h>
-#include <string.h>
+#include <ftw.h>
 #include <inttypes.h>
 #include <pthread.h>
+#include <string.h>
 #include <sys/resource.h>
+#include <unistd.h>
 
-#include <string>
-#include <iostream>
-#include <fstream>
-#include <streambuf>
-#include <thread>
-#include <mutex>
-#include <condition_variable>
 #include <atomic>
+#include <cassert>
+#include <condition_variable>
+#include <cstdint>
+#include <cstdio>
+#include <cstdlib>
+#include <mutex>
 #include <random>
+#include <string>
+#include <thread>
 
-#include <ftw.h>
-#ifdef QCOM
-#include <cutils/properties.h>
-#endif
+#include "cereal/messaging/messaging.h"
+#include "cereal/services.h"
+#include "cereal/visionipc/visionipc.h"
+#include "cereal/visionipc/visionipc_client.h"
+#include "selfdrive/camerad/cameras/camera_common.h"
+#include "selfdrive/common/params.h"
+#include "selfdrive/common/swaglog.h"
+#include "selfdrive/common/timing.h"
+#include "selfdrive/common/util.h"
+#include "selfdrive/hardware/hw.h"
 
-#include "common/version.h"
-#include "common/timing.h"
-#include "common/params.h"
-#include "common/swaglog.h"
-#include "common/util.h"
-#include "camerad/cameras/camera_common.h"
-#include "logger.h"
-#include "messaging.hpp"
-#include "services.h"
-
-#include "visionipc.h"
-#include "visionipc_client.h"
-
-#include "encoder.h"
+#include "selfdrive/loggerd/encoder.h"
+#include "selfdrive/loggerd/logger.h"
 #if defined(QCOM) || defined(QCOM2)
-#include "omx_encoder.h"
+#include "selfdrive/loggerd/omx_encoder.h"
 #define Encoder OmxEncoder
 #else
-#include "raw_logger.h"
+#include "selfdrive/loggerd/raw_logger.h"
 #define Encoder RawLogger
 #endif
 
-constexpr int MAIN_BITRATE = 5000000;
+namespace {
+
 constexpr int MAIN_FPS = 20;
-#ifndef QCOM2
-constexpr int MAX_CAM_IDX = LOG_CAMERA_ID_DCAMERA;
-constexpr int DCAM_BITRATE = 2500000;
-#else
-constexpr int MAX_CAM_IDX = LOG_CAMERA_ID_ECAMERA;
-constexpr int DCAM_BITRATE = MAIN_BITRATE;
-#endif
+const int MAIN_BITRATE = Hardware::TICI() ? 10000000 : 5000000;
+const int MAX_CAM_IDX = Hardware::TICI() ? LOG_CAMERA_ID_ECAMERA : LOG_CAMERA_ID_DCAMERA;
+const int DCAM_BITRATE = Hardware::TICI() ? MAIN_BITRATE : 2500000;
 
 #define NO_CAMERA_PATIENCE 500 // fall back to time-based rotation if all cameras are dead
+
+const int SEGMENT_LENGTH = getenv("LOGGERD_TEST") ? atoi(getenv("LOGGERD_SEGMENT_LENGTH")) : 60;
+
+ExitHandler do_exit;
 
 LogCameraInfo cameras_logged[LOG_CAMERA_ID_MAX] = {
   [LOG_CAMERA_ID_FCAMERA] = {
     .stream_type = VISION_STREAM_YUV_BACK,
     .filename = "fcamera.hevc",
-    .frame_packet_name = "frame",
+    .frame_packet_name = "roadCameraState",
     .fps = MAIN_FPS,
     .bitrate = MAIN_BITRATE,
     .is_h265 = true,
@@ -72,7 +65,7 @@ LogCameraInfo cameras_logged[LOG_CAMERA_ID_MAX] = {
   [LOG_CAMERA_ID_DCAMERA] = {
     .stream_type = VISION_STREAM_YUV_FRONT,
     .filename = "dcamera.hevc",
-    .frame_packet_name = "frontFrame",
+    .frame_packet_name = "driverCameraState",
     .fps = MAIN_FPS, // on EONs, more compressed this way
     .bitrate = DCAM_BITRATE,
     .is_h265 = true,
@@ -82,7 +75,7 @@ LogCameraInfo cameras_logged[LOG_CAMERA_ID_MAX] = {
   [LOG_CAMERA_ID_ECAMERA] = {
     .stream_type = VISION_STREAM_YUV_WIDE,
     .filename = "ecamera.hevc",
-    .frame_packet_name = "wideFrame",
+    .frame_packet_name = "wideRoadCameraState",
     .fps = MAIN_FPS,
     .bitrate = MAIN_BITRATE,
     .is_h265 = true,
@@ -92,50 +85,24 @@ LogCameraInfo cameras_logged[LOG_CAMERA_ID_MAX] = {
   [LOG_CAMERA_ID_QCAMERA] = {
     .filename = "qcamera.ts",
     .fps = MAIN_FPS,
-    .bitrate = 128000,
+    .bitrate = 256000,
     .is_h265 = false,
     .downscale = true,
-#ifndef QCOM2
-    .frame_width = 480, .frame_height = 360
-#else
-    .frame_width = 526, .frame_height = 330 // keep pixel count the same?
-#endif
+    .frame_width = Hardware::TICI() ? 526 : 480,
+    .frame_height = Hardware::TICI() ? 330 : 360 // keep pixel count the same?
   },
 };
-
-
-namespace {
-
-constexpr int SEGMENT_LENGTH = 60;
-#if defined(QCOM) || defined(QCOM2)
-std::string LOG_ROOT = "/data/media/0/realdata";
-#else
-std::string LOG_ROOT = util::getenv_default("HOME", "/.comma/media/0/realdata", "/data/media/0/realdata");
-#endif
-
-double randrange(double a, double b) __attribute__((unused));
-double randrange(double a, double b) {
-  static std::mt19937 gen(millis_since_boot());
-
-  std::uniform_real_distribution<> dist(a, b);
-  return dist(gen);
-}
-
-ExitHandler do_exit;
-
-static bool file_exists(const std::string& fn) {
-  std::ifstream f(fn);
-  return f.good();
-}
 
 class RotateState {
 public:
   SubSocket* fpkt_sock;
   uint32_t stream_frame_id, log_frame_id, last_rotate_frame_id;
   bool enabled, should_rotate, initialized;
+  std::atomic<bool> rotating;
+  std::atomic<int> cur_seg;
 
   RotateState() : fpkt_sock(nullptr), stream_frame_id(0), log_frame_id(0),
-                  last_rotate_frame_id(UINT32_MAX), enabled(false), should_rotate(false), initialized(false) {};
+                  last_rotate_frame_id(UINT32_MAX), enabled(false), should_rotate(false), initialized(false), rotating(false), cur_seg(-1) {};
 
   void waitLogThread() {
     std::unique_lock<std::mutex> lk(fid_lock);
@@ -184,7 +151,7 @@ private:
 
 struct LoggerdState {
   Context *ctx;
-  LoggerState logger;
+  LoggerState logger = {};
   char segment_path[4096];
   int rotate_segment;
   pthread_mutex_t rotate_lock;
@@ -257,17 +224,31 @@ void encoder_thread(int cam_idx) {
             rotate_state.initialized = true;
           }
 
+          // get new logger handle for new segment
           if (lh) {
             lh_close(lh);
           }
           lh = logger_get_handle(&s.logger);
 
+          // wait for all to start rotating
+          rotate_state.rotating = true;
+          for(auto &r : s.rotate_state) {
+             while(r.enabled && !r.rotating && !do_exit) util::sleep_for(5);
+          }
+
           pthread_mutex_lock(&s.rotate_lock);
           for (auto &e : encoders) {
             e->encoder_close();
-            e->encoder_open(s.segment_path, s.rotate_segment);
+            e->encoder_open(s.segment_path);
           }
+          rotate_state.cur_seg = s.rotate_segment;
           pthread_mutex_unlock(&s.rotate_lock);
+
+          // wait for all to finish rotating
+          for(auto &r : s.rotate_state) {
+             while(r.enabled && r.cur_seg != s.rotate_segment && !do_exit) util::sleep_for(5);
+          }
+          rotate_state.rotating = false;
           rotate_state.finish_rotate();
         }
       }
@@ -275,38 +256,31 @@ void encoder_thread(int cam_idx) {
       rotate_state.setStreamFrameId(extra.frame_id);
 
       // encode a frame
-      {
-        int out_segment = -1;
-        int out_id = encoders[0]->encode_frame(buf->y, buf->u, buf->v,
-                                               buf->width, buf->height,
-                                               &out_segment, &extra);
-        if (encoders.size() > 1) {
-          int out_segment_alt = -1;
-          encoders[1]->encode_frame(buf->y, buf->u, buf->v,
-                                    buf->width, buf->height,
-                                    &out_segment_alt, &extra);
-        }
-
-        // publish encode index
-        MessageBuilder msg;
-        // this is really ugly
-        auto eidx = cam_idx == LOG_CAMERA_ID_DCAMERA ? msg.initEvent().initFrontEncodeIdx() :
-                    (cam_idx == LOG_CAMERA_ID_ECAMERA ? msg.initEvent().initWideEncodeIdx() : msg.initEvent().initEncodeIdx());
-        eidx.setFrameId(extra.frame_id);
-        eidx.setTimestampSof(extra.timestamp_sof);
-        eidx.setTimestampEof(extra.timestamp_eof);
-  #ifdef QCOM2
-        eidx.setType(cereal::EncodeIndex::Type::FULL_H_E_V_C);
-  #else
-        eidx.setType(cam_idx == LOG_CAMERA_ID_DCAMERA ? cereal::EncodeIndex::Type::FRONT : cereal::EncodeIndex::Type::FULL_H_E_V_C);
-  #endif
-        eidx.setEncodeId(cnt);
-        eidx.setSegmentNum(out_segment);
-        eidx.setSegmentId(out_id);
-
-        if (lh) {
-          auto bytes = msg.toBytes();
-          lh_log(lh, bytes.begin(), bytes.size(), false);
+      for (int i = 0; i < encoders.size(); ++i) {
+        int out_id = encoders[i]->encode_frame(buf->y, buf->u, buf->v,
+                                               buf->width, buf->height, extra.timestamp_eof);
+        if (i == 0 && out_id != -1) {
+          // publish encode index
+          MessageBuilder msg;
+          // this is really ugly
+          auto eidx = cam_idx == LOG_CAMERA_ID_DCAMERA ? msg.initEvent().initDriverEncodeIdx() :
+                     (cam_idx == LOG_CAMERA_ID_ECAMERA ? msg.initEvent().initWideRoadEncodeIdx() : msg.initEvent().initRoadEncodeIdx());
+          eidx.setFrameId(extra.frame_id);
+          eidx.setTimestampSof(extra.timestamp_sof);
+          eidx.setTimestampEof(extra.timestamp_eof);
+          if (Hardware::TICI()) {
+            eidx.setType(cereal::EncodeIndex::Type::FULL_H_E_V_C);
+          } else {
+            eidx.setType(cam_idx == LOG_CAMERA_ID_DCAMERA ? cereal::EncodeIndex::Type::FRONT : cereal::EncodeIndex::Type::FULL_H_E_V_C);
+          }
+          eidx.setEncodeId(cnt);
+          eidx.setSegmentNum(rotate_state.cur_seg);
+          eidx.setSegmentId(out_id);
+          if (lh) {
+            // TODO: this should read cereal/services.h for qlog decimation
+            auto bytes = msg.toBytes();
+            lh_log(lh, bytes.begin(), bytes.size(), true);
+          }
         }
       }
 
@@ -326,85 +300,7 @@ void encoder_thread(int cam_idx) {
   }
 }
 
-}
-
-void append_property(const char* key, const char* value, void *cookie) {
-  std::vector<std::pair<std::string, std::string> > *properties =
-    (std::vector<std::pair<std::string, std::string> > *)cookie;
-
-  properties->push_back(std::make_pair(std::string(key), std::string(value)));
-}
-
-kj::Array<capnp::word> gen_init_data() {
-  MessageBuilder msg;
-  auto init = msg.initEvent().initInitData();
-
-  if (file_exists("/EON")) {
-    init.setDeviceType(cereal::InitData::DeviceType::NEO);
-  } else if (file_exists("/TICI")) {
-    init.setDeviceType(cereal::InitData::DeviceType::TICI);
-  } else {
-    init.setDeviceType(cereal::InitData::DeviceType::PC);
-  }
-
-  init.setVersion(capnp::Text::Reader(COMMA_VERSION));
-
-  std::ifstream cmdline_stream("/proc/cmdline");
-  std::vector<std::string> kernel_args;
-  std::string buf;
-  while (cmdline_stream >> buf) {
-    kernel_args.push_back(buf);
-  }
-
-  auto lkernel_args = init.initKernelArgs(kernel_args.size());
-  for (int i=0; i<kernel_args.size(); i++) {
-    lkernel_args.set(i, kernel_args[i]);
-  }
-
-  init.setKernelVersion(util::read_file("/proc/version"));
-
-#ifdef QCOM
-  {
-    std::vector<std::pair<std::string, std::string> > properties;
-    property_list(append_property, (void*)&properties);
-
-    auto lentries = init.initAndroidProperties().initEntries(properties.size());
-    for (int i=0; i<properties.size(); i++) {
-      auto lentry = lentries[i];
-      lentry.setKey(properties[i].first);
-      lentry.setValue(properties[i].second);
-    }
-  }
-#endif
-
-  const char* dongle_id = getenv("DONGLE_ID");
-  if (dongle_id) {
-    init.setDongleId(std::string(dongle_id));
-  }
-  init.setDirty(!getenv("CLEAN"));
-
-  // log params
-  Params params = Params();
-  init.setGitCommit(params.get("GitCommit"));
-  init.setGitBranch(params.get("GitBranch"));
-  init.setGitRemote(params.get("GitRemote"));
-  init.setPassive(params.read_db_bool("Passive"));
-  {
-    std::map<std::string, std::string> params_map;
-    params.read_db_all(&params_map);
-    auto lparams = init.initParams().initEntries(params_map.size());
-    int i = 0;
-    for (auto& kv : params_map) {
-      auto lentry = lparams[i];
-      lentry.setKey(kv.first);
-      lentry.setValue(kv.second);
-      i++;
-    }
-  }
-  return capnp::messageToFlatArray(msg);
-}
-
-static int clear_locks_fn(const char* fpath, const struct stat *sb, int tyupeflag) {
+int clear_locks_fn(const char* fpath, const struct stat *sb, int tyupeflag) {
   const char* dot = strrchr(fpath, '.');
   if (dot && strcmp(dot, ".lock") == 0) {
     unlink(fpath);
@@ -412,58 +308,14 @@ static int clear_locks_fn(const char* fpath, const struct stat *sb, int tyupefla
   return 0;
 }
 
-static void clear_locks() {
+void clear_locks() {
   ftw(LOG_ROOT.c_str(), clear_locks_fn, 16);
 }
 
-static void bootlog() {
-  int err;
-
-  {
-    auto words = gen_init_data();
-    auto bytes = words.asBytes();
-    logger_init(&s.logger, "bootlog", bytes.begin(), bytes.size(), false);
-  }
-
-  err = logger_next(&s.logger, LOG_ROOT.c_str(), s.segment_path, sizeof(s.segment_path), &s.rotate_segment);
-  assert(err == 0);
-  LOGW("bootlog to %s", s.segment_path);
-
-  {
-    MessageBuilder msg;
-    auto boot = msg.initEvent().initBoot();
-
-    boot.setWallTimeNanos(nanos_since_epoch());
-
-    std::string lastKmsg = util::read_file("/sys/fs/pstore/console-ramoops");
-    boot.setLastKmsg(capnp::Data::Reader((const kj::byte*)lastKmsg.data(), lastKmsg.size()));
-
-    std::string lastPmsg = util::read_file("/sys/fs/pstore/pmsg-ramoops-0");
-    boot.setLastPmsg(capnp::Data::Reader((const kj::byte*)lastPmsg.data(), lastPmsg.size()));
-
-    std::string launchLog = util::read_file("/tmp/launch_log");
-    boot.setLaunchLog(capnp::Text::Reader(launchLog.data(), launchLog.size()));
-
-    auto bytes = msg.toBytes();
-    logger_log(&s.logger, bytes.begin(), bytes.size(), false);
-  }
-
-  logger_close(&s.logger);
-}
+} // namespace
 
 int main(int argc, char** argv) {
-
-  setpriority(PRIO_PROCESS, 0, -12);
-
-  if (argc > 1 && strcmp(argv[1], "--bootlog") == 0) {
-    bootlog();
-    return 0;
-  }
-
-  int segment_length = SEGMENT_LENGTH;
-  if (getenv("LOGGERD_TEST")) {
-    segment_length = atoi(getenv("LOGGERD_SEGMENT_LENGTH"));
-  }
+  setpriority(PRIO_PROCESS, 0, -20);
 
   clear_locks();
 
@@ -495,11 +347,7 @@ int main(int argc, char** argv) {
   }
 
   // init logger
-  {
-    auto words = gen_init_data();
-    auto bytes = words.asBytes();
-    logger_init(&s.logger, "rlog", bytes.begin(), bytes.size(), true);
-  }
+  logger_init(&s.logger, "rlog", true);
 
   // init encoders
   pthread_mutex_init(&s.rotate_lock, NULL);
@@ -509,22 +357,18 @@ int main(int argc, char** argv) {
   encoder_threads.push_back(std::thread(encoder_thread, LOG_CAMERA_ID_FCAMERA));
   s.rotate_state[LOG_CAMERA_ID_FCAMERA].enabled = true;
 
-#if defined(QCOM) || defined(QCOM2)
-  bool record_front = Params().read_db_bool("RecordFront");
-  if (record_front) {
+  if (!Hardware::PC() && Params().getBool("RecordFront")) {
     encoder_threads.push_back(std::thread(encoder_thread, LOG_CAMERA_ID_DCAMERA));
     s.rotate_state[LOG_CAMERA_ID_DCAMERA].enabled = true;
   }
-
-#ifdef QCOM2
-  encoder_threads.push_back(std::thread(encoder_thread, LOG_CAMERA_ID_ECAMERA));
-  s.rotate_state[LOG_CAMERA_ID_ECAMERA].enabled = true;
-#endif
-#endif
+  if (Hardware::TICI()) {
+    encoder_threads.push_back(std::thread(encoder_thread, LOG_CAMERA_ID_ECAMERA));
+    s.rotate_state[LOG_CAMERA_ID_ECAMERA].enabled = true;
+  }
 
   uint64_t msg_count = 0;
   uint64_t bytes_count = 0;
-  kj::Array<capnp::word> buf = kj::heapArray<capnp::word>(1024);
+  AlignedBuffer aligned_buf;
 
   double start_ts = seconds_since_boot();
   double last_rotate_tms = millis_since_boot();
@@ -551,7 +395,10 @@ int main(int argc, char** argv) {
         }
 
         bytes_count += msg->getSize();
-        msg_count++;
+        if ((++msg_count % 1000) == 0) {
+          double ts = seconds_since_boot();
+          LOGD("%lu messages, %.2f msg/sec, %.2f KB/sec", msg_count, msg_count * 1.0 / (ts - start_ts), bytes_count * 0.001 / (ts - start_ts));
+        }
       }
 
       if (last_msg) {
@@ -565,23 +412,15 @@ int main(int argc, char** argv) {
         if (fpkt_id >= 0) {
           // track camera frames to sync to encoder
           // only process last frame
-          const uint8_t* data = (uint8_t*)last_msg->getData();
-          const size_t len = last_msg->getSize();
-          const size_t size = len / sizeof(capnp::word) + 1;
-          if (buf.size() < size) {
-            buf = kj::heapArray<capnp::word>(size);
-          }
-          memcpy(buf.begin(), data, len);
-
-          capnp::FlatArrayMessageReader cmsg(buf);
+          capnp::FlatArrayMessageReader cmsg(aligned_buf.align(last_msg));
           cereal::Event::Reader event = cmsg.getRoot<cereal::Event>();
 
           if (fpkt_id == LOG_CAMERA_ID_FCAMERA) {
-            s.rotate_state[fpkt_id].setLogFrameId(event.getFrame().getFrameId());
+            s.rotate_state[fpkt_id].setLogFrameId(event.getRoadCameraState().getFrameId());
           } else if (fpkt_id == LOG_CAMERA_ID_DCAMERA) {
-            s.rotate_state[fpkt_id].setLogFrameId(event.getFrontFrame().getFrameId());
+            s.rotate_state[fpkt_id].setLogFrameId(event.getDriverCameraState().getFrameId());
           } else if (fpkt_id == LOG_CAMERA_ID_ECAMERA) {
-            s.rotate_state[fpkt_id].setLogFrameId(event.getWideFrame().getFrameId());
+            s.rotate_state[fpkt_id].setLogFrameId(event.getWideRoadCameraState().getFrameId());
           }
           last_camera_seen_tms = millis_since_boot();
         }
@@ -596,15 +435,13 @@ int main(int argc, char** argv) {
         new_segment = true;
         for (auto &r : s.rotate_state) {
           // this *should* be redundant on tici since all camera frames are synced
-          new_segment &= (((r.stream_frame_id >= r.last_rotate_frame_id + segment_length * MAIN_FPS) &&
+          new_segment &= (((r.stream_frame_id >= r.last_rotate_frame_id + SEGMENT_LENGTH * MAIN_FPS) &&
                           (!r.should_rotate) && (r.initialized)) ||
                           (!r.enabled));
-#ifndef QCOM2
-          break; // only look at fcamera frame id if not QCOM2
-#endif
+          if (!Hardware::TICI()) break; // only look at fcamera frame id if not QCOM2
         }
       } else {
-        if (tms - last_rotate_tms > segment_length * 1000) {
+        if (tms - last_rotate_tms > SEGMENT_LENGTH * 1000) {
           new_segment = true;
           LOGW("no camera packet seen. auto rotated");
         }
@@ -618,19 +455,11 @@ int main(int argc, char** argv) {
 
       int err = logger_next(&s.logger, LOG_ROOT.c_str(), s.segment_path, sizeof(s.segment_path), &s.rotate_segment);
       assert(err == 0);
-      if (s.logger.part == 0) {
-        LOGW("logging to %s", s.segment_path);
-      }
-      LOGW("rotated to %s", s.segment_path);
+      LOGW((s.logger.part == 0) ? "logging to %s" : "rotated to %s", s.segment_path);
 
       // rotate encoders
       for (auto &r : s.rotate_state) r.rotate();
       pthread_mutex_unlock(&s.rotate_lock);
-    }
-
-    if ((msg_count % 1000) == 0) {
-      double ts = seconds_since_boot();
-      LOGD("%lu messages, %.2f msg/sec, %.2f KB/sec", msg_count, msg_count*1.0/(ts-start_ts), bytes_count*0.001/(ts-start_ts));
     }
   }
 
@@ -639,7 +468,12 @@ int main(int argc, char** argv) {
   for (auto &t : encoder_threads) t.join();
 
   LOGW("closing logger");
-  logger_close(&s.logger);
+  logger_close(&s.logger, &do_exit);
+
+  if (do_exit.power_failure){
+    LOGE("power failure");
+    sync();
+  }
 
   // messaging cleanup
   for (auto sock : socks) delete sock;

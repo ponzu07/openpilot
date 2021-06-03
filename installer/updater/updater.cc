@@ -1,36 +1,33 @@
+#include <sys/stat.h>
+#include <sys/statvfs.h>
+#include <unistd.h>
+
+#include <cassert>
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
-#include <cassert>
-
-#include <unistd.h>
-#include <sys/stat.h>
-#include <sys/statvfs.h>
-
-#include <string>
-#include <sstream>
 #include <fstream>
 #include <iostream>
+#include <memory>
 #include <mutex>
+#include <sstream>
+#include <string>
 #include <thread>
 
 #include <curl/curl.h>
 #include <openssl/sha.h>
-
-#include <GLES3/gl3.h>
 #include <EGL/egl.h>
 #include <EGL/eglext.h>
-
+#include <GLES3/gl3.h>
 #include "nanovg.h"
 #define NANOVG_GLES3_IMPLEMENTATION
+#include "json11.hpp"
 #include "nanovg_gl.h"
 #include "nanovg_gl_utils.h"
 
-#include "json11.hpp"
-
-#include "common/framebuffer.h"
-#include "common/touch.h"
-#include "common/util.h"
+#include "selfdrive/common/framebuffer.h"
+#include "selfdrive/common/touch.h"
+#include "selfdrive/common/util.h"
 
 #define USER_AGENT "NEOSUpdater-0.2"
 
@@ -183,7 +180,7 @@ struct Updater {
 
   int fb_w, fb_h;
 
-  FramebufferState *fb = NULL;
+  std::unique_ptr<FrameBuffer> fb;
   NVGcontext *vg = NULL;
   int font_regular;
   int font_semibold;
@@ -227,11 +224,9 @@ struct Updater {
   void ui_init() {
     touch_init(&touch);
 
-    fb = framebuffer_init("updater", 0x00001000, false,
-                          &fb_w, &fb_h);
-    assert(fb);
+    fb = std::make_unique<FrameBuffer>("updater", 0x00001000, false, &fb_w, &fb_h);
 
-    framebuffer_set_power(fb, HWC_POWER_MODE_NORMAL);
+    fb->set_power(HWC_POWER_MODE_NORMAL);
 
     vg = nvgCreateGLES3(NVG_ANTIALIAS | NVG_STENCIL_STROKES | NVG_DEBUG);
     assert(vg);
@@ -251,7 +246,12 @@ struct Updater {
     b_y = 720;
     b_h = 220;
 
-    state = CONFIRMATION;
+    if (download_stage(true)) {
+      state = RUNNING;
+      update_thread_handle = std::thread(&Updater::run_stages, this);
+    } else {
+      state = CONFIRMATION;
+    }
   }
 
   int download_file_xferinfo(curl_off_t dltotal, curl_off_t dlno,
@@ -352,11 +352,15 @@ struct Updater {
     state = RUNNING;
   }
 
-  std::string download(std::string url, std::string hash, std::string name) {
+  std::string download(std::string url, std::string hash, std::string name, bool dry_run) {
     std::string out_fn = UPDATE_DIR "/" + util::base_name(url);
 
-    // start or resume downloading if hash doesn't match
     std::string fn_hash = sha256_file(out_fn);
+    if (dry_run) {
+      return (hash.compare(fn_hash) != 0) ? "" : out_fn;
+    }
+
+    // start or resume downloading if hash doesn't match
     if (hash.compare(fn_hash) != 0) {
       set_progress("Downloading " + name + "...");
       bool r = download_file(url, out_fn);
@@ -378,14 +382,14 @@ struct Updater {
     return out_fn;
   }
 
-  bool download_stage() {
+  bool download_stage(bool dry_run = false) {
     curl = curl_easy_init();
     assert(curl);
 
     // ** quick checks before download **
 
     if (!check_space()) {
-      set_error("2GB of free space required to update");
+      if (!dry_run) set_error("2GB of free space required to update");
       return false;
     }
 
@@ -433,7 +437,7 @@ struct Updater {
       printf("existing recovery hash: %s\n", existing_recovery_hash.c_str());
 
       if (existing_recovery_hash != recovery_hash) {
-        recovery_fn = download(recovery_url, recovery_hash, "recovery");
+        recovery_fn = download(recovery_url, recovery_hash, "recovery", dry_run);
         if (recovery_fn.empty()) {
           // error'd
           return false;
@@ -442,7 +446,7 @@ struct Updater {
     }
 
     // ** handle ota download **
-    ota_fn = download(ota_url, ota_hash, "update");
+    ota_fn = download(ota_url, ota_hash, "update", dry_run);
     if (ota_fn.empty()) {
       //error'd
       return false;
@@ -751,7 +755,7 @@ struct Updater {
 
       glDisable(GL_BLEND);
 
-      framebuffer_swap(fb);
+      fb->swap();
 
       assert(glGetError() == GL_NO_ERROR);
 

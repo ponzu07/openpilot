@@ -1,18 +1,16 @@
-#ifndef RUN_H
-#define RUN_H
+#pragma once
 
 #include "runmodel.h"
 #include "snpemodel.h"
 
-#ifdef QCOM
-  #define DefaultRunModel SNPEModel
+#if defined(QCOM) || defined(QCOM2)
+#include "thneedmodel.h"
+#define DefaultRunModel SNPEModel
 #else
-  #ifdef USE_ONNX_MODEL
-    #include "onnxmodel.h"
-    #define DefaultRunModel ONNXModel
-  #else
-    #define DefaultRunModel SNPEModel
-  #endif
+#ifdef USE_ONNX_MODEL
+#include "onnxmodel.h"
+#define DefaultRunModel ONNXModel
+#else
+#define DefaultRunModel SNPEModel
 #endif
-
 #endif

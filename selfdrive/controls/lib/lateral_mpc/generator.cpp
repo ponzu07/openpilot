@@ -1,8 +1,8 @@
+#include <math.h>
 #include <acado_code_generation.hpp>
-#include "common/modeldata.h"
+#include "selfdrive/common/modeldata.h"
 
-#define PI 3.1415926536
-#define deg2rad(d) (d/180.0*PI)
+#define deg2rad(d) (d/180.0*M_PI)
 
 const int N_steps = 16;
 using namespace std;
@@ -17,21 +17,19 @@ int main( )
   DifferentialState xx; // x position
   DifferentialState yy; // y position
   DifferentialState psi; // vehicle heading
-  DifferentialState delta;
+  DifferentialState curvature;
 
-  OnlineData curvature_factor;
-  OnlineData v_poly_r0, v_poly_r1, v_poly_r2, v_poly_r3;
+  OnlineData v_ego;
   OnlineData rotation_radius;
 
-  Control t;
-  
-  auto poly_v = v_poly_r0*(xx*xx*xx) + v_poly_r1*(xx*xx) + v_poly_r2*xx + v_poly_r3;
+  Control curvature_rate;
+
 
   // Equations of motion
-  f << dot(xx) == poly_v * cos(psi) - rotation_radius * sin(psi) * (poly_v * delta *curvature_factor);
-  f << dot(yy) == poly_v * sin(psi) + rotation_radius * cos(psi) * (poly_v * delta *curvature_factor);
-  f << dot(psi) == poly_v * delta * curvature_factor;
-  f << dot(delta) == t;
+  f << dot(xx) == v_ego * cos(psi) - rotation_radius * sin(psi) * (v_ego * curvature);
+  f << dot(yy) == v_ego * sin(psi) + rotation_radius * cos(psi) * (v_ego * curvature);
+  f << dot(psi) == v_ego * curvature;
+  f << dot(curvature) == curvature_rate;
 
   // Running cost
   Function h;
@@ -40,10 +38,10 @@ int main( )
   h << yy;
 
   // Heading error
-  h << (v_poly_r3 + 1.0 ) * psi;
+  h << (v_ego + 5.0 ) * psi;
 
   // Angular rate error
-  h << (v_poly_r3 + 1.0 ) * t;
+  h << (v_ego + 5.0) * 4 * curvature_rate;
 
   BMatrix Q(3,3); Q.setAll(true);
   // Q(0,0) = 1.0;
@@ -59,7 +57,7 @@ int main( )
   hN << yy;
 
   // Heading errors
-  hN << (2.0 * v_poly_r3 + 1.0 ) * psi;
+  hN << (2.0 * v_ego + 5.0 ) * psi;
 
   BMatrix QN(2,2); QN.setAll(true);
   // QN(0,0) = 1.0;
@@ -79,8 +77,8 @@ int main( )
   // car can't go backward to avoid "circles"
   ocp.subjectTo( deg2rad(-90) <= psi <= deg2rad(90));
   // more than absolute max steer angle
-  ocp.subjectTo( deg2rad(-50) <= delta <= deg2rad(50));
-  ocp.setNOD(6);
+  ocp.subjectTo( deg2rad(-50) <= curvature <= deg2rad(50));
+  ocp.setNOD(2);
 
   OCPexport mpc(ocp);
   mpc.set( HESSIAN_APPROXIMATION, GAUSS_NEWTON );

@@ -42,6 +42,7 @@
 
 extern int _app_start[0xc000]; // Only first 3 sectors of size 0x4000 are used
 
+// When changing this struct, boardd and python/__init__.py needs to be kept up to date!
 struct __attribute__((packed)) health_t {
   uint32_t uptime_pkt;
   uint32_t voltage_pkt;
@@ -58,6 +59,7 @@ struct __attribute__((packed)) health_t {
   uint8_t car_harness_status_pkt;
   uint8_t usb_power_mode_pkt;
   uint8_t safety_mode_pkt;
+  int16_t safety_param_pkt;
   uint8_t fault_status_pkt;
   uint8_t power_save_enabled_pkt;
 };
@@ -179,6 +181,7 @@ int get_health_pkt(void *dat) {
   health->car_harness_status_pkt = car_harness_status;
   health->usb_power_mode_pkt = usb_power_mode;
   health->safety_mode_pkt = (uint8_t)(current_safety_mode);
+  health->safety_param_pkt = current_safety_param;
   health->power_save_enabled_pkt = (uint8_t)(power_save_status == POWER_SAVE_STATUS_ENABLED);
 
   health->fault_status_pkt = fault_status;
@@ -614,6 +617,10 @@ int usb_cb_control_msg(USB_Setup_TypeDef *setup, uint8_t *resp, bool hardwired) 
     case 0xf6:
       siren_enabled = (setup->b.wValue.w != 0U);
       break;
+    // **** 0xf7: set green led enabled
+    case 0xf7:
+      green_led_enabled = (setup->b.wValue.w != 0U);
+      break;
     default:
       puts("NO HANDLER ");
       puth(setup->b.bRequest);
@@ -701,7 +708,7 @@ void TIM1_BRK_TIM9_IRQ_Handler(void) {
       fan_tick();
 
       // set green LED to be controls allowed
-      current_board->set_led(LED_GREEN, controls_allowed);
+      current_board->set_led(LED_GREEN, controls_allowed | green_led_enabled);
 
       // turn off the blue LED, turned on by CAN
       // unless we are in power saving mode

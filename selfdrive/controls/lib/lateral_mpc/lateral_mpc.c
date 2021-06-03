@@ -17,19 +17,19 @@ ACADOvariables acadoVariables;
 ACADOworkspace acadoWorkspace;
 
 typedef struct {
-  double x, y, psi, delta, t;
+  double x, y, psi, tire_angle, tire_angle_rate;
 } state_t;
 
 typedef struct {
   double x[N+1];
   double y[N+1];
   double psi[N+1];
-  double delta[N+1];
-  double rate[N];
+  double curvature[N+1];
+  double curvature_rate[N];
   double cost;
 } log_t;
 
-void init_weights(double pathCost, double headingCost, double steerRateCost){
+void set_weights(double pathCost, double headingCost, double steerRateCost){
   int    i;
   const int STEP_MULTIPLIER = 3.0;
 
@@ -44,7 +44,7 @@ void init_weights(double pathCost, double headingCost, double steerRateCost){
   acadoVariables.WN[(NYN+1)*1] = headingCost * STEP_MULTIPLIER;
 }
 
-void init(double pathCost, double headingCost, double steerRateCost){
+void init(){
   acado_initializeSolver();
   int    i;
 
@@ -58,38 +58,29 @@ void init(double pathCost, double headingCost, double steerRateCost){
 
   /* MPC: initialize the current state feedback. */
   for (i = 0; i < NX; ++i) acadoVariables.x0[ i ] = 0.0;
-
-  init_weights(pathCost, headingCost, steerRateCost);
 }
 
-int run_mpc(state_t * x0, log_t * solution, double v_poly[4],
-             double curvature_factor, double rotation_radius, double target_y[N+1], double target_psi[N+1]){
+int run_mpc(state_t * x0, log_t * solution, double v_ego,
+             double rotation_radius, double target_y[N+1], double target_psi[N+1]){
 
   int    i;
 
   for (i = 0; i <= NOD * N; i+= NOD){
-    acadoVariables.od[i] = curvature_factor;
-    
-    acadoVariables.od[i+1] = v_poly[0];
-    acadoVariables.od[i+2] = v_poly[1];
-    acadoVariables.od[i+3] = v_poly[2];
-    acadoVariables.od[i+4] = v_poly[3];
-    
-    acadoVariables.od[i+5] = rotation_radius;
-
+    acadoVariables.od[i] = v_ego;
+    acadoVariables.od[i+1] = rotation_radius;
   }
   for (i = 0; i < N; i+= 1){
     acadoVariables.y[NY*i + 0] = target_y[i];
-    acadoVariables.y[NY*i + 1] = (v_poly[3] + 1.0) * target_psi[i];
+    acadoVariables.y[NY*i + 1] = (v_ego + 5.0) * target_psi[i];
     acadoVariables.y[NY*i + 2] = 0.0;
   }
   acadoVariables.yN[0] = target_y[N];
-  acadoVariables.yN[1] = (2.0 * v_poly[3] + 1.0) * target_psi[N];
+  acadoVariables.yN[1] = (2.0 * v_ego + 5.0) * target_psi[N];
 
   acadoVariables.x0[0] = x0->x;
   acadoVariables.x0[1] = x0->y;
   acadoVariables.x0[2] = x0->psi;
-  acadoVariables.x0[3] = x0->delta;
+  acadoVariables.x0[3] = x0->tire_angle;
 
 
   acado_preparationStep();
@@ -102,9 +93,9 @@ int run_mpc(state_t * x0, log_t * solution, double v_poly[4],
     solution->x[i] = acadoVariables.x[i*NX];
     solution->y[i] = acadoVariables.x[i*NX+1];
     solution->psi[i] = acadoVariables.x[i*NX+2];
-    solution->delta[i] = acadoVariables.x[i*NX+3];
+    solution->curvature[i] = acadoVariables.x[i*NX+3];
     if (i < N){
-      solution->rate[i] = acadoVariables.u[i];
+      solution->curvature_rate[i] = acadoVariables.u[i];
     }
   }
   solution->cost = acado_getObjective();

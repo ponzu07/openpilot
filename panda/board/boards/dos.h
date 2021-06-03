@@ -26,9 +26,9 @@ void dos_enable_can_transceivers(bool enabled) {
   for(uint8_t i=1U; i<=4U; i++){
     // Leave main CAN always on for CAN-based ignition detection
     if((car_harness_status == HARNESS_STATUS_FLIPPED) ? (i == 3U) : (i == 1U)){
-      uno_enable_can_transceiver(i, true);
+      dos_enable_can_transceiver(i, true);
     } else {
-      uno_enable_can_transceiver(i, enabled);
+      dos_enable_can_transceiver(i, enabled);
     }
   }
 }
@@ -62,7 +62,23 @@ void dos_set_phone_power(bool enabled){
 }
 
 void dos_set_usb_power_mode(uint8_t mode) {
-  dos_set_bootkick(mode == USB_POWER_CDP);
+  bool valid = false;
+  switch (mode) {
+    case USB_POWER_CLIENT:
+      dos_set_bootkick(false);
+      valid = true;
+      break;
+    case USB_POWER_CDP:
+      dos_set_bootkick(true);
+      valid = true;
+      break;
+    default:
+      puts("Invalid USB power mode\n");
+      break;
+  }
+  if (valid) {
+    usb_power_mode = mode;
+  }
 }
 
 void dos_set_gps_mode(uint8_t mode) {

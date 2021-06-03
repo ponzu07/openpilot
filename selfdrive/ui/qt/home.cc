@@ -1,58 +1,133 @@
-#include <cmath>
-#include <iostream>
-#include <fstream>
-#include <thread>
+#include "selfdrive/ui/qt/home.h"
 
-#include <QWidget>
-#include <QMouseEvent>
-#include <QHBoxLayout>
-#include <QVBoxLayout>
-#include <QStackedLayout>
-#include <QLayout>
 #include <QDateTime>
+#include <QHBoxLayout>
+#include <QMouseEvent>
+#include <QVBoxLayout>
 
-#include "common/params.h"
+#include "selfdrive/common/params.h"
+#include "selfdrive/common/swaglog.h"
+#include "selfdrive/common/timing.h"
+#include "selfdrive/common/util.h"
+#include "selfdrive/ui/qt/widgets/drive_stats.h"
+#include "selfdrive/ui/qt/widgets/setup.h"
 
-#include "home.hpp"
-#include "paint.hpp"
-#include "qt_window.hpp"
-#include "widgets/drive_stats.hpp"
+// HomeWindow: the container for the offroad and onroad UIs
 
-#define BACKLIGHT_DT 0.25
-#define BACKLIGHT_TS 2.00
+HomeWindow::HomeWindow(QWidget* parent) : QWidget(parent) {
+  QHBoxLayout *layout = new QHBoxLayout(this);
+  layout->setMargin(0);
+  layout->setSpacing(0);
 
+  sidebar = new Sidebar(this);
+  layout->addWidget(sidebar);
+  QObject::connect(this, &HomeWindow::update, sidebar, &Sidebar::updateState);
+  QObject::connect(sidebar, &Sidebar::openSettings, this, &HomeWindow::openSettings);
 
-OffroadHome::OffroadHome(QWidget *parent) : QWidget(parent) {
-  QVBoxLayout *main_layout = new QVBoxLayout();
-  main_layout->setContentsMargins(sbr_w + 50, 50, 50, 50);
+  slayout = new QStackedLayout();
+  layout->addLayout(slayout);
+
+  onroad = new OnroadWindow(this);
+  slayout->addWidget(onroad);
+
+  QObject::connect(this, &HomeWindow::update, onroad, &OnroadWindow::update);
+  QObject::connect(this, &HomeWindow::offroadTransitionSignal, onroad, &OnroadWindow::offroadTransition);
+
+  home = new OffroadHome();
+  slayout->addWidget(home);
+  QObject::connect(this, &HomeWindow::openSettings, home, &OffroadHome::refresh);
+
+  driver_view = new DriverViewWindow(this);
+  connect(driver_view, &DriverViewWindow::done, [=] {
+    showDriverView(false);
+  });
+  slayout->addWidget(driver_view);
+
+  setLayout(layout);
+}
+
+void HomeWindow::offroadTransition(bool offroad) {
+  if (offroad) {
+    slayout->setCurrentWidget(home);
+  } else {
+    slayout->setCurrentWidget(onroad);
+  }
+  sidebar->setVisible(offroad);
+  emit offroadTransitionSignal(offroad);
+}
+
+void HomeWindow::showDriverView(bool show) {
+  if (show) {
+    emit closeSettings();
+    slayout->setCurrentWidget(driver_view);
+  } else {
+    slayout->setCurrentWidget(home);
+  }
+  sidebar->setVisible(show == false);
+}
+
+void HomeWindow::mousePressEvent(QMouseEvent* e) {
+  // Handle sidebar collapsing
+  if (onroad->isVisible() && (!sidebar->isVisible() || e->x() > sidebar->width())) {
+    // Hide map first if visible, then hide sidebar
+    if (onroad->map != nullptr && onroad->map->isVisible()){
+      onroad->map->setVisible(false);
+    } else if (!sidebar->isVisible()) {
+      sidebar->setVisible(true);
+    } else {
+      sidebar->setVisible(false);
+
+      if (onroad->map != nullptr) onroad->map->setVisible(true);
+    }
+  }
+}
+
+// OffroadHome: the offroad home page
+
+OffroadHome::OffroadHome(QWidget* parent) : QFrame(parent) {
+  QVBoxLayout* main_layout = new QVBoxLayout();
+  main_layout->setMargin(50);
 
   // top header
-  QHBoxLayout *header_layout = new QHBoxLayout();
+  QHBoxLayout* header_layout = new QHBoxLayout();
 
   date = new QLabel();
   date->setStyleSheet(R"(font-size: 55px;)");
-  header_layout->addWidget(date, 0, Qt::AlignTop | Qt::AlignLeft);
-
-  QLabel *version = new QLabel(QString::fromStdString("openpilot v" + Params().get("Version")));
-  version->setStyleSheet(R"(font-size: 45px;)");
-  header_layout->addWidget(version, 0, Qt::AlignTop | Qt::AlignRight);
-
-  main_layout->addLayout(header_layout);
+  header_layout->addWidget(date, 0, Qt::AlignHCenter | Qt::AlignLeft);
 
   alert_notification = new QPushButton();
-  QObject::connect(alert_notification, SIGNAL(released()), this, SLOT(openAlerts()));
-  main_layout->addWidget(alert_notification, 0, Qt::AlignTop | Qt::AlignRight);
+  alert_notification->setVisible(false);
+  QObject::connect(alert_notification, &QPushButton::released, this, &OffroadHome::openAlerts);
+  header_layout->addWidget(alert_notification, 0, Qt::AlignHCenter | Qt::AlignRight);
+
+  std::string brand = Params().getBool("Passive") ? "dashcam" : "openpilot";
+  QLabel* version = new QLabel(QString::fromStdString(brand + " v" + Params().get("Version")));
+  version->setStyleSheet(R"(font-size: 55px;)");
+  header_layout->addWidget(version, 0, Qt::AlignHCenter | Qt::AlignRight);
+
+  main_layout->addLayout(header_layout);
 
   // main content
   main_layout->addSpacing(25);
   center_layout = new QStackedLayout();
 
-  DriveStats *drive = new DriveStats;
-  drive->setFixedSize(1000, 800);
-  center_layout->addWidget(drive);
+  QHBoxLayout* statsAndSetup = new QHBoxLayout();
+  statsAndSetup->setMargin(0);
+
+  DriveStats* drive = new DriveStats;
+  drive->setFixedSize(800, 800);
+  statsAndSetup->addWidget(drive);
+
+  SetupWidget* setup = new SetupWidget;
+  statsAndSetup->addWidget(setup);
+
+  QWidget* statsAndSetupWidget = new QWidget();
+  statsAndSetupWidget->setLayout(statsAndSetup);
+
+  center_layout->addWidget(statsAndSetupWidget);
 
   alerts_widget = new OffroadAlert();
-  QObject::connect(alerts_widget, SIGNAL(closeAlerts()), this, SLOT(closeAlerts()));
+  QObject::connect(alerts_widget, &OffroadAlert::closeAlerts, this, &OffroadHome::closeAlerts);
   center_layout->addWidget(alerts_widget);
   center_layout->setAlignment(alerts_widget, Qt::AlignCenter);
 
@@ -60,12 +135,22 @@ OffroadHome::OffroadHome(QWidget *parent) : QWidget(parent) {
 
   // set up refresh timer
   timer = new QTimer(this);
-  QObject::connect(timer, SIGNAL(timeout()), this, SLOT(refresh()));
-  refresh();
+  QObject::connect(timer, &QTimer::timeout, this, &OffroadHome::refresh);
   timer->start(10 * 1000);
 
   setLayout(main_layout);
-  setStyleSheet(R"(background-color: none;)");
+  setStyleSheet(R"(
+    OffroadHome {
+      background-color: black;
+    }
+    * {
+     color: white;
+    }
+  )");
+}
+
+void OffroadHome::showEvent(QShowEvent *event) {
+  refresh();
 }
 
 void OffroadHome::openAlerts() {
@@ -87,19 +172,22 @@ void OffroadHome::refresh() {
   // update alerts
 
   alerts_widget->refresh();
-  if (!alerts_widget->alerts.size() && !alerts_widget->updateAvailable) {
+  if (!alerts_widget->alertCount && !alerts_widget->updateAvailable) {
+    emit closeAlerts();
     alert_notification->setVisible(false);
     return;
   }
 
   if (alerts_widget->updateAvailable) {
-    // There is a new release
     alert_notification->setText("UPDATE");
   } else {
-    int alerts = alerts_widget->alerts.size();
+    int alerts = alerts_widget->alertCount;
     alert_notification->setText(QString::number(alerts) + " ALERT" + (alerts == 1 ? "" : "S"));
   }
 
+  if (!alert_notification->isVisible() && !first_refresh) {
+    emit openAlerts();
+  }
   alert_notification->setVisible(true);
 
   // Red background for alerts, blue for update available
@@ -110,168 +198,11 @@ void OffroadHome::refresh() {
     border: 1px solid;
     border-radius: 5px;
     font-size: 40px;
-    font-weight: bold;
+    font-weight: 500;
     background-color: #E22C2C;
   )");
-  if (alerts_widget->updateAvailable){
+  if (alerts_widget->updateAvailable) {
     style.replace("#E22C2C", "#364DEF");
   }
   alert_notification->setStyleSheet(style);
-}
-
-
-HomeWindow::HomeWindow(QWidget *parent) : QWidget(parent) {
-  layout = new QGridLayout;
-  layout->setMargin(0);
-
-  // onroad UI
-  glWindow = new GLWindow(this);
-  layout->addWidget(glWindow, 0, 0);
-
-  // draw offroad UI on top of onroad UI
-  home = new OffroadHome();
-  layout->addWidget(home, 0, 0);
-  QObject::connect(glWindow, SIGNAL(offroadTransition(bool)), this, SLOT(setVisibility(bool)));
-  QObject::connect(this, SIGNAL(openSettings()), home, SLOT(refresh()));
-  setLayout(layout);
-  setStyleSheet(R"(
-    * {
-      color: white;
-    }
-  )");
-}
-
-void HomeWindow::setVisibility(bool offroad) {
-  home->setVisible(offroad);
-}
-
-void HomeWindow::mousePressEvent(QMouseEvent *e) {
-  UIState *ui_state = glWindow->ui_state;
-
-  glWindow->wake();
-
-  // Settings button click
-  if (!ui_state->scene.sidebar_collapsed && settings_btn.ptInRect(e->x(), e->y())) {
-    emit openSettings();
-  }
-
-  // Vision click
-  if (ui_state->started && (e->x() >= ui_state->scene.viz_rect.x - bdr_s)) {
-    ui_state->scene.sidebar_collapsed = !ui_state->scene.sidebar_collapsed;
-  }
-}
-
-
-static void handle_display_state(UIState *s, int dt, bool user_input) {
-  static int awake_timeout = 0;
-  awake_timeout = std::max(awake_timeout-dt, 0);
-
-  if (user_input || s->ignition || s->started) {
-    s->awake = true;
-    awake_timeout = 30*UI_FREQ;
-  } else if (awake_timeout == 0) {
-    s->awake = false;
-  }
-}
-
-static void set_backlight(int brightness) {
-  std::ofstream brightness_control("/sys/class/backlight/panel0-backlight/brightness");
-  if (brightness_control.is_open()) {
-    brightness_control << brightness << "\n";
-    brightness_control.close();
-  }
-}
-
-
-GLWindow::GLWindow(QWidget *parent) : QOpenGLWidget(parent) {
-  timer = new QTimer(this);
-  QObject::connect(timer, SIGNAL(timeout()), this, SLOT(timerUpdate()));
-
-  backlight_timer = new QTimer(this);
-  QObject::connect(backlight_timer, SIGNAL(timeout()), this, SLOT(backlightUpdate()));
-
-  int result = read_param(&brightness_b, "BRIGHTNESS_B", true);
-  result += read_param(&brightness_m, "BRIGHTNESS_M", true);
-  if (result != 0) {
-    brightness_b = 200.0;
-    brightness_m = 10.0;
-  }
-  smooth_brightness = 512;
-}
-
-GLWindow::~GLWindow() {
-  makeCurrent();
-  doneCurrent();
-}
-
-void GLWindow::initializeGL() {
-  initializeOpenGLFunctions();
-  std::cout << "OpenGL version: " << glGetString(GL_VERSION) << std::endl;
-  std::cout << "OpenGL vendor: " << glGetString(GL_VENDOR) << std::endl;
-  std::cout << "OpenGL renderer: " << glGetString(GL_RENDERER) << std::endl;
-  std::cout << "OpenGL language version: " << glGetString(GL_SHADING_LANGUAGE_VERSION) << std::endl;
-
-  ui_state = new UIState();
-  ui_state->sound = &sound;
-  ui_init(ui_state);
-
-  wake();
-
-  timer->start(0);
-  backlight_timer->start(BACKLIGHT_DT * 1000);
-}
-
-void GLWindow::backlightUpdate() {
-  // Update brightness
-  float k = (BACKLIGHT_DT / BACKLIGHT_TS) / (1.0f + BACKLIGHT_DT / BACKLIGHT_TS);
-
-  float clipped_brightness = std::min(1023.0f, (ui_state->light_sensor*brightness_m) + brightness_b);
-  smooth_brightness = clipped_brightness * k + smooth_brightness * (1.0f - k);
-  int brightness = smooth_brightness;
-
-  if (!ui_state->awake) {
-    brightness = 0;
-  }
-
-  std::thread{set_backlight, brightness}.detach();
-}
-
-void GLWindow::timerUpdate() {
-  if (ui_state->started != onroad) {
-    onroad = ui_state->started;
-    emit offroadTransition(!onroad);
-#ifdef QCOM2
-    timer->setInterval(onroad ? 0 : 1000);
-#endif
-  }
-
-  // Fix awake timeout if running 1 Hz when offroad
-  int dt = timer->interval() == 0 ? 1 : 20;
-  handle_display_state(ui_state, dt, false);
-
-  ui_update(ui_state);
-  repaint();
-}
-
-void GLWindow::resizeGL(int w, int h) {
-  std::cout << "resize " << w << "x" << h << std::endl;
-}
-
-void GLWindow::paintGL() {
-  ui_draw(ui_state);
-}
-
-void GLWindow::wake() {
-  // UI state might not be initialized yet
-  if (ui_state != nullptr) {
-    handle_display_state(ui_state, 1, true);
-  }
-}
-
-
-FramebufferState* framebuffer_init(const char* name, int32_t layer, int alpha,
-                                   int *out_w, int *out_h) {
-  *out_w = vwp_w;
-  *out_h = vwp_h;                                   
-  return (FramebufferState*)1; // not null
 }

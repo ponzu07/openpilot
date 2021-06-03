@@ -10,16 +10,16 @@
   "Offroad_ConnectivityNeededPrompt": {
     "text": "すぐにインターネットに接続してアップデートを確認してくださいインターネットに接続していない場合オープンパイロットは使用できなくなります。",
     "severity": 0,
-    "_comment": "Append the number of days at the end of the text"
+    "_comment": "テキストの最後に日数を追加する"
   },
   "Offroad_ConnectivityNeeded": {
-    "text": "Connect to internet to check for updates. openpilot won't start until it connects to internet to check for updates.",
+    "text": "インターネットに接続してアップデートを確認してください。 インターネットに接続してアップデートを確認するまで、オープンパイロットは起動しません。",
     "severity": 1
   },
   "Offroad_UpdateFailed": {
     "text": "アップデートをダウンロードできません\n",
     "severity": 1,
-    "_comment": "Append the command and error to the text."
+    "_comment": "コマンドとエラーをテキストに追加します。"
   },
   "Offroad_PandaFirmwareMismatch": {
     "text": "予期しないパンダのファームウェアバージョンです。パンダに再フラッシュするためデバイスを再起動してください。",
@@ -40,5 +40,13 @@
   "Offroad_HardwareUnsupported": {
     "text": "ホワイトパンダとグレーパンダはサポートされていません。コンマ2かブラックパンダにアップグレードしてください。",
     "severity": 0
+  },
+  "Offroad_UnofficialHardware": {
+    "text": "デバイスの登録に失敗しました。このデバイスはcomma.aiのサーバーに接続もアップロードもせず、comma.aiからのサポートも受けられません。これが公式のデバイスである場合は、support@comma.aiにご連絡ください。",
+    "severity": 1
+  },
+  "Offroad_NvmeMissing": {
+    "text": "NVME drive not mounted.",
+    "severity": 1
   }
 }

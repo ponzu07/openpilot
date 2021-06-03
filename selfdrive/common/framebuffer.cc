@@ -1,15 +1,15 @@
-#include "util.h"
+#include "selfdrive/common/framebuffer.h"
+
 #include <cstdio>
-#include <cstdlib>
 #include <cassert>
+
+#include "selfdrive/common/util.h"
 
 #include <ui/DisplayInfo.h>
 
 #include <gui/ISurfaceComposer.h>
 #include <gui/Surface.h>
 #include <gui/SurfaceComposerClient.h>
-
-
 #include <GLES2/gl2.h>
 #include <EGL/eglext.h>
 
@@ -32,7 +32,7 @@ struct FramebufferState {
     EGLContext context;
 };
 
-void framebuffer_swap(FramebufferState *s) {
+void FrameBuffer::swap() {
   eglSwapBuffers(s->display, s->surface);
   assert(glGetError() == GL_NO_ERROR);
 }
@@ -40,20 +40,15 @@ void framebuffer_swap(FramebufferState *s) {
 bool set_brightness(int brightness) {
   char bright[64];
   snprintf(bright, sizeof(bright), "%d", brightness);
-  return 0 == write_file("/sys/class/leds/lcd-backlight/brightness", bright, strlen(bright));
+  return 0 == util::write_file("/sys/class/leds/lcd-backlight/brightness", bright, strlen(bright));
 }
 
-void framebuffer_set_power(FramebufferState *s, int mode) {
+void FrameBuffer::set_power(int mode) {
   SurfaceComposerClient::setDisplayPowerMode(s->dtoken, mode);
 }
 
-FramebufferState* framebuffer_init(
-    const char* name, int32_t layer, int alpha,
-    int *out_w, int *out_h) {
-  status_t status;
-  int success;
-
-  FramebufferState *s = new FramebufferState;
+FrameBuffer::FrameBuffer(const char *name, uint32_t layer, int alpha, int *out_w, int *out_h) {
+  s = new FramebufferState;
 
   s->session = new SurfaceComposerClient();
   assert(s->session != NULL);
@@ -62,7 +57,7 @@ FramebufferState* framebuffer_init(
                 ISurfaceComposer::eDisplayIdMain);
   assert(s->dtoken != NULL);
 
-  status = SurfaceComposerClient::getDisplayInfo(s->dtoken, &s->dinfo);
+  status_t status = SurfaceComposerClient::getDisplayInfo(s->dtoken, &s->dinfo);
   assert(status == 0);
 
   //int orientation = 3; // rotate framebuffer 270 degrees
@@ -108,7 +103,7 @@ FramebufferState* framebuffer_init(
   s->display = eglGetDisplay(EGL_DEFAULT_DISPLAY);
   assert(s->display != EGL_NO_DISPLAY);
 
-  success = eglInitialize(s->display, &s->egl_major, &s->egl_minor);
+  int success = eglInitialize(s->display, &s->egl_major, &s->egl_minor);
   assert(success);
 
   printf("egl version %d.%d\n", s->egl_major, s->egl_minor);
@@ -141,6 +136,11 @@ FramebufferState* framebuffer_init(
 
   if (out_w) *out_w = w;
   if (out_h) *out_h = h;
+}
 
-  return s;
+FrameBuffer::~FrameBuffer() {
+  eglDestroyContext(s->display, s->context);
+  eglDestroySurface(s->display, s->surface);
+  eglTerminate(s->display);
+  delete s;
 }

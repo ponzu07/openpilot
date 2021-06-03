@@ -6,12 +6,13 @@ import requests
 import struct
 import subprocess
 import os
+from typing import Generator
 
 from common.spinner import Spinner
 
 
 class StreamingDecompressor:
-  def __init__(self, url):
+  def __init__(self, url: str) -> None:
     self.buf = b""
 
     self.req = requests.get(url, stream=True, headers={'Accept-Encoding': None})
@@ -20,7 +21,7 @@ class StreamingDecompressor:
     self.eof = False
     self.sha256 = hashlib.sha256()
 
-  def read(self, length):
+  def read(self, length: int) -> bytes:
     while len(self.buf) < length:
       self.req.raise_for_status()
 
@@ -38,8 +39,9 @@ class StreamingDecompressor:
     self.sha256.update(result)
     return result
 
-
-def unsparsify(f):
+SPARSE_CHUNK_FMT = struct.Struct('H2xI4x')
+def unsparsify(f: StreamingDecompressor) -> Generator[bytes, None, None]:
+  # https://source.android.com/devices/bootloader/images#sparse-format
   magic = struct.unpack("I", f.read(4))[0]
   assert(magic == 0xed26ff3a)
 
@@ -48,20 +50,16 @@ def unsparsify(f):
   minor = struct.unpack("H", f.read(2))[0]
   assert(major == 1 and minor == 0)
 
-  # Header sizes
-  _ = struct.unpack("H", f.read(2))[0]
-  _ = struct.unpack("H", f.read(2))[0]
+  f.read(2)  # file header size
+  f.read(2)  # chunk header size
 
   block_sz = struct.unpack("I", f.read(4))[0]
-  _ = struct.unpack("I", f.read(4))[0]
+  f.read(4)  # total blocks
   num_chunks = struct.unpack("I", f.read(4))[0]
-  _ = struct.unpack("I", f.read(4))[0]
+  f.read(4)  # crc checksum
 
   for _ in range(num_chunks):
-    chunk_type = struct.unpack("H", f.read(2))[0]
-    _ = struct.unpack("H", f.read(2))[0]
-    out_blocks = struct.unpack("I", f.read(4))[0]
-    _ = struct.unpack("I", f.read(4))[0]
+    chunk_type, out_blocks = SPARSE_CHUNK_FMT.unpack(f.read(12))
 
     if chunk_type == 0xcac1:  # Raw
       # TODO: yield in smaller chunks. Yielding only block_sz is too slow. Largest observed data chunk is 252 MB.
@@ -74,6 +72,55 @@ def unsparsify(f):
       yield b""
     else:
       raise Exception("Unhandled sparse chunk type")
+
+
+def flash_partition(cloudlog, spinner, target_slot, partition):
+  cloudlog.info(f"Downloading and writing {partition['name']}")
+
+  downloader = StreamingDecompressor(partition['url'])
+  with open(f"/dev/disk/by-partlabel/{partition['name']}{target_slot}", 'wb+') as out:
+    partition_size = partition['size']
+
+    # Check if partition is already flashed
+    out.seek(partition_size)
+    if out.read(64) == partition['hash_raw'].lower().encode():
+      cloudlog.info(f"Already flashed {partition['name']}")
+      return
+
+    # Clear hash before flashing
+    out.seek(partition_size)
+    out.write(b"\x00" * 64)
+    out.seek(0)
+    os.sync()
+
+    # Flash partition
+    if partition['sparse']:
+      raw_hash = hashlib.sha256()
+      for chunk in unsparsify(downloader):
+        raw_hash.update(chunk)
+        out.write(chunk)
+
+        if spinner is not None:
+          spinner.update_progress(out.tell(), partition_size)
+
+      if raw_hash.hexdigest().lower() != partition['hash_raw'].lower():
+        raise Exception(f"Unsparse hash mismatch '{raw_hash.hexdigest().lower()}'")
+    else:
+      while not downloader.eof:
+        out.write(downloader.read(1024 * 1024))
+
+        if spinner is not None:
+          spinner.update_progress(out.tell(), partition_size)
+
+    if downloader.sha256.hexdigest().lower() != partition['hash'].lower():
+      raise Exception("Uncompressed hash mismatch")
+
+    if out.tell() != partition['size']:
+      raise Exception("Uncompressed size mismatch")
+
+    # Write hash after successfull flash
+    os.sync()
+    out.write(partition['hash_raw'].lower().encode())
 
 
 def flash_agnos_update(manifest_path, cloudlog, spinner=None):
@@ -89,45 +136,23 @@ def flash_agnos_update(manifest_path, cloudlog, spinner=None):
   os.system(f"abctl --set_unbootable {target_slot_number}")
 
   for partition in update:
-    cloudlog.info(f"Downloading and writing {partition['name']}")
+    success = False
 
-    downloader = StreamingDecompressor(partition['url'])
-    with open(f"/dev/disk/by-partlabel/{partition['name']}{target_slot}", 'wb') as out:
-      partition_size = partition['size']
-      # Clear hash before flashing
-      out.seek(partition_size)
-      out.write(b"\x00" * 64)
-      out.seek(0)
-      os.sync()
+    for retries in range(10):
+      try:
+        flash_partition(cloudlog, spinner, target_slot, partition)
+        success = True
+        break
 
-      # Flash partition
-      if partition['sparse']:
-        raw_hash = hashlib.sha256()
-        for chunk in unsparsify(downloader):
-          raw_hash.update(chunk)
-          out.write(chunk)
+      except requests.exceptions.RequestException:
+        cloudlog.exception("Failed")
+        spinner.update("Waiting for internet...")
+        cloudlog.info(f"Failed to download {partition['name']}, retrying ({retries})")
+        time.sleep(10)
 
-          if spinner is not None:
-            spinner.update_progress(out.tell(), partition_size)
-
-        if raw_hash.hexdigest().lower() != partition['hash_raw'].lower():
-          raise Exception(f"Unsparse hash mismatch '{raw_hash.hexdigest().lower()}'")
-      else:
-        while not downloader.eof:
-          out.write(downloader.read(1024 * 1024))
-
-          if spinner is not None:
-            spinner.update_progress(out.tell(), partition_size)
-
-      if downloader.sha256.hexdigest().lower() != partition['hash'].lower():
-        raise Exception("Uncompressed hash mismatch")
-
-      if out.tell() != partition['size']:
-        raise Exception("Uncompressed size mismatch")
-
-      # Write hash after successfull flash
-      os.sync()
-      out.write(partition['hash_raw'].lower().encode())
+    if not success:
+      cloudlog.info(f"Failed to flash {partition['name']}, aborting")
+      raise Exception("Maximum retries exceeded")
 
   cloudlog.info(f"AGNOS ready on slot {target_slot}")
 
