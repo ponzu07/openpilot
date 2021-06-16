@@ -141,21 +141,21 @@ class Alert:
 class NoEntryAlert(Alert):
   def __init__(self, alert_text_2, audible_alert=AudibleAlert.chimeError,
                visual_alert=VisualAlert.none, duration_hud_alert=2.):
-    super().__init__("openpilot Unavailable", alert_text_2, AlertStatus.normal,
+    super().__init__("オープンパイロットは利用不可", alert_text_2, AlertStatus.normal,
                      AlertSize.mid, Priority.LOW, visual_alert,
                      audible_alert, .4, duration_hud_alert, 3.)
 
 
 class SoftDisableAlert(Alert):
   def __init__(self, alert_text_2):
-    super().__init__("TAKE CONTROL IMMEDIATELY", alert_text_2,
+    super().__init__("すぐに運転を交代して下さい", alert_text_2,
                      AlertStatus.critical, AlertSize.full,
                      Priority.MID, VisualAlert.steerRequired,
                      AudibleAlert.chimeWarningRepeat, .1, 2., 2.),
 
 
 class ImmediateDisableAlert(Alert):
-  def __init__(self, alert_text_2, alert_text_1="TAKE CONTROL IMMEDIATELY"):
+  def __init__(self, alert_text_2, alert_text_1="すぐに運転を交代して下さい"):
     super().__init__(alert_text_1, alert_text_2,
                      AlertStatus.critical, AlertSize.full,
                      Priority.HIGHEST, VisualAlert.steerRequired,
@@ -180,8 +180,8 @@ def below_steer_speed_alert(CP: car.CarParams, sm: messaging.SubMaster, metric: 
   speed = int(round(CP.minSteerSpeed * (CV.MS_TO_KPH if metric else CV.MS_TO_MPH)))
   unit = "km/h" if metric else "mph"
   return Alert(
-    "TAKE CONTROL",
-    "Steer Unavailable Below %d %s" % (speed, unit),
+    "ハンドルを持って",
+    "ステアリングは %d %s のため使用できません" % (speed, unit),
     AlertStatus.userPrompt, AlertSize.mid,
     Priority.MID, VisualAlert.steerRequired, AudibleAlert.none, 0., 0.4, .3)
 
@@ -189,29 +189,29 @@ def calibration_incomplete_alert(CP: car.CarParams, sm: messaging.SubMaster, met
   speed = int(MIN_SPEED_FILTER * (CV.MS_TO_KPH if metric else CV.MS_TO_MPH))
   unit = "km/h" if metric else "mph"
   return Alert(
-    "Calibration in Progress: %d%%" % sm['liveCalibration'].calPerc,
-    "Drive Above %d %s" % (speed, unit),
+    "キャリブレーション: %d%%" % sm['liveCalibration'].calPerc,
+    "%d %s で走行してください" % (speed, unit),
     AlertStatus.normal, AlertSize.mid,
     Priority.LOWEST, VisualAlert.none, AudibleAlert.none, 0., 0., .2)
 
 def no_gps_alert(CP: car.CarParams, sm: messaging.SubMaster, metric: bool) -> Alert:
   gps_integrated = sm['pandaState'].pandaType in [log.PandaState.PandaType.uno, log.PandaState.PandaType.dos]
   return Alert(
-    "Poor GPS reception",
-    "If sky is visible, contact support" if gps_integrated else "Check GPS antenna placement",
+    "GPS受信不良",
+    "空が見えるのにエラーが出ているならサポートに連絡" if gps_integrated else "Check GPS antenna placement",
     AlertStatus.normal, AlertSize.mid,
     Priority.LOWER, VisualAlert.none, AudibleAlert.none, 0., 0., .2, creation_delay=300.)
 
 def wrong_car_mode_alert(CP: car.CarParams, sm: messaging.SubMaster, metric: bool) -> Alert:
-  text = "Cruise Mode Disabled"
+  text = "クルーズモード無効"
   if CP.carName == "honda":
-    text = "Main Switch Off"
+    text = "メインスイッチオフ"
   return NoEntryAlert(text, duration_hud_alert=0.)
 
 def startup_fuzzy_fingerprint_alert(CP: car.CarParams, sm: messaging.SubMaster, metric: bool) -> Alert:
   return Alert(
-    "WARNING: No Exact Match on Car Model",
-    f"Closest Match: {CP.carFingerprint.title()[:40]}",
+    "警告: 車両モデルが完全一致しません",
+    f"類似車両: {CP.carFingerprint.title()[:40]}",
     AlertStatus.userPrompt, AlertSize.mid,
     Priority.LOWER, VisualAlert.none, AudibleAlert.none, 0., 0., 15.)
 
@@ -234,32 +234,32 @@ EVENTS: Dict[int, Dict[str, Union[Alert, Callable[[Any, messaging.SubMaster, boo
 
   EventName.startup: {
     ET.PERMANENT: Alert(
-      "Be ready to take over at any time",
-      "Always keep hands on wheel and eyes on road",
+      "常に交代できるよう準備して",
+      "常にハンドルに触れ道路から目を離さない",
       AlertStatus.normal, AlertSize.mid,
       Priority.LOWER, VisualAlert.none, AudibleAlert.none, 0., 0., 15.),
   },
 
   EventName.startupMaster: {
     ET.PERMANENT: Alert(
-      "WARNING: This branch is not tested",
-      "Always keep hands on wheel and eyes on road",
+      "警告: このブランチはテストされていません",
+      "常にハンドルに触れ道路から目を離さない",
       AlertStatus.userPrompt, AlertSize.mid,
       Priority.LOWER, VisualAlert.none, AudibleAlert.none, 0., 0., 15.),
   },
 
   EventName.startupNoControl: {
     ET.PERMANENT: Alert(
-      "Dashcam mode",
-      "Always keep hands on wheel and eyes on road",
+      "ダッシュカムモード",
+      "常にハンドルに触れ道路から目を離さない",
       AlertStatus.normal, AlertSize.mid,
       Priority.LOWER, VisualAlert.none, AudibleAlert.none, 0., 0., 15.),
   },
 
   EventName.startupNoCar: {
     ET.PERMANENT: Alert(
-      "Dashcam mode for unsupported car",
-      "Always keep hands on wheel and eyes on road",
+      "未対応車のためダッシュカムモード",
+      "常にハンドルに触れ道路から目を離さない",
       AlertStatus.normal, AlertSize.mid,
       Priority.LOWER, VisualAlert.none, AudibleAlert.none, 0., 0., 15.),
   },
@@ -270,7 +270,7 @@ EVENTS: Dict[int, Dict[str, Union[Alert, Callable[[Any, messaging.SubMaster, boo
 
   EventName.startupNoFw: {
     ET.PERMANENT: Alert(
-      "Car Unrecognized",
+      "未対応車",
       "Check All Connections",
       AlertStatus.userPrompt, AlertSize.mid,
       Priority.LOWER, VisualAlert.none, AudibleAlert.none, 0., 0., 15.),
@@ -278,7 +278,7 @@ EVENTS: Dict[int, Dict[str, Union[Alert, Callable[[Any, messaging.SubMaster, boo
 
   EventName.dashcamMode: {
     ET.PERMANENT: Alert(
-      "Dashcam Mode",
+      "ダッシュカムモード",
       "",
       AlertStatus.normal, AlertSize.small,
       Priority.LOWEST, VisualAlert.none, AudibleAlert.none, 0., 0., .2),
@@ -286,8 +286,8 @@ EVENTS: Dict[int, Dict[str, Union[Alert, Callable[[Any, messaging.SubMaster, boo
 
   EventName.invalidLkasSetting: {
     ET.PERMANENT: Alert(
-      "Stock LKAS is turned on",
-      "Turn off stock LKAS to engage",
+      "純正LKASが有効になっています",
+      "純正LKASを無効にして発進",
       AlertStatus.normal, AlertSize.mid,
       Priority.LOWER, VisualAlert.none, AudibleAlert.none, 0., 0., .2),
   },
@@ -295,50 +295,50 @@ EVENTS: Dict[int, Dict[str, Union[Alert, Callable[[Any, messaging.SubMaster, boo
   EventName.communityFeatureDisallowed: {
     # LOW priority to overcome Cruise Error
     ET.PERMANENT: Alert(
-      "openpilot Not Available",
-      "Enable Community Features in Settings to Engage",
+      "オープンパイロットは利用不可",
+      "設定でコミュニティ機能を有効にしてください",
       AlertStatus.normal, AlertSize.mid,
       Priority.LOW, VisualAlert.none, AudibleAlert.none, 0., 0., .2),
   },
 
   EventName.carUnrecognized: {
     ET.PERMANENT: Alert(
-      "Dashcam Mode",
-      "Car Unrecognized",
+      "ダッシュカムモード",
+      "未対応車",
       AlertStatus.normal, AlertSize.mid,
       Priority.LOWEST, VisualAlert.none, AudibleAlert.none, 0., 0., .2),
   },
 
   EventName.stockAeb: {
     ET.PERMANENT: Alert(
-      "BRAKE!",
-      "Stock AEB: Risk of Collision",
+      "ブレーキ!",
+      "純正AEB: 衝突リスクあり",
       AlertStatus.critical, AlertSize.full,
       Priority.HIGHEST, VisualAlert.fcw, AudibleAlert.none, 1., 2., 2.),
-    ET.NO_ENTRY: NoEntryAlert("Stock AEB: Risk of Collision"),
+    ET.NO_ENTRY: NoEntryAlert("純正AEB: 衝突リスクあり"),
   },
 
   EventName.stockFcw: {
     ET.PERMANENT: Alert(
-      "BRAKE!",
-      "Stock FCW: Risk of Collision",
+      "ブレーキ!",
+      "純正FCW: 衝突リスクあり",
       AlertStatus.critical, AlertSize.full,
       Priority.HIGHEST, VisualAlert.fcw, AudibleAlert.none, 1., 2., 2.),
-    ET.NO_ENTRY: NoEntryAlert("Stock FCW: Risk of Collision"),
+    ET.NO_ENTRY: NoEntryAlert("純正FCW: 衝突リスクあり"),
   },
 
   EventName.fcw: {
     ET.PERMANENT: Alert(
-      "BRAKE!",
-      "Risk of Collision",
+      "ブレーキ!",
+      "衝突リスクあり",
       AlertStatus.critical, AlertSize.full,
       Priority.HIGHEST, VisualAlert.fcw, AudibleAlert.chimeWarningRepeat, 1., 2., 2.),
   },
 
   EventName.ldw: {
     ET.PERMANENT: Alert(
-      "TAKE CONTROL",
-      "Lane Departure Detected",
+      "ハンドルを持って",
+      "車線逸脱検知",
       AlertStatus.userPrompt, AlertSize.mid,
       Priority.LOW, VisualAlert.steerRequired, AudibleAlert.chimePrompt, 1., 2., 3.),
   },
@@ -347,17 +347,17 @@ EVENTS: Dict[int, Dict[str, Union[Alert, Callable[[Any, messaging.SubMaster, boo
 
   EventName.gasPressed: {
     ET.PRE_ENABLE: Alert(
-      "openpilot will not brake while gas pressed",
+      "オープンパイロットはアクセル中にブレーキを掛けません",
       "",
       AlertStatus.normal, AlertSize.small,
       Priority.LOWEST, VisualAlert.none, AudibleAlert.none, .0, .0, .1, creation_delay=1.),
   },
 
   EventName.vehicleModelInvalid: {
-    ET.NO_ENTRY: NoEntryAlert("Vehicle Parameter Identification Failed"),
-    ET.SOFT_DISABLE: SoftDisableAlert("Vehicle Parameter Identification Failed"),
+    ET.NO_ENTRY: NoEntryAlert("車両パラメータの識別に失敗しました"),
+    ET.SOFT_DISABLE: SoftDisableAlert("車両パラメータの識別に失敗しました"),
     ET.WARNING: Alert(
-      "Vehicle Parameter Identification Failed",
+      "車両パラメータの識別に失敗しました",
       "",
       AlertStatus.normal, AlertSize.small,
       Priority.LOWEST, VisualAlert.steerRequired, AudibleAlert.none, .0, .0, .1),
@@ -365,7 +365,7 @@ EVENTS: Dict[int, Dict[str, Union[Alert, Callable[[Any, messaging.SubMaster, boo
 
   EventName.steerTempUnavailableUserOverride: {
     ET.WARNING: Alert(
-      "Steering Temporarily Unavailable",
+      "ステアリングが一時的に使用できません",
       "",
       AlertStatus.userPrompt, AlertSize.small,
       Priority.LOW, VisualAlert.steerRequired, AudibleAlert.chimePrompt, 1., 1., 1.),
@@ -373,7 +373,7 @@ EVENTS: Dict[int, Dict[str, Union[Alert, Callable[[Any, messaging.SubMaster, boo
 
   EventName.preDriverDistracted: {
     ET.WARNING: Alert(
-      "KEEP EYES ON ROAD: Driver Distracted",
+      "道路を見て: 注意散漫です",
       "",
       AlertStatus.normal, AlertSize.small,
       Priority.LOW, VisualAlert.steerRequired, AudibleAlert.none, .0, .1, .1),
@@ -381,23 +381,23 @@ EVENTS: Dict[int, Dict[str, Union[Alert, Callable[[Any, messaging.SubMaster, boo
 
   EventName.promptDriverDistracted: {
     ET.WARNING: Alert(
-      "KEEP EYES ON ROAD",
-      "Driver Distracted",
+      "道路を見て",
+      "運転手は注意散漫です",
       AlertStatus.userPrompt, AlertSize.mid,
       Priority.MID, VisualAlert.steerRequired, AudibleAlert.chimeWarning2Repeat, .1, .1, .1),
   },
 
   EventName.driverDistracted: {
     ET.WARNING: Alert(
-      "DISENGAGE IMMEDIATELY",
-      "Driver Distracted",
+      "直ちに運転を交代してください",
+      "運転手は注意散漫です",
       AlertStatus.critical, AlertSize.full,
       Priority.HIGH, VisualAlert.steerRequired, AudibleAlert.chimeWarningRepeat, .1, .1, .1),
   },
 
   EventName.preDriverUnresponsive: {
     ET.WARNING: Alert(
-      "TOUCH STEERING WHEEL: No Face Detected",
+      "ハンドルに触れて: 顔が見えません",
       "",
       AlertStatus.normal, AlertSize.small,
       Priority.LOW, VisualAlert.steerRequired, AudibleAlert.none, .0, .1, .1, alert_rate=0.75),
@@ -405,40 +405,40 @@ EVENTS: Dict[int, Dict[str, Union[Alert, Callable[[Any, messaging.SubMaster, boo
 
   EventName.promptDriverUnresponsive: {
     ET.WARNING: Alert(
-      "TOUCH STEERING WHEEL",
-      "Driver Unresponsive",
+      "ハンドルに触れて",
+      "運転手が無反応です",
       AlertStatus.userPrompt, AlertSize.mid,
       Priority.MID, VisualAlert.steerRequired, AudibleAlert.chimeWarning2Repeat, .1, .1, .1),
   },
 
   EventName.driverUnresponsive: {
     ET.WARNING: Alert(
-      "DISENGAGE IMMEDIATELY",
-      "Driver Unresponsive",
+      "直ちに運転を交代してください",
+      "運転手が無反応です",
       AlertStatus.critical, AlertSize.full,
       Priority.HIGH, VisualAlert.steerRequired, AudibleAlert.chimeWarningRepeat, .1, .1, .1),
   },
 
   EventName.driverMonitorLowAcc: {
     ET.WARNING: Alert(
-      "CHECK DRIVER FACE VISIBILITY",
-      "Driver Monitoring Uncertain",
+      "運転手の顔の見え方を確認",
+      "運転手監視モデルが不完全",
       AlertStatus.normal, AlertSize.mid,
       Priority.LOW, VisualAlert.steerRequired, AudibleAlert.none, .4, 0., 1.5),
   },
 
   EventName.manualRestart: {
     ET.WARNING: Alert(
-      "TAKE CONTROL",
-      "Resume Driving Manually",
+      "ハンドルを持って",
+      "手動で運転を再開",
       AlertStatus.userPrompt, AlertSize.mid,
       Priority.LOW, VisualAlert.none, AudibleAlert.none, 0., 0., .2),
   },
 
   EventName.resumeRequired: {
     ET.WARNING: Alert(
-      "STOPPED",
-      "Press Resume to Move",
+      "停止",
+      "再開を押して移動",
       AlertStatus.userPrompt, AlertSize.mid,
       Priority.LOW, VisualAlert.none, AudibleAlert.none, 0., 0., .2),
   },
@@ -449,58 +449,58 @@ EVENTS: Dict[int, Dict[str, Union[Alert, Callable[[Any, messaging.SubMaster, boo
 
   EventName.preLaneChangeLeft: {
     ET.WARNING: Alert(
-      "Steer Left to Start Lane Change",
-      "Monitor Other Vehicles",
+      "左ハンドルで車線変更を開始",
+      "周囲の車を確認",
       AlertStatus.normal, AlertSize.mid,
       Priority.LOW, VisualAlert.steerRequired, AudibleAlert.none, .0, .1, .1, alert_rate=0.75),
   },
 
   EventName.preLaneChangeRight: {
     ET.WARNING: Alert(
-      "Steer Right to Start Lane Change",
-      "Monitor Other Vehicles",
+      "右ハンドルで車線変更を開始",
+      "周囲の車を確認",
       AlertStatus.normal, AlertSize.mid,
       Priority.LOW, VisualAlert.steerRequired, AudibleAlert.none, .0, .1, .1, alert_rate=0.75),
   },
 
   EventName.laneChangeBlocked: {
     ET.WARNING: Alert(
-      "Car Detected in Blindspot",
-      "Monitor Other Vehicles",
+      "ブラインドスポットに反応あり",
+      "周囲の車を確認",
       AlertStatus.userPrompt, AlertSize.mid,
       Priority.LOW, VisualAlert.steerRequired, AudibleAlert.chimePrompt, .1, .1, .1),
   },
 
   EventName.laneChange: {
     ET.WARNING: Alert(
-      "Changing Lane",
-      "Monitor Other Vehicles",
+      "車線変更中",
+      "周囲の車を確認",
       AlertStatus.normal, AlertSize.mid,
       Priority.LOW, VisualAlert.steerRequired, AudibleAlert.none, .0, .1, .1),
   },
 
   EventName.steerSaturated: {
     ET.WARNING: Alert(
-      "TAKE CONTROL",
-      "Turn Exceeds Steering Limit",
+      "ハンドルを持って",
+      "操舵限界を超えて旋回中",
       AlertStatus.userPrompt, AlertSize.mid,
       Priority.LOW, VisualAlert.steerRequired, AudibleAlert.chimePrompt, 1., 1., 1.),
   },
 
   EventName.fanMalfunction: {
-    ET.PERMANENT: NormalPermanentAlert("Fan Malfunction", "Contact Support"),
+    ET.PERMANENT: NormalPermanentAlert("ファン異常", "サポートに連絡"),
   },
 
   EventName.cameraMalfunction: {
-    ET.PERMANENT: NormalPermanentAlert("Camera Malfunction", "Contact Support"),
+    ET.PERMANENT: NormalPermanentAlert("カメラ異常", "サポートに連絡"),
   },
 
   EventName.gpsMalfunction: {
-    ET.PERMANENT: NormalPermanentAlert("GPS Malfunction", "Contact Support"),
+    ET.PERMANENT: NormalPermanentAlert("GPSの不具合", "サポートに連絡"),
   },
 
   EventName.localizerMalfunction: {
-    ET.PERMANENT: NormalPermanentAlert("Localizer unstable", "Contact Support"),
+    ET.PERMANENT: NormalPermanentAlert("Localizer unstable", "サポートに連絡"),
   },
 
   # ********** events that affect controls state transitions **********
@@ -523,17 +523,17 @@ EVENTS: Dict[int, Dict[str, Union[Alert, Callable[[Any, messaging.SubMaster, boo
 
   EventName.brakeHold: {
     ET.USER_DISABLE: EngagementAlert(AudibleAlert.chimeDisengage),
-    ET.NO_ENTRY: NoEntryAlert("Brake Hold Active"),
+    ET.NO_ENTRY: NoEntryAlert("ブレーキホールド作動"),
   },
 
   EventName.parkBrake: {
     ET.USER_DISABLE: EngagementAlert(AudibleAlert.chimeDisengage),
-    ET.NO_ENTRY: NoEntryAlert("Park Brake Engaged"),
+    ET.NO_ENTRY: NoEntryAlert("パーキングブレーキが作動"),
   },
 
   EventName.pedalPressed: {
     ET.USER_DISABLE: EngagementAlert(AudibleAlert.chimeDisengage),
-    ET.NO_ENTRY: NoEntryAlert("Pedal Pressed During Attempt",
+    ET.NO_ENTRY: NoEntryAlert("試行中にペダルを検知",
                               visual_alert=VisualAlert.brakePressed),
   },
 
@@ -544,36 +544,36 @@ EVENTS: Dict[int, Dict[str, Union[Alert, Callable[[Any, messaging.SubMaster, boo
 
   EventName.wrongCruiseMode: {
     ET.USER_DISABLE: EngagementAlert(AudibleAlert.chimeDisengage),
-    ET.NO_ENTRY: NoEntryAlert("Enable Adaptive Cruise"),
+    ET.NO_ENTRY: NoEntryAlert("アダプティブクルーズを有効にする"),
   },
 
   EventName.steerTempUnavailable: {
-    ET.SOFT_DISABLE: SoftDisableAlert("Steering Temporarily Unavailable"),
-    ET.NO_ENTRY: NoEntryAlert("Steering Temporarily Unavailable",
+    ET.SOFT_DISABLE: SoftDisableAlert("ステアリングが一時的に使用できません"),
+    ET.NO_ENTRY: NoEntryAlert("ステアリングが一時的に使用できません",
                               duration_hud_alert=0.),
   },
 
   EventName.outOfSpace: {
     ET.PERMANENT: Alert(
-      "Out of Storage",
+      "ストレージ外へ",
       "",
       AlertStatus.normal, AlertSize.small,
       Priority.LOWER, VisualAlert.none, AudibleAlert.none, 0., 0., .2),
-    ET.NO_ENTRY: NoEntryAlert("Out of Storage Space",
+    ET.NO_ENTRY: NoEntryAlert("空き容量不足",
                               duration_hud_alert=0.),
   },
 
   EventName.belowEngageSpeed: {
-    ET.NO_ENTRY: NoEntryAlert("Speed Too Low"),
+    ET.NO_ENTRY: NoEntryAlert("低速すぎる"),
   },
 
   EventName.sensorDataInvalid: {
     ET.PERMANENT: Alert(
-      "No Data from Device Sensors",
-      "Reboot your Device",
+      "センサーから情報が取得できない",
+      "端末を再起動",
       AlertStatus.normal, AlertSize.mid,
       Priority.LOWER, VisualAlert.none, AudibleAlert.none, 0., 0., .2, creation_delay=1.),
-    ET.NO_ENTRY: NoEntryAlert("No Data from Device Sensors"),
+    ET.NO_ENTRY: NoEntryAlert("センサーから情報が取得できない"),
   },
 
   EventName.noGps: {
@@ -581,54 +581,54 @@ EVENTS: Dict[int, Dict[str, Union[Alert, Callable[[Any, messaging.SubMaster, boo
   },
 
   EventName.soundsUnavailable: {
-    ET.PERMANENT: NormalPermanentAlert("Speaker not found", "Reboot your Device"),
-    ET.NO_ENTRY: NoEntryAlert("Speaker not found"),
+    ET.PERMANENT: NormalPermanentAlert("スピーカーが見つかりません", "端末を再起動"),
+    ET.NO_ENTRY: NoEntryAlert("スピーカーが見つかりません"),
   },
 
   EventName.tooDistracted: {
-    ET.NO_ENTRY: NoEntryAlert("Distraction Level Too High"),
+    ET.NO_ENTRY: NoEntryAlert("注意力散漫レベルが高すぎます"),
   },
 
   EventName.overheat: {
     ET.PERMANENT: Alert(
-      "System Overheated",
+      "オーバーヒート",
       "",
       AlertStatus.normal, AlertSize.small,
       Priority.LOWER, VisualAlert.none, AudibleAlert.none, 0., 0., .2),
-    ET.SOFT_DISABLE: SoftDisableAlert("System Overheated"),
-    ET.NO_ENTRY: NoEntryAlert("System Overheated"),
+    ET.SOFT_DISABLE: SoftDisableAlert("オーバーヒート"),
+    ET.NO_ENTRY: NoEntryAlert("オーバーヒート"),
   },
 
   EventName.wrongGear: {
-    ET.SOFT_DISABLE: SoftDisableAlert("Gear not D"),
-    ET.NO_ENTRY: NoEntryAlert("Gear not D"),
+    ET.SOFT_DISABLE: SoftDisableAlert("ギアがDではありません"),
+    ET.NO_ENTRY: NoEntryAlert("ギアがDではありません"),
   },
 
   EventName.calibrationInvalid: {
-    ET.PERMANENT: NormalPermanentAlert("Calibration Invalid", "Remount Device and Recalibrate"),
-    ET.SOFT_DISABLE: SoftDisableAlert("Calibration Invalid: Remount Device & Recalibrate"),
-    ET.NO_ENTRY: NoEntryAlert("Calibration Invalid: Remount Device & Recalibrate"),
+    ET.PERMANENT: NormalPermanentAlert("キャリブレーション失敗", "位置を調整後に再実行してください"),
+    ET.SOFT_DISABLE: SoftDisableAlert("キャリブレーション失敗: 位置を調整して再実行"),
+    ET.NO_ENTRY: NoEntryAlert("キャリブレーション失敗: 位置を調整して再実行"),
   },
 
   EventName.calibrationIncomplete: {
     ET.PERMANENT: calibration_incomplete_alert,
-    ET.SOFT_DISABLE: SoftDisableAlert("Calibration in Progress"),
-    ET.NO_ENTRY: NoEntryAlert("Calibration in Progress"),
+    ET.SOFT_DISABLE: SoftDisableAlert("キャリブレーション中"),
+    ET.NO_ENTRY: NoEntryAlert("キャリブレーション中"),
   },
 
   EventName.doorOpen: {
-    ET.SOFT_DISABLE: SoftDisableAlert("Door Open"),
-    ET.NO_ENTRY: NoEntryAlert("Door Open"),
+    ET.SOFT_DISABLE: SoftDisableAlert("ドアが空いてます"),
+    ET.NO_ENTRY: NoEntryAlert("ドアが空いてます"),
   },
 
   EventName.seatbeltNotLatched: {
-    ET.SOFT_DISABLE: SoftDisableAlert("Seatbelt Unlatched"),
-    ET.NO_ENTRY: NoEntryAlert("Seatbelt Unlatched"),
+    ET.SOFT_DISABLE: SoftDisableAlert("シートベルトがありません"),
+    ET.NO_ENTRY: NoEntryAlert("シートベルトがありません"),
   },
 
   EventName.espDisabled: {
-    ET.SOFT_DISABLE: SoftDisableAlert("ESP Off"),
-    ET.NO_ENTRY: NoEntryAlert("ESP Off"),
+    ET.SOFT_DISABLE: SoftDisableAlert("ESP オフ"),
+    ET.NO_ENTRY: NoEntryAlert("ESP オフ"),
   },
 
   EventName.lowBattery: {
@@ -637,51 +637,51 @@ EVENTS: Dict[int, Dict[str, Union[Alert, Callable[[Any, messaging.SubMaster, boo
   },
 
   EventName.commIssue: {
-    ET.SOFT_DISABLE: SoftDisableAlert("Communication Issue between Processes"),
-    ET.NO_ENTRY: NoEntryAlert("Communication Issue between Processes",
+    ET.SOFT_DISABLE: SoftDisableAlert("プロセス間の連携問題"),
+    ET.NO_ENTRY: NoEntryAlert("プロセス間の連携問題",
                               audible_alert=AudibleAlert.chimeDisengage),
   },
 
   EventName.processNotRunning: {
-    ET.NO_ENTRY: NoEntryAlert("System Malfunction: Reboot Your Device",
+    ET.NO_ENTRY: NoEntryAlert("システムの誤動作です。端末を再起動してください",
                               audible_alert=AudibleAlert.chimeDisengage),
   },
 
   EventName.radarFault: {
-    ET.SOFT_DISABLE: SoftDisableAlert("Radar Error: Restart the Car"),
-    ET.NO_ENTRY : NoEntryAlert("Radar Error: Restart the Car"),
+    ET.SOFT_DISABLE: SoftDisableAlert("レーダー異常: 車を再起動"),
+    ET.NO_ENTRY : NoEntryAlert("レーダー異常: 車を再起動"),
   },
 
   EventName.modeldLagging: {
-    ET.SOFT_DISABLE: SoftDisableAlert("Driving model lagging"),
-    ET.NO_ENTRY : NoEntryAlert("Driving model lagging"),
+    ET.SOFT_DISABLE: SoftDisableAlert("ドライビングモデルの遅延"),
+    ET.NO_ENTRY : NoEntryAlert("ドライビングモデルの遅延"),
   },
 
   EventName.posenetInvalid: {
-    ET.SOFT_DISABLE: SoftDisableAlert("Model Output Uncertain"),
-    ET.NO_ENTRY: NoEntryAlert("Model Output Uncertain"),
+    ET.SOFT_DISABLE: SoftDisableAlert("モデル出力が不完全"),
+    ET.NO_ENTRY: NoEntryAlert("モデル出力が不完全"),
   },
 
   EventName.deviceFalling: {
-    ET.SOFT_DISABLE: SoftDisableAlert("Device Fell Off Mount"),
-    ET.NO_ENTRY: NoEntryAlert("Device Fell Off Mount"),
+    ET.SOFT_DISABLE: SoftDisableAlert("端末が落下しました"),
+    ET.NO_ENTRY: NoEntryAlert("端末が落下しました"),
   },
 
   EventName.lowMemory: {
-    ET.SOFT_DISABLE: SoftDisableAlert("Low Memory: Reboot Your Device"),
-    ET.PERMANENT: NormalPermanentAlert("Low Memory", "Reboot your Device"),
-    ET.NO_ENTRY : NoEntryAlert("Low Memory: Reboot Your Device",
+    ET.SOFT_DISABLE: SoftDisableAlert("低メモリ: 端末を再起動"),
+    ET.PERMANENT: NormalPermanentAlert("低メモリ", "端末を再起動"),
+    ET.NO_ENTRY : NoEntryAlert("低メモリ: 端末を再起動",
                                audible_alert=AudibleAlert.chimeDisengage),
   },
 
   EventName.accFaulted: {
-    ET.IMMEDIATE_DISABLE: ImmediateDisableAlert("Cruise Faulted"),
-    ET.PERMANENT: NormalPermanentAlert("Cruise Faulted", ""),
-    ET.NO_ENTRY: NoEntryAlert("Cruise Faulted"),
+    ET.IMMEDIATE_DISABLE: ImmediateDisableAlert("クルーズ失敗"),
+    ET.PERMANENT: NormalPermanentAlert("クルーズ失敗", ""),
+    ET.NO_ENTRY: NoEntryAlert("クルーズ失敗"),
   },
 
   EventName.controlsMismatch: {
-    ET.IMMEDIATE_DISABLE: ImmediateDisableAlert("Controls Mismatch"),
+    ET.IMMEDIATE_DISABLE: ImmediateDisableAlert("コントロール不一致"),
   },
 
   EventName.roadCameraError: {
@@ -706,97 +706,97 @@ EVENTS: Dict[int, Dict[str, Union[Alert, Callable[[Any, messaging.SubMaster, boo
   },
 
   EventName.canError: {
-    ET.IMMEDIATE_DISABLE: ImmediateDisableAlert("CAN Error: Check Connections"),
+    ET.IMMEDIATE_DISABLE: ImmediateDisableAlert("CAN異常: コネクタ接続を確認"),
     ET.PERMANENT: Alert(
-      "CAN Error: Check Connections",
+      "CAN異常: コネクタ接続を確認",
       "",
       AlertStatus.normal, AlertSize.small,
       Priority.LOW, VisualAlert.none, AudibleAlert.none, 0., 0., .2, creation_delay=1.),
-    ET.NO_ENTRY: NoEntryAlert("CAN Error: Check Connections"),
+    ET.NO_ENTRY: NoEntryAlert("CAN異常: コネクタ接続を確認"),
   },
 
   EventName.steerUnavailable: {
-    ET.IMMEDIATE_DISABLE: ImmediateDisableAlert("LKAS Fault: Restart the Car"),
+    ET.IMMEDIATE_DISABLE: ImmediateDisableAlert("LKAS異常: 車を再起動"),
     ET.PERMANENT: Alert(
-      "LKAS Fault: Restart the car to engage",
+      "LKAS異常: 車を再起動",
       "",
       AlertStatus.normal, AlertSize.small,
       Priority.LOWER, VisualAlert.none, AudibleAlert.none, 0., 0., .2),
-    ET.NO_ENTRY: NoEntryAlert("LKAS Fault: Restart the Car"),
+    ET.NO_ENTRY: NoEntryAlert("LKAS異常: 車を再起動"),
   },
 
   EventName.brakeUnavailable: {
-    ET.IMMEDIATE_DISABLE: ImmediateDisableAlert("Cruise Fault: Restart the Car"),
+    ET.IMMEDIATE_DISABLE: ImmediateDisableAlert("クルーズ異常: 車を再起動"),
     ET.PERMANENT: Alert(
-      "Cruise Fault: Restart the car to engage",
+      "クルーズ異常: 車を再起動",
       "",
       AlertStatus.normal, AlertSize.small,
       Priority.LOWER, VisualAlert.none, AudibleAlert.none, 0., 0., .2),
-    ET.NO_ENTRY: NoEntryAlert("Cruise Fault: Restart the Car"),
+    ET.NO_ENTRY: NoEntryAlert("クルーズ異常: 車を再起動"),
   },
 
   EventName.reverseGear: {
     ET.PERMANENT: Alert(
-      "Reverse\nGear",
+      "\nギアに戻す",
       "",
       AlertStatus.normal, AlertSize.full,
       Priority.LOWEST, VisualAlert.none, AudibleAlert.none, 0., 0., .2, creation_delay=0.5),
-    ET.IMMEDIATE_DISABLE: ImmediateDisableAlert("Reverse Gear"),
-    ET.NO_ENTRY: NoEntryAlert("Reverse Gear"),
+    ET.IMMEDIATE_DISABLE: ImmediateDisableAlert("バックギア"),
+    ET.NO_ENTRY: NoEntryAlert("バックギア"),
   },
 
   EventName.cruiseDisabled: {
-    ET.IMMEDIATE_DISABLE: ImmediateDisableAlert("Cruise Is Off"),
+    ET.IMMEDIATE_DISABLE: ImmediateDisableAlert("クルーズオフ"),
   },
 
   EventName.plannerError: {
-    ET.IMMEDIATE_DISABLE: ImmediateDisableAlert("Planner Solution Error"),
-    ET.NO_ENTRY: NoEntryAlert("Planner Solution Error"),
+    ET.IMMEDIATE_DISABLE: ImmediateDisableAlert("プランニングシステム異常"),
+    ET.NO_ENTRY: NoEntryAlert("プランニングシステム異常"),
   },
 
   EventName.relayMalfunction: {
-    ET.IMMEDIATE_DISABLE: ImmediateDisableAlert("Harness Malfunction"),
-    ET.PERMANENT: NormalPermanentAlert("Harness Malfunction", "Check Hardware"),
-    ET.NO_ENTRY: NoEntryAlert("Harness Malfunction"),
+    ET.IMMEDIATE_DISABLE: ImmediateDisableAlert("ハーネス異常"),
+    ET.PERMANENT: NormalPermanentAlert("ハーネス異常", "ハードウェアを確認"),
+    ET.NO_ENTRY: NoEntryAlert("ハーネス異常"),
   },
 
   EventName.noTarget: {
     ET.IMMEDIATE_DISABLE: Alert(
-      "openpilot Canceled",
-      "No close lead car",
+      "オープンパイロットがキャンセル",
+      "前方に車はいません",
       AlertStatus.normal, AlertSize.mid,
       Priority.HIGH, VisualAlert.none, AudibleAlert.chimeDisengage, .4, 2., 3.),
-    ET.NO_ENTRY : NoEntryAlert("No Close Lead Car"),
+    ET.NO_ENTRY : NoEntryAlert("リードカーが不在"),
   },
 
   EventName.speedTooLow: {
     ET.IMMEDIATE_DISABLE: Alert(
-      "openpilot Canceled",
-      "Speed too low",
+      "オープンパイロットがキャンセル",
+      "速度が低すぎます",
       AlertStatus.normal, AlertSize.mid,
       Priority.HIGH, VisualAlert.none, AudibleAlert.chimeDisengage, .4, 2., 3.),
   },
 
   EventName.speedTooHigh: {
     ET.WARNING: Alert(
-      "Speed Too High",
-      "Model uncertain at this speed",
+      "速度が高すぎます",
+      "この速度では認識が不正確です",
       AlertStatus.normal, AlertSize.mid,
       Priority.HIGH, VisualAlert.steerRequired, AudibleAlert.chimeWarningRepeat, 2.2, 3., 4.),
     ET.NO_ENTRY: Alert(
-      "Speed Too High",
-      "Slow down to engage",
+      "速度が高すぎます",
+      "減速して発進",
       AlertStatus.normal, AlertSize.mid,
       Priority.LOW, VisualAlert.none, AudibleAlert.chimeError, .4, 2., 3.),
   },
 
   EventName.lowSpeedLockout: {
     ET.PERMANENT: Alert(
-      "Cruise Fault: Restart the car to engage",
+      "クルーズ異常: 車を再起動",
       "",
       AlertStatus.normal, AlertSize.small,
       Priority.LOWER, VisualAlert.none, AudibleAlert.none, 0., 0., .2),
-    ET.NO_ENTRY: NoEntryAlert("Cruise Fault: Restart the Car"),
+    ET.NO_ENTRY: NoEntryAlert("クルーズ異常: 車を再起動"),
   },
 
 }

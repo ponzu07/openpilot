@@ -1,3 +1,16 @@
+注意事項
+------
+このフォークは本家OpenPilotを日本語化したフォークです。
+機能面で追加などは基本的にありません。
+0.8.5リリースがベースです。
+日本語化できていない部分、不具合があればご連絡ください。
+インストールは下記のコマンドで行なえます。
+```bash
+cd /data/ && \
+mv openpilot op_backup_$(date +%Y%m%d%H%M%S) && \
+git clone https://github.com/ponzu07/openpilot.git
+```
+
 [![](https://i.imgur.com/UelUjKAh.png)](#)
 
 Table of Contents

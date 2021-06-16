@@ -24,52 +24,52 @@ TogglesPanel::TogglesPanel(QWidget *parent) : QWidget(parent) {
   QList<ParamControl*> toggles;
 
   toggles.append(new ParamControl("OpenpilotEnabledToggle",
-                                  "Enable openpilot",
-                                  "Use the openpilot system for adaptive cruise control and lane keep driver assistance. Your attention is required at all times to use this feature. Changing this setting takes effect when the car is powered off.",
+                                  "オープンパイロットを有効化",
+                                  "ACCとLKDSにオープンパイロットを使用します。この機能を使用するには、常にドライバーの注意が必要です。この設定を変更すると車のエンジンを切った際に有効になります。",
                                   "../assets/offroad/icon_openpilot.png",
                                   this));
   toggles.append(new ParamControl("IsLdwEnabled",
-                                  "Enable Lane Departure Warnings",
-                                  "Receive alerts to steer back into the lane when your vehicle drifts over a detected lane line without a turn signal activated while driving over 31mph (50kph).",
+                                  "車線逸脱警報の有効化",
+                                  "時速50km以上で走行中に、方向指示器が作動していない状態で検知された車線を超えて走行した場合、車線内に戻るように警告を出すことができます。",
                                   "../assets/offroad/icon_warning.png",
                                   this));
   toggles.append(new ParamControl("IsRHD",
-                                  "Enable Right-Hand Drive",
-                                  "Allow openpilot to obey left-hand traffic conventions and perform driver monitoring on right driver seat.",
+                                  "右ハンドルを有効化",
+                                  "左車線の交通規則が適用され、右側の運転席でドライバー監視を行うようにします。",
                                   "../assets/offroad/icon_openpilot_mirrored.png",
                                   this));
   toggles.append(new ParamControl("IsMetric",
-                                  "Use Metric System",
-                                  "Display speed in km/h instead of mp/h.",
+                                  "メートル法を使用",
+                                  "mp/hではなくkm/hで表示",
                                   "../assets/offroad/icon_metric.png",
                                   this));
   toggles.append(new ParamControl("CommunityFeaturesToggle",
-                                  "Enable Community Features",
-                                  "Use features from the open source community that are not maintained or supported by comma.ai and have not been confirmed to meet the standard safety model. These features include community supported cars and community supported hardware. Be extra cautious when using these features",
+                                  "コミュニティ機能の有効化",
+                                  "comma.aiがメンテナンスやサポートを行っておらず、標準的な安全モデルを満たすことが確認されていないオープンソースコミュニティの機能を使用します。これらの機能には、コミュニティがサポートする自動車やコミュニティがサポートするハードウェアが含まれます。これらの機能を使用する際には、特に注意してください。",
                                   "../assets/offroad/icon_shell.png",
                                   this));
 
   toggles.append(new ParamControl("UploadRaw",
-                                  "Upload Raw Logs",
-                                  "Upload full logs and full resolution video by default while on WiFi. If not enabled, individual logs can be marked for upload at my.comma.ai/useradmin.",
+                                  "生ログをアップロード",
+                                  "WiFi使用時に、フルログとフル解像度のビデオをデフォルトでアップロードします。有効になっていない場合は、my.comma.ai/useradminで個々のログをアップロード用にマークすることができます。",
                                   "../assets/offroad/icon_network.png",
                                   this));
 
   ParamControl *record_toggle = new ParamControl("RecordFront",
-                                                 "Record and Upload Driver Camera",
-                                                "Upload data from the driver facing camera and help improve the driver monitoring algorithm.",
+                                                 "ドライバーカメラの録画とアップロード",
+                                                "ドライバーの顔データをアップロードしてドライバー監視アルゴリズムの改善に貢献します。",
                                                 "../assets/offroad/icon_monitoring.png",
                                                 this);
   toggles.append(record_toggle);
   toggles.append(new ParamControl("EndToEndToggle",
-                                   "\U0001f96c Disable use of lanelines (Alpha) \U0001f96c",
-                                   "In this mode openpilot will ignore lanelines and just drive how it thinks a human would.",
+                                   "\U0001f96c 車線を無視 (アルファ) \U0001f96c",
+                                   "車線を無視し人間が運転するように運転します。",
                                    "../assets/offroad/icon_road.png",
                                    this));
 
   if (Hardware::TICI()) {
     toggles.append(new ParamControl("EnableWideCamera",
-                                    "Enable use of Wide Angle Camera",
+                                    "広角カメラの使用を可能にする",
                                     "Use wide angle camera for driving and ui.",
                                     "../assets/offroad/icon_openpilot.png",
                                     this));
@@ -78,7 +78,7 @@ TogglesPanel::TogglesPanel(QWidget *parent) : QWidget(parent) {
     });
 
     toggles.append(new ParamControl("EnableLteOnroad",
-                                    "Enable LTE while onroad",
+                                    "オンロードでLTEを有効にする",
                                     "",
                                     "../assets/offroad/icon_network.png",
                                     this));
@@ -111,13 +111,13 @@ DevicePanel::DevicePanel(QWidget* parent) : QWidget(parent) {
   // offroad-only buttons
   QList<ButtonControl*> offroad_btns;
 
-  offroad_btns.append(new ButtonControl("Driver Camera", "PREVIEW",
-                                        "Preview the driver facing camera to help optimize device mounting position for best driver monitoring experience. (vehicle must be off)",
+  offroad_btns.append(new ButtonControl("ドライバーカメラ", "プレビュー",
+                                        "ドライバ側のカメラをプレビューすることで取り付け位置を最適化し最高のドライバー監視を提供します。(車のエンジンはオフに)",
                                         [=]() { emit showDriverView(); }, "", this));
 
   QString resetCalibDesc = "openpilot requires the device to be mounted within 4° left or right and within 5° up or down. openpilot is continuously calibrating, resetting is rarely required.";
-  ButtonControl *resetCalibBtn = new ButtonControl("Reset Calibration", "RESET", resetCalibDesc, [=]() {
-    if (ConfirmationDialog::confirm("Are you sure you want to reset calibration?", this)) {
+  ButtonControl *resetCalibBtn = new ButtonControl("キャリブレーション初期化", "リセット", resetCalibDesc, [=]() {
+    if (ConfirmationDialog::confirm("本当にキャリブレーションをリセットしますか？", this)) {
       Params().remove("CalibrationParams");
     }
   }, "", this);
@@ -153,7 +153,7 @@ DevicePanel::DevicePanel(QWidget* parent) : QWidget(parent) {
   }, "", this));
 
   QString brand = params.getBool("Passive") ? "dashcam" : "openpilot";
-  offroad_btns.append(new ButtonControl("Uninstall " + brand, "UNINSTALL", "", [=]() {
+  offroad_btns.append(new ButtonControl("アンインストール " + brand, "アンインストール", "", [=]() {
     if (ConfirmationDialog::confirm("Are you sure you want to uninstall?", this)) {
       Params().putBool("DoUninstall", true);
     }
@@ -225,10 +225,10 @@ void SoftwarePanel::updateLabels() {
   Params params = Params();
   std::string brand = params.getBool("Passive") ? "dashcam" : "openpilot";
   QList<QPair<QString, std::string>> dev_params = {
-    {"Git Branch", params.get("GitBranch")},
-    {"Git Commit", params.get("GitCommit").substr(0, 10)},
-    {"Panda Firmware", params.get("PandaFirmwareHex")},
-    {"OS Version", Hardware::get_os_version()},
+    {"Gitブランチ", params.get("GitBranch")},
+    {"Gitコミット", params.get("GitCommit").substr(0, 10)},
+    {"パンダファームウェア", params.get("PandaFirmwareHex")},
+    {"OSバージョン", Hardware::get_os_version()},
   };
 
   QString version = QString::fromStdString(brand + " v" + params.get("Version").substr(0, 14)).trimmed();
@@ -289,11 +289,11 @@ QWidget * network_panel(QWidget * parent) {
   layout->setSpacing(30);
 
   // wifi + tethering buttons
-  layout->addWidget(new ButtonControl("WiFi Settings", "OPEN", "",
+  layout->addWidget(new ButtonControl("WiFi設定", "開く", "",
                                       [=]() { HardwareEon::launch_wifi(); }));
   layout->addWidget(horizontal_line());
 
-  layout->addWidget(new ButtonControl("Tethering Settings", "OPEN", "",
+  layout->addWidget(new ButtonControl("テザリング設定", "開く", "",
                                       [=]() { HardwareEon::launch_tethering(); }));
   layout->addWidget(horizontal_line());
 
@@ -349,7 +349,7 @@ void SettingsWindow::showEvent(QShowEvent *event) {
 
   QPair<QString, QWidget *> panels[] = {
     {"Device", device},
-    {"Network", network_panel(this)},
+    {"ネット", network_panel(this)},
     {"Toggles", new TogglesPanel(this)},
     {"Software", new SoftwarePanel()},
   };

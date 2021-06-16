@@ -376,9 +376,9 @@ void ui_nvg_init(UIState *s) {
 
   // init fonts
   std::pair<const char *, const char *> fonts[] = {
-      {"sans-regular", "../assets/fonts/opensans_regular.ttf"},
-      {"sans-semibold", "../assets/fonts/opensans_semibold.ttf"},
-      {"sans-bold", "../assets/fonts/opensans_bold.ttf"},
+      {"sans-regular", "../assets/fonts/mplus-1p-regular.ttf"},
+      {"sans-semibold", "../assets/fonts/mplus-1p-medium.ttf"},
+      {"sans-bold", "../assets/fonts/mplus-1p-bold.ttf"},
   };
   for (auto [name, file] : fonts) {
     int font_id = nvgCreateFont(s->vg, name, file);

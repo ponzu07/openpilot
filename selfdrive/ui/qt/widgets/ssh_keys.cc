@@ -7,7 +7,7 @@
 #include "selfdrive/ui/qt/api.h"
 #include "selfdrive/ui/qt/widgets/input.h"
 
-SshControl::SshControl() : AbstractControl("SSH Keys", "Warning: This grants SSH access to all public keys in your GitHub settings. Never enter a GitHub username other than your own. A comma employee will NEVER ask you to add their GitHub username.", "") {
+SshControl::SshControl() : AbstractControl("SSHキー", "注意:これにより、GitHub の設定にあるすべての公開鍵への SSH アクセスが許可されます。自分以外のGitHubユーザー名を入力してはいけません。コンマの従業員から、GitHub のユーザー名を追加するように求められることはありません。", "") {
 
   // setup widget
   hlayout->addStretch(1);
@@ -49,10 +49,10 @@ void SshControl::refresh() {
   QString param = QString::fromStdString(params.get("GithubSshKeys"));
   if (param.length()) {
     username_label.setText(QString::fromStdString(params.get("GithubUsername")));
-    btn.setText("REMOVE");
+    btn.setText("削除");
   } else {
     username_label.setText("");
-    btn.setText("ADD");
+    btn.setText("追加");
   }
   btn.setEnabled(true);
 }

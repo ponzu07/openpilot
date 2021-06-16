@@ -53,15 +53,15 @@ updater: updater.o $(OBJS)
     -lcutils -lm -llog
 	strip updater
 
-opensans_regular.ttf.o: ../../selfdrive/assets/fonts/opensans_regular.ttf
+opensans_regular.ttf.o: ../../selfdrive/assets/fonts/mplus-1p-regular.ttf
 	@echo "[ bin2o ] $@"
 	cd '$(dir $<)' && ld -r -b binary '$(notdir $<)' -o '$(abspath $@)'
 
-opensans_bold.ttf.o: ../../selfdrive/assets/fonts/opensans_bold.ttf
+opensans_bold.ttf.o: ../../selfdrive/assets/fonts/mplus-1p-bold.ttf
 	@echo "[ bin2o ] $@"
 	cd '$(dir $<)' && ld -r -b binary '$(notdir $<)' -o '$(abspath $@)'
 
-opensans_semibold.ttf.o: ../../selfdrive/assets/fonts/opensans_semibold.ttf
+opensans_semibold.ttf.o: ../../selfdrive/assets/fonts/mplus-1p-medium.ttf
 	@echo "[ bin2o ] $@"
 	cd '$(dir $<)' && ld -r -b binary '$(notdir $<)' -o '$(abspath $@)'
 
