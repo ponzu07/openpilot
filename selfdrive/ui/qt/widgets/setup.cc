@@ -138,7 +138,7 @@ PrimeAdWidget::PrimeAdWidget(QWidget* parent) : QWidget(parent) {
 
   vlayout->addWidget(new QLabel("アップグレート"), 1, Qt::AlignTop);
 
-  QLabel* description = new QLabel("Become a comma prime member at my.comma.ai and get premium features!");
+  QLabel* description = new QLabel("my.comma.aiでcommaプライムメンバーになると、プレミアム機能が利用できます。");
   description->setStyleSheet(R"(
     font-size: 50px;
     color: #b8b8b8;

@@ -144,8 +144,8 @@ DevicePanel::DevicePanel(QWidget* parent) : QWidget(parent) {
   });
   offroad_btns.append(resetCalibBtn);
 
-  offroad_btns.append(new ButtonControl("Review Training Guide", "REVIEW",
-                                        "Review the rules, features, and limitations of openpilot", [=]() {
+  offroad_btns.append(new ButtonControl("トレーニングガイド", "もう一度",
+                                        "オープンパイロットのルール、機能、制限を確認する", [=]() {
     if (ConfirmationDialog::confirm("Are you sure you want to review the training guide?", this)) {
       Params().remove("CompletedTrainingVersion");
       emit reviewTrainingGuide();
