@@ -1,0 +1,17 @@
+name: sync master
+
+on:
+  schedule:
+    - cron: '17 18 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - run: gh repo sync ${{ github.repository }} --branch master --force
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
