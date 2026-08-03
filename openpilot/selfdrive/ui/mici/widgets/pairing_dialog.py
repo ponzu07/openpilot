@@ -3,7 +3,7 @@ import qrcode
 import numpy as np
 import time
 
-from openpilot.common.api import Api
+from openpilot.common.api import Api, CONNECT_HOST
 from openpilot.common.swaglog import cloudlog
 from openpilot.common.params import Params
 from openpilot.selfdrive.ui.ui_state import ui_state
@@ -33,7 +33,7 @@ class PairingDialog(NavWidget):
     except Exception as e:
       cloudlog.warning(f"Failed to get pairing token: {e}")
       token = ""
-    return f"https://connect.comma.ai/?pair={token}"
+    return f"{CONNECT_HOST}/?pair={token}"
 
   def _generate_qr_code(self) -> None:
     try:

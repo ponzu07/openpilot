@@ -1,5 +1,9 @@
 #!/usr/bin/env bash
 
+export API_HOST="https://openpilot.copirobo.com"
+export ATHENA_HOST="wss://openpilot.copirobo.com"
+export CONNECT_HOST="https://connect.copirobo.com"
+
 export OMP_NUM_THREADS=1
 export MKL_NUM_THREADS=1
 export NUMEXPR_NUM_THREADS=1

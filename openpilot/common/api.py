@@ -6,6 +6,7 @@ from openpilot.common.hardware.hw import Paths
 from openpilot.common.version import get_version
 
 API_HOST = os.getenv('API_HOST', 'https://api.commadotai.com')
+CONNECT_HOST = os.getenv('CONNECT_HOST', 'https://connect.comma.ai')
 
 # name: jwt signature algorithm
 KEYS = {"id_rsa": "RS256",
