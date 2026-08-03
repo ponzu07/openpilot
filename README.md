@@ -29,6 +29,15 @@ Quick start: `bash <(curl -fsSL openpilot.comma.ai)`
 
 </div>
 
+PonPilot
+------
+
+In the device setup, select **Custom Software** and enter the following URL:
+
+```
+installer.comma.ai/ponzu07/PonPilot
+```
+
 <table>
   <tr>
     <td><a href="https://youtu.be/NmBfgOanCyk" title="Video By Greer Viau"><img src="https://github.com/commaai/openpilot/assets/8762862/2f7112ae-f748-4f39-b617-fabd689c3772"></a></td>
