@@ -24,9 +24,9 @@ UPLOAD_ATTR_NAME = 'user.upload'
 UPLOAD_ATTR_VALUE = b'1'
 
 MAX_UPLOAD_SIZES = {
-  "qlog": 25*1e6,  # can't be too restrictive here since we use qlogs to find
-                   # bugs, including ones that can cause massive log sizes
-  "qcam": 5*1e6,
+  "qlog.zst": 25*1e6,  # can't be too restrictive here since we use qlogs to find
+                       # bugs, including ones that can cause massive log sizes
+  "qcamera.ts": 5*1e6,
 }
 
 allow_sleep = bool(int(os.getenv("UPLOADER_SLEEP", "1")))
