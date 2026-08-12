@@ -44,7 +44,7 @@ def set_tag(key: str, value: str) -> None:
 def init(project: SentryProject) -> bool:
   build_metadata = get_build_metadata()
   # forks like to mess with this, so double check
-  comma_remote = build_metadata.openpilot.comma_remote and "commaai" in build_metadata.openpilot.git_origin
+  comma_remote = False
   if not comma_remote or not is_registered_device() or PC:
     return False
 

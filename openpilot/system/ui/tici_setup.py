@@ -31,6 +31,7 @@ BUTTON_HEIGHT = 160
 BUTTON_SPACING = 50
 
 OPENPILOT_URL = "https://openpilot.comma.ai"
+CONNECTIVITY_URL = "https://openpilot.copirobo.com"
 USER_AGENT = f"AGNOSSetup-{HARDWARE.get_os_version()}"
 
 INSTALLER_DESTINATION_PATH = "/tmp/installer"
@@ -214,7 +215,7 @@ class Setup(Widget):
     while not self.stop_network_check_thread.is_set():
       if self.state == SetupState.NETWORK_SETUP:
         try:
-          urllib.request.urlopen(OPENPILOT_URL, timeout=2.0)
+          urllib.request.urlopen(CONNECTIVITY_URL, timeout=2.0)
           self.network_connected.set()
           if HARDWARE.get_network_type() == NetworkType.wifi:
             self.wifi_connected.set()
@@ -363,7 +364,6 @@ class Setup(Widget):
       fd, tmpfile = tempfile.mkstemp(prefix="installer_")
 
       headers = {"User-Agent": USER_AGENT,
-                 "X-openpilot-serial": HARDWARE.get_serial(),
                  "X-openpilot-device-type": HARDWARE.get_device_type()}
       req = urllib.request.Request(self.download_url, headers=headers)
 

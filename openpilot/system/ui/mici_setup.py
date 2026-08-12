@@ -33,6 +33,7 @@ from openpilot.selfdrive.ui.mici.widgets.button import BigButton, GreyBigButton
 NetworkType = log.DeviceState.NetworkType
 
 OPENPILOT_URL = "https://openpilot.comma.ai"
+CONNECTIVITY_URL = "https://openpilot.copirobo.com"
 USER_AGENT = f"AGNOSSetup-{HARDWARE.get_os_version()}"
 
 INSTALLER_DESTINATION_PATH = "/tmp/installer"
@@ -73,7 +74,7 @@ class NetworkConnectivityMonitor:
     while not self._stop_event.is_set():
       if self._should_check():
         try:
-          request = urllib.request.Request(OPENPILOT_URL, method="HEAD")
+          request = urllib.request.Request(CONNECTIVITY_URL, method="HEAD")
           urllib.request.urlopen(request, timeout=2.0)
 
           # Discard stale result if invalidated during request
@@ -518,7 +519,6 @@ class Setup(Widget):
       fd, tmpfile = tempfile.mkstemp(prefix="installer_")
 
       headers = {"User-Agent": USER_AGENT,
-                 "X-openpilot-serial": HARDWARE.get_serial(),
                  "X-openpilot-device-type": HARDWARE.get_device_type()}
       req = urllib.request.Request(self.download_url, headers=headers)
 
