@@ -9,6 +9,7 @@ from openpilot.cereal import log
 from opendbc.car.structs import car
 
 from openpilot.common.params import Params
+from openpilot.selfdrive.mads.helpers import set_alternative_experience
 from openpilot.common.realtime import config_realtime_process, Priority, Ratekeeper
 from openpilot.common.swaglog import cloudlog, ForwardingHandler
 
@@ -109,6 +110,7 @@ class Car:
       self.RI = RI
 
     self.CP.alternativeExperience = 0
+    set_alternative_experience(self.CP, self.params)
     openpilot_enabled_toggle = self.params.get_bool("OpenpilotEnabledToggle")
     controller_available = self.CI.CC is not None and openpilot_enabled_toggle and not self.CP.dashcamOnly
     self.CP.passive = not controller_available or self.CP.dashcamOnly

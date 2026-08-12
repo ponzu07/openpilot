@@ -22,6 +22,7 @@ class UIStatus(Enum):
   DISENGAGED = "disengaged"
   ENGAGED = "engaged"
   OVERRIDE = "override"
+  LAT_ONLY = "lat_only"
 
 
 class UIState:
@@ -52,6 +53,7 @@ class UIState:
         "wideRoadCameraState",
         "managerState",
         "selfdriveState",
+        "selfdriveStateSP",
         "longitudinalPlan",
         "gpsLocationExternal",
         "carOutput",
@@ -108,7 +110,7 @@ class UIState:
 
   @property
   def engaged(self) -> bool:
-    return self.started and self.sm["selfdriveState"].enabled
+    return self.started and (self.sm["selfdriveState"].enabled or self.sm["selfdriveStateSP"].mads.enabled)
 
   def is_onroad(self) -> bool:
     return self.started
@@ -170,8 +172,10 @@ class UIState:
 
       if state in (log.SelfdriveState.OpenpilotState.preEnabled, log.SelfdriveState.OpenpilotState.overriding):
         self.status = UIStatus.OVERRIDE
+      elif ss.enabled:
+        self.status = UIStatus.ENGAGED
       else:
-        self.status = UIStatus.ENGAGED if ss.enabled else UIStatus.DISENGAGED
+        self.status = UIStatus.LAT_ONLY if self.sm["selfdriveStateSP"].mads.active else UIStatus.DISENGAGED
 
     # Check for engagement state changes
     if self.engaged != self._engaged_prev:

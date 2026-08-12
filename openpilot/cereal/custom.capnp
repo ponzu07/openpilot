@@ -10,7 +10,23 @@ $Cxx.namespace("cereal");
 # DO rename the structs
 # DON'T change the identifier (e.g. @0x81c2f05a394cf4af)
 
-struct CustomReserved0 @0x81c2f05a394cf4af {
+struct ModularAssistiveDrivingSystem {
+  state @0 :ModularAssistiveDrivingSystemState;
+  enabled @1 :Bool;
+  active @2 :Bool;
+  available @3 :Bool;
+
+  enum ModularAssistiveDrivingSystemState {
+    disabled @0;
+    paused @1;
+    enabled @2;
+    softDisabling @3;
+    overriding @4;
+  }
+}
+
+struct SelfdriveStateSP @0x81c2f05a394cf4af {
+  mads @0 :ModularAssistiveDrivingSystem;
 }
 
 struct CustomReserved1 @0xaedffd8f31e7b55d {
@@ -19,7 +35,41 @@ struct CustomReserved1 @0xaedffd8f31e7b55d {
 struct CustomReserved2 @0xf35cc4560bbf6ec2 {
 }
 
-struct CustomReserved3 @0xda96579883444c35 {
+struct OnroadEventSP @0xda96579883444c35 {
+  events @0 :List(Event);
+
+  struct Event {
+    name @0 :EventName;
+
+    enable @1 :Bool;
+    noEntry @2 :Bool;
+    warning @3 :Bool;
+    userDisable @4 :Bool;
+    softDisable @5 :Bool;
+    immediateDisable @6 :Bool;
+    preEnable @7 :Bool;
+    permanent @8 :Bool;
+    overrideLateral @10 :Bool;
+    overrideLongitudinal @9 :Bool;
+  }
+
+  enum EventName {
+    lkasEnable @0;
+    lkasDisable @1;
+    manualSteeringRequired @2;
+    manualLongitudinalRequired @3;
+    silentLkasEnable @4;
+    silentLkasDisable @5;
+    silentBrakeHold @6;
+    silentWrongGear @7;
+    silentReverseGear @8;
+    silentDoorOpen @9;
+    silentSeatbeltNotLatched @10;
+    silentParkBrake @11;
+    controlsMismatchLateral @12;
+    wrongCarModeAlertOnly @13;
+    pedalPressedAlertOnly @14;
+  }
 }
 
 struct CustomReserved4 @0x80ae746ee2596b11 {

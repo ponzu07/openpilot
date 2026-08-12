@@ -33,6 +33,7 @@ LANE_LINE_COLORS = {
   UIStatus.DISENGAGED: rl.Color(200, 200, 200, 255),
   UIStatus.OVERRIDE: rl.Color(255, 255, 255, 255),
   UIStatus.ENGAGED: rl.Color(0, 255, 64, 255),
+  UIStatus.LAT_ONLY: rl.Color(0, 200, 200, 255),
 }
 
 
