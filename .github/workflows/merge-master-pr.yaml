@@ -1,0 +1,32 @@
+name: merge master PR
+
+on:
+  schedule:
+    - cron: '30 18 * * 1'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  pr:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - run: |
+          base=${{ github.event.repository.default_branch }}
+          if [ "$(git rev-list --count origin/$base..origin/master)" -eq 0 ]; then
+            echo "master に新しいコミットなし"
+            exit 0
+          fi
+          if [ -n "$(gh pr list --base "$base" --head master --state open --json number --jq '.[].number')" ]; then
+            echo "PR は既に開いている"
+            exit 0
+          fi
+          gh pr create --base "$base" --head master \
+            --title "master 追従 $(date -u +%Y-%m-%d)" \
+            --body "$(git log --oneline origin/$base..origin/master | head -50)"
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
