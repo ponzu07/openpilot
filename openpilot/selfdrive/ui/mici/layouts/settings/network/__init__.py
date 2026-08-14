@@ -4,6 +4,7 @@ from openpilot.selfdrive.ui.mici.layouts.settings.network.wifi_ui import WifiIco
 from openpilot.selfdrive.ui.mici.widgets.button import BigButton
 from openpilot.system.ui.lib.application import gui_app
 from openpilot.system.ui.lib.wifi_manager import WifiManager, ConnectStatus, SecurityType, normalize_ssid
+from openpilot.system.ui.lib.multilang import tr, tr_noop
 
 
 class WifiNetworkButton(BigButton):
@@ -28,14 +29,14 @@ class WifiNetworkButton(BigButton):
     display_network = next((n for n in self._wifi_manager.networks if n.ssid == wifi_state.ssid), None)
     if wifi_state.status == ConnectStatus.CONNECTING:
       self.set_text(normalize_ssid(wifi_state.ssid or "wi-fi"))
-      self.set_value("starting" if self._wifi_manager.is_tethering_active() else "connecting...")
+      self.set_value(tr_noop("starting") if self._wifi_manager.is_tethering_active() else tr_noop("connecting..."))
     elif wifi_state.status == ConnectStatus.CONNECTED:
       self.set_text(normalize_ssid(wifi_state.ssid or "wi-fi"))
-      self.set_value(self._wifi_manager.ipv4_address or "obtaining IP...")
+      self.set_value(self._wifi_manager.ipv4_address or tr_noop("obtaining IP..."))
     else:
       display_network = None
       self.set_text("wi-fi")
-      self.set_value("not connected")
+      self.set_value(tr_noop("not connected"))
 
     if display_network is not None:
       strength = WifiIcon.get_strength_icon_idx(display_network.strength)

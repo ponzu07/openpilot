@@ -11,7 +11,7 @@ from openpilot.system.ui.widgets.scroller import NavScroller, Scroller
 from openpilot.system.ui.widgets.nav_widget import NavWidget
 from openpilot.system.ui.mici_setup import GreyBigButton, BigPillButton
 from openpilot.system.ui.widgets.label import gui_label
-from openpilot.system.ui.lib.multilang import tr
+from openpilot.system.ui.lib.multilang import tr, tr_noop
 from openpilot.common.version import terms_version, training_version
 from openpilot.selfdrive.ui.ui_state import ui_state, device
 from openpilot.selfdrive.ui.mici.widgets.dialog import BigConfirmationCircleButton
@@ -54,15 +54,15 @@ class TrainingGuidePreDMTutorial(NavScroller):
   def __init__(self, continue_callback: Callable[[], None]):
     super().__init__()
 
-    continue_button = BigPillButton("next")
+    continue_button = BigPillButton(lambda: tr("next"))
     continue_button.set_click_callback(continue_callback)
 
     self._scroller.add_widgets([
-      GreyBigButton("driver monitoring\ncheck", "scroll to continue",
+      GreyBigButton(lambda: tr("driver monitoring\ncheck"), tr_noop("scroll to continue"),
                     gui_app.texture("icons_mici/setup/green_dm.png", 64, 64)),
-      GreyBigButton("", "Next, we'll check if comma four can detect the driver properly."),
-      GreyBigButton("", "openpilot uses the cabin camera to check if the driver is distracted."),
-      GreyBigButton("", "If it does not have a clear view of the driver, unplug and remount before continuing."),
+      GreyBigButton("", tr_noop("Next, we'll check if comma four can detect the driver properly.")),
+      GreyBigButton("", tr_noop("openpilot uses the cabin camera to check if the driver is distracted.")),
+      GreyBigButton("", tr_noop("If it does not have a clear view of the driver, unplug and remount before continuing.")),
       continue_button,
     ])
 
@@ -76,13 +76,13 @@ class DMBadFaceDetected(NavScroller):
   def __init__(self):
     super().__init__()
 
-    back_button = BigPillButton("back")
+    back_button = BigPillButton(lambda: tr("back"))
     back_button.set_click_callback(self.dismiss)
 
     self._scroller.add_widgets([
-      GreyBigButton("looking for driver", "make sure comma\nfour can see your face",
+      GreyBigButton(lambda: tr("looking for driver"), tr_noop("make sure comma\nfour can see your face"),
                     gui_app.texture("icons_mici/setup/orange_dm.png", 64, 64)),
-      GreyBigButton("", "Remount if your face is blocked, or driver monitoring has difficulty tracking your face."),
+      GreyBigButton("", tr_noop("Remount if your face is blocked, or driver monitoring has difficulty tracking your face.")),
       back_button,
     ])
 
@@ -224,16 +224,16 @@ class TrainingGuideRecordFront(NavScroller):
       ui_state.params.put_bool("RecordFront", False)
       continue_callback()
 
-    self._accept_button = BigConfirmationCircleButton("allow data uploading", gui_app.texture("icons_mici/setup/driver_monitoring/dm_check.png", 64, 64),
+    self._accept_button = BigConfirmationCircleButton(lambda: tr("allow data uploading"), gui_app.texture("icons_mici/setup/driver_monitoring/dm_check.png", 64, 64),
                                                       on_accept, exit_on_confirm=False)
 
-    self._decline_button = BigConfirmationCircleButton("no, don't upload", gui_app.texture("icons_mici/setup/cancel.png", 64, 64), on_decline,
+    self._decline_button = BigConfirmationCircleButton(lambda: tr("no, don't upload"), gui_app.texture("icons_mici/setup/cancel.png", 64, 64), on_decline,
                                                        exit_on_confirm=False)
 
     self._scroller.add_widgets([
-      GreyBigButton("cabin camera data", "do you want to share video data for training?",
+      GreyBigButton(lambda: tr("cabin camera data"), tr_noop("do you want to share video data for training?"),
                     gui_app.texture("icons_mici/setup/green_dm.png", 64, 64)),
-      GreyBigButton("", "Sharing your data with comma helps improve openpilot for everyone."),
+      GreyBigButton("", tr_noop("Sharing your data with comma helps improve openpilot for everyone.")),
       self._accept_button,
       self._decline_button,
     ])
@@ -243,16 +243,16 @@ class TrainingGuideAttentionNotice(Scroller):
   def __init__(self, continue_callback: Callable[[], None]):
     super().__init__()
 
-    continue_button = BigPillButton("next")
+    continue_button = BigPillButton(lambda: tr("next"))
     continue_button.set_click_callback(continue_callback)
 
     self._scroller.add_widgets([
-      GreyBigButton("what is openpilot?", "scroll to continue",
+      GreyBigButton(lambda: tr("what is openpilot?"), tr_noop("scroll to continue"),
                     gui_app.texture("icons_mici/setup/green_info.png", 64, 64)),
-      GreyBigButton("", "1. openpilot is a driver assistance system."),
-      GreyBigButton("", "2. You must pay attention at all times."),
-      GreyBigButton("", "3. You must be ready to take over at any time."),
-      GreyBigButton("", "4. You are fully responsible for driving the car."),
+      GreyBigButton("", tr_noop("1. openpilot is a driver assistance system.")),
+      GreyBigButton("", tr_noop("2. You must pay attention at all times.")),
+      GreyBigButton("", tr_noop("3. You must be ready to take over at any time.")),
+      GreyBigButton("", tr_noop("4. You are fully responsible for driving the car.")),
       continue_button,
     ])
 
@@ -300,17 +300,17 @@ class TermsPage(Scroller):
   def __init__(self, on_accept, on_decline):
     super().__init__()
 
-    self._accept_button = BigConfirmationCircleButton("accept\nterms", gui_app.texture("icons_mici/setup/driver_monitoring/dm_check.png", 64, 64), on_accept)
-    self._decline_button = BigConfirmationCircleButton("decline &\nuninstall", gui_app.texture("icons_mici/setup/cancel.png", 64, 64), on_decline,
+    self._accept_button = BigConfirmationCircleButton(lambda: tr("accept\nterms"), gui_app.texture("icons_mici/setup/driver_monitoring/dm_check.png", 64, 64), on_accept)
+    self._decline_button = BigConfirmationCircleButton(lambda: tr("decline &\nuninstall"), gui_app.texture("icons_mici/setup/cancel.png", 64, 64), on_decline,
                                                        red=True, exit_on_confirm=False)
 
-    self._terms_header = GreyBigButton("terms and\nconditions", "scroll to continue",
+    self._terms_header = GreyBigButton(lambda: tr("terms and\nconditions"), tr_noop("scroll to continue"),
                                        gui_app.texture("icons_mici/setup/green_info.png", 64, 64))
-    self._must_accept_card = GreyBigButton("", "You must accept the Terms & Conditions to use openpilot.")
+    self._must_accept_card = GreyBigButton("", tr_noop("You must accept the Terms & Conditions to use openpilot."))
 
     self._scroller.add_widgets([
       self._terms_header,
-      GreyBigButton("swipe for QR code", "or go to https://comma.ai/terms",
+      GreyBigButton(lambda: tr("swipe for QR code"), tr_noop("or go to https://comma.ai/terms"),
                     gui_app.texture("icons_mici/setup/small_slider/slider_arrow.png", 64, 56, flip_x=True)),
       QRCodeWidget("https://comma.ai/terms"),
       self._must_accept_card,

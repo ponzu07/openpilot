@@ -8,6 +8,7 @@ from openpilot.selfdrive.ui.mici.widgets.dialog import BigConfirmationCircleButt
 from openpilot.system.ui.lib.application import gui_app
 from openpilot.selfdrive.ui.layouts.settings.common import restart_needed_callback
 from openpilot.selfdrive.ui.ui_state import ui_state
+from openpilot.system.ui.lib.multilang import tr, tr_noop
 
 PERSONALITY_TO_INT = log.LongitudinalPersonality.schema.enumerants
 
@@ -16,23 +17,23 @@ class ExperimentalModeConfirmPage(NavScroller):
   def __init__(self, on_confirm: Callable[[], None]):
     super().__init__()
 
-    accept = BigConfirmationCircleButton("enable\nexperimental mode",
+    accept = BigConfirmationCircleButton(lambda: tr("enable\nexperimental mode"),
                                          gui_app.texture("icons_mici/setup/driver_monitoring/dm_check.png", 64, 64),
                                          lambda: self.dismiss(on_confirm))
 
     self._scroller.add_widgets([
-      GreyBigButton("enabling\nexperimental mode", "scroll to continue",
+      GreyBigButton(lambda: tr("enabling\nexperimental mode"), tr_noop("scroll to continue"),
                     gui_app.texture("icons_mici/setup/warning.png", 64, 64)),
-      GreyBigButton("", "openpilot defaults to driving in chill mode."),
-      GreyBigButton("", "Experimental mode enables alpha-level features that aren't ready for chill mode."),
-      GreyBigButton("End-to-End Longitudinal Control"),
-      GreyBigButton("", "Let the driving model control the gas and brakes."),
-      GreyBigButton("", "openpilot will drive as it thinks a human would, including stopping for red lights and stop signs."),
-      GreyBigButton("", "The set speed will only act as an upper bound."),
-      GreyBigButton("", "This is an alpha quality feature; mistakes should be expected."),
-      GreyBigButton("New Driving Visualization"),
-      GreyBigButton("", "The path will change colors to communicate acceleration intent."),
-      GreyBigButton("", "Red for braking, green for acceleration, and gray for coasting."),
+      GreyBigButton("", tr_noop("openpilot defaults to driving in chill mode.")),
+      GreyBigButton("", tr_noop("Experimental mode enables alpha-level features that aren't ready for chill mode.")),
+      GreyBigButton(lambda: tr("End-to-End Longitudinal Control")),
+      GreyBigButton("", tr_noop("Let the driving model control the gas and brakes.")),
+      GreyBigButton("", tr_noop("openpilot will drive as it thinks a human would, including stopping for red lights and stop signs.")),
+      GreyBigButton("", tr_noop("The set speed will only act as an upper bound.")),
+      GreyBigButton("", tr_noop("This is an alpha quality feature; mistakes should be expected.")),
+      GreyBigButton(lambda: tr("New Driving Visualization")),
+      GreyBigButton("", tr_noop("The path will change colors to communicate acceleration intent.")),
+      GreyBigButton("", tr_noop("Red for braking, green for acceleration, and gray for coasting.")),
       accept,
     ])
 
@@ -41,15 +42,15 @@ class TogglesLayoutMici(NavScroller):
   def __init__(self):
     super().__init__()
 
-    self._personality_toggle = BigMultiParamToggle("driving personality", "LongitudinalPersonality", ["aggressive", "standard", "relaxed"])
-    self._experimental_btn = BigToggle("experimental mode", initial_state=ui_state.params.get_bool("ExperimentalMode"),
+    self._personality_toggle = BigMultiParamToggle(lambda: tr("driving personality"), "LongitudinalPersonality", [tr_noop("aggressive"), tr_noop("standard"), tr_noop("relaxed")])
+    self._experimental_btn = BigToggle(lambda: tr("experimental mode"), initial_state=ui_state.params.get_bool("ExperimentalMode"),
                                        toggle_callback=self._on_experimental_mode)
-    is_metric_toggle = BigParamControl("use metric units", "IsMetric")
-    ldw_toggle = BigParamControl("lane departure warnings", "IsLdwEnabled")
-    always_on_dm_toggle = BigParamControl("always-on driver monitor", "AlwaysOnDM")
-    record_front = BigParamControl("record & upload cabin camera", "RecordFront", toggle_callback=restart_needed_callback)
-    record_mic = BigParamControl("record & upload mic audio", "RecordAudio", toggle_callback=restart_needed_callback)
-    enable_openpilot = BigParamControl("enable openpilot", "OpenpilotEnabledToggle", toggle_callback=restart_needed_callback)
+    is_metric_toggle = BigParamControl(lambda: tr("use metric units"), "IsMetric")
+    ldw_toggle = BigParamControl(lambda: tr("lane departure warnings"), "IsLdwEnabled")
+    always_on_dm_toggle = BigParamControl(lambda: tr("always-on driver monitor"), "AlwaysOnDM")
+    record_front = BigParamControl(lambda: tr("record & upload cabin camera"), "RecordFront", toggle_callback=restart_needed_callback)
+    record_mic = BigParamControl(lambda: tr("record & upload mic audio"), "RecordAudio", toggle_callback=restart_needed_callback)
+    enable_openpilot = BigParamControl(lambda: tr("enable openpilot"), "OpenpilotEnabledToggle", toggle_callback=restart_needed_callback)
 
     self._scroller.add_widgets([
       self._personality_toggle,

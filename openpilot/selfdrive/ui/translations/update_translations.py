@@ -14,7 +14,8 @@ def update_translations():
   for root, _, filenames in chain(os.walk(SYSTEM_UI_DIR),
                                   os.walk(os.path.join(str(UI_DIR), "widgets")),
                                   os.walk(os.path.join(str(UI_DIR), "layouts")),
-                                  os.walk(os.path.join(str(UI_DIR), "onroad"))):
+                                  os.walk(os.path.join(str(UI_DIR), "onroad")),
+                                  os.walk(os.path.join(str(UI_DIR), "mici"))):
     for filename in filenames:
       if filename.endswith(".py"):
         files.append(os.path.relpath(os.path.join(root, filename), BASEDIR))

@@ -7,6 +7,7 @@ from openpilot.system.ui.widgets import Widget
 from openpilot.system.ui.widgets.label import UnifiedLabel
 from openpilot.system.ui.widgets.scroller import DO_ZOOM
 from openpilot.system.ui.lib.application import gui_app, FontWeight, MousePos
+from openpilot.system.ui.lib.multilang import tr
 from openpilot.common.filter_simple import BounceFilter
 
 if TYPE_CHECKING:
@@ -109,10 +110,9 @@ class BigButton(Widget):
 
   """A lightweight stand-in for the Qt BigButton, drawn & updated each frame."""
 
-  def __init__(self, text: str, value: str = "", icon: Union[rl.Texture, None] = None, scroll: bool = False):
+  def __init__(self, text: Union[str, Callable[[], str]], value: str = "", icon: Union[rl.Texture, None] = None, scroll: bool = False):
     super().__init__()
     self.set_rect(rl.Rectangle(0, 0, 402, 180))
-    self.text = text
     self.value = value
     self._txt_icon = icon
     self._scroll = scroll
@@ -124,10 +124,10 @@ class BigButton(Widget):
 
     self._rotate_icon_t: float | None = None
 
-    self._label = UnifiedLabel(text, font_size=self._get_label_font_size(), font_weight=FontWeight.BOLD,
+    self._label = UnifiedLabel(text, font_size=48, font_weight=FontWeight.BOLD,
                                text_color=LABEL_COLOR, alignment_vertical=rl.GuiTextAlignmentVertical.TEXT_ALIGN_BOTTOM, scroll=scroll,
                                line_height=0.9)
-    self._sub_label = UnifiedLabel(value, font_size=COMPLICATION_SIZE, font_weight=FontWeight.ROMAN,
+    self._sub_label = UnifiedLabel(lambda: tr(self.value), font_size=COMPLICATION_SIZE, font_weight=FontWeight.ROMAN,
                                    text_color=COMPLICATION_GREY, alignment_vertical=rl.GuiTextAlignmentVertical.TEXT_ALIGN_BOTTOM)
     self._update_label_layout()
 
@@ -155,10 +155,7 @@ class BigButton(Widget):
     return int(self._rect.width - self.LABEL_HORIZONTAL_PADDING * 2 - icon_size)
 
   def _get_label_font_size(self):
-    if len(self.text) <= 18:
-      return 48
-    else:
-      return 42
+    return 48 if sum(2 if ord(c) > 0x2E80 else 1 for c in self._label.text) <= 18 else 42
 
   def _update_label_layout(self):
     self._label.set_font_size(self._get_label_font_size())
@@ -167,21 +164,17 @@ class BigButton(Widget):
     else:
       self._label.set_alignment_vertical(rl.GuiTextAlignmentVertical.TEXT_ALIGN_BOTTOM)
 
-  def set_text(self, text: str):
-    self.text = text
-    self._label.set_text(text)
+  def _update_state(self):
     self._update_label_layout()
+
+  def set_text(self, text: Union[str, Callable[[], str]]):
+    self._label.set_text(text)
 
   def set_value(self, value: str):
     self.value = value
-    self._sub_label.set_text(value)
-    self._update_label_layout()
 
   def get_value(self) -> str:
     return self.value
-
-  def get_text(self):
-    return self.text
 
   def trigger_shake(self):
     self._shake_start = rl.get_time()

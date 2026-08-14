@@ -94,7 +94,7 @@ ASSETS_DIR = files("openpilot.selfdrive").joinpath("assets")
 FONT_DIR = ASSETS_DIR.joinpath("fonts")
 EXTRA_FONT_CHARS = "–‑✓×°§•X⚙✕◀▶✔⌫⇧␣○●↳çêüñ–‑✓×°§•€£¥"
 NOTO_FONTS = {
-  "ja": "NotoSansCJKjp-Regular.otf",
+  "ja": "NotoSansJP-Regular.otf",
   "ko": "NotoSansCJKkr-Regular.otf",
   "th": "NotoSansThai-Regular.ttf",
   "zh-CHS": "NotoSansCJKsc-Regular.otf",

@@ -9,6 +9,7 @@ from openpilot.selfdrive.ui.ui_state import ui_state
 from openpilot.system.ui.widgets.nav_widget import NavWidget
 from openpilot.system.ui.lib.application import FontWeight, gui_app
 from openpilot.system.ui.widgets.label import UnifiedLabel
+from openpilot.system.ui.lib.multilang import tr
 
 
 class PairingDialog(NavWidget):
@@ -23,7 +24,7 @@ class PairingDialog(NavWidget):
     self._last_qr_generation = float("-inf")
 
     self._txt_pair = gui_app.texture("icons_mici/settings/device/pair.png", 33, 60)
-    self._pair_label = UnifiedLabel("pair with comma connect", font_size=48, font_weight=FontWeight.BOLD, line_height=0.8)
+    self._pair_label = UnifiedLabel(lambda: tr("pair with comma connect"), font_size=48, font_weight=FontWeight.BOLD, line_height=0.8)
 
   def _get_pairing_url(self) -> str:
     try:

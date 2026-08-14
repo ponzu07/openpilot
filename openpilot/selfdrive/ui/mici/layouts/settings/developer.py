@@ -7,24 +7,25 @@ from openpilot.system.ui.lib.application import gui_app
 from openpilot.selfdrive.ui.layouts.settings.common import restart_needed_callback
 from openpilot.selfdrive.ui.ui_state import ui_state
 from openpilot.selfdrive.ui.widgets.ssh_key import SshKeyFetcher
+from openpilot.system.ui.lib.multilang import tr, tr_noop
 
 
 class AlphaLongConfirmPage(NavScroller):
   def __init__(self, on_confirm: Callable[[], None]):
     super().__init__()
 
-    accept = BigConfirmationCircleButton("enable alpha\nlongitudinal",
+    accept = BigConfirmationCircleButton(lambda: tr("enable alpha\nlongitudinal"),
                                          gui_app.texture("icons_mici/setup/driver_monitoring/dm_check.png", 64, 64),
                                          lambda: self.dismiss(on_confirm))
 
     self._scroller.add_widgets([
-      GreyBigButton("enabling alpha longitudinal", "scroll to continue",
+      GreyBigButton(lambda: tr("enabling alpha longitudinal"), tr_noop("scroll to continue"),
                     gui_app.texture("icons_mici/setup/warning.png", 64, 64)),
-      GreyBigButton("", "WARNING: alpha longitudinal control may disable Automatic Emergency Braking (AEB)"),
-      GreyBigButton("", "On this car, openpilot defaults to the stock system's built-in ACC."),
-      GreyBigButton("", "Enabling this will switch to openpilot longitudinal control."),
-      GreyBigButton("", "Using Experimental mode is recommended with openpilot longitudinal control alpha."),
-      GreyBigButton("", "Changing this setting will restart openpilot if the car is powered on."),
+      GreyBigButton("", tr_noop("WARNING: alpha longitudinal control may disable Automatic Emergency Braking (AEB)")),
+      GreyBigButton("", tr_noop("On this car, openpilot defaults to the stock system's built-in ACC.")),
+      GreyBigButton("", tr_noop("Enabling this will switch to openpilot longitudinal control.")),
+      GreyBigButton("", tr_noop("Using Experimental mode is recommended with openpilot longitudinal control alpha.")),
+      GreyBigButton("", tr_noop("Changing this setting will restart openpilot if the car is powered on.")),
       accept,
     ])
 
@@ -36,7 +37,7 @@ class DeveloperLayoutMici(NavScroller):
 
     def github_username_callback(username: str):
       if username:
-        self._ssh_keys_btn.set_value("Loading...")
+        self._ssh_keys_btn.set_value(tr_noop("Loading..."))
         self._ssh_keys_btn.set_enabled(False)
 
         def on_response(error):
@@ -44,45 +45,45 @@ class DeveloperLayoutMici(NavScroller):
           if error is None:
             self._ssh_keys_btn.set_value(username)
           else:
-            self._ssh_keys_btn.set_value("Not set")
+            self._ssh_keys_btn.set_value(tr_noop("Not set"))
             gui_app.push_widget(BigDialog("", error))
 
         self._ssh_fetcher.fetch(username, on_response)
       else:
         self._ssh_fetcher.clear()
-        self._ssh_keys_btn.set_value("Not set")
+        self._ssh_keys_btn.set_value(tr_noop("Not set"))
 
     def ssh_keys_callback():
       github_username = ui_state.params.get("GithubUsername") or ""
-      dlg = BigInputDialog("enter GitHub username...", github_username, minimum_length=0, confirm_callback=github_username_callback)
+      dlg = BigInputDialog(tr_noop("enter GitHub username..."), github_username, minimum_length=0, confirm_callback=github_username_callback)
       if not system_time_valid():
-        dlg = BigDialog("", "Please connect to Wi-Fi to fetch your key.")
+        dlg = BigDialog("", tr_noop("Please connect to Wi-Fi to fetch your key."))
         gui_app.push_widget(dlg)
         return
       gui_app.push_widget(dlg)
 
     txt_ssh = gui_app.texture("icons_mici/settings/developer/ssh.png", 56, 64)
     github_username = ui_state.params.get("GithubUsername") or ""
-    self._ssh_keys_btn = BigButton("SSH keys", "Not set" if not github_username else github_username, icon=txt_ssh)
+    self._ssh_keys_btn = BigButton(lambda: tr("SSH keys"), tr_noop("Not set") if not github_username else github_username, icon=txt_ssh)
     self._ssh_keys_btn.set_click_callback(ssh_keys_callback)
 
     # adb, ssh, ssh keys, debug mode, joystick debug mode, longitudinal maneuver mode, ip address
     # ******** Main Scroller ********
     self._adb_toggle = BigCircleParamControl(gui_app.texture("icons_mici/adb_short.png", 82, 82), "AdbEnabled", icon_offset=(0, 12))
     self._ssh_toggle = BigCircleParamControl(gui_app.texture("icons_mici/ssh_short.png", 82, 82), "SshEnabled", icon_offset=(0, 12))
-    self._joystick_toggle = BigToggle("joystick debug mode",
+    self._joystick_toggle = BigToggle(lambda: tr("joystick debug mode"),
                                       initial_state=ui_state.params.get_bool("JoystickDebugMode"),
                                       toggle_callback=self._on_joystick_debug_mode)
-    self._long_maneuver_toggle = BigToggle("longitudinal maneuver mode",
+    self._long_maneuver_toggle = BigToggle(lambda: tr("longitudinal maneuver mode"),
                                            initial_state=ui_state.params.get_bool("LongitudinalManeuverMode"),
                                            toggle_callback=self._on_long_maneuver_mode)
-    self._lat_maneuver_toggle = BigToggle("lateral maneuver mode",
+    self._lat_maneuver_toggle = BigToggle(lambda: tr("lateral maneuver mode"),
                                           initial_state=ui_state.params.get_bool("LateralManeuverMode"),
                                           toggle_callback=self._on_lat_maneuver_mode)
-    self._alpha_long_toggle = BigToggle("alpha longitudinal",
+    self._alpha_long_toggle = BigToggle(lambda: tr("alpha longitudinal"),
                                         initial_state=ui_state.params.get_bool("AlphaLongitudinalEnabled"),
                                         toggle_callback=self._on_alpha_long_enabled)
-    self._debug_mode_toggle = BigParamControl("ui debug mode", "ShowDebugInfo",
+    self._debug_mode_toggle = BigParamControl(lambda: tr("ui debug mode"), "ShowDebugInfo",
                                               toggle_callback=lambda checked: (gui_app.set_show_touches(checked),
                                                                                gui_app.set_show_fps(checked)))
 
