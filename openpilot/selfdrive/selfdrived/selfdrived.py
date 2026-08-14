@@ -7,7 +7,8 @@ import openpilot.cereal.messaging as messaging
 
 from openpilot.cereal import log
 from opendbc.car.structs import car
-from msgq.visionipc import VisionIpcClient, VisionStreamType
+from openpilot.cereal.visionipc import VisionStreamType
+from msgq.visionipc import VisionIpcClient
 
 
 from openpilot.common.params import Params
@@ -15,7 +16,7 @@ from openpilot.common.realtime import config_realtime_process, Priority, Ratekee
 from openpilot.common.swaglog import cloudlog
 from openpilot.common.gps import get_gps_location_service
 
-from openpilot.selfdrive.car.car_specific import CarSpecificEvents
+from openpilot.selfdrive.car.car_events import CarEvents
 from openpilot.selfdrive.locationd.helpers import PoseCalibrator, Pose
 from openpilot.selfdrive.selfdrived.events import Events, ET
 from openpilot.selfdrive.selfdrived.helpers import ExcessiveActuationCheck
@@ -61,7 +62,7 @@ class SelfdriveD:
     else:
       self.CP = CP
 
-    self.car_events = CarSpecificEvents(self.CP)
+    self.car_events = CarEvents(self.CP)
 
     self.pose_calibrator = PoseCalibrator()
     self.calibrated_pose: Pose | None = None
@@ -69,6 +70,7 @@ class SelfdriveD:
     self.excessive_actuation = self.params.get("Offroad_ExcessiveActuation") is not None
     self.big_model_loading = False
     self.big_model_active = False
+    self.big_model_failed = False
     self.big_model_ready_t = 0.
 
     # Setup sockets
@@ -77,20 +79,20 @@ class SelfdriveD:
     self.gps_location_service = get_gps_location_service(self.params)
     self.gps_packets = [self.gps_location_service]
     self.sensor_packets = ["accelerometer", "gyroscope"]
-    self.camera_packets = ["roadCameraState", "driverCameraState", "wideRoadCameraState"]
+    self.camera_packets = ["narrowRoadCameraState", "cabinCameraState", "wideRoadCameraState"]
 
     # TODO: de-couple selfdrived with card/conflate on carState without introducing controls mismatches
     self.car_state_sock = messaging.sub_sock('carState', timeout=20)
 
     ignore = self.sensor_packets + self.gps_packets + ['alertDebug', 'lateralManeuverPlan']
     if SIMULATION:
-      ignore += ['driverCameraState', 'managerState']
+      ignore += ['cabinCameraState', 'managerState']
     if REPLAY:
       # no vipc in replay will make them ignored anyways
-      ignore += ['roadCameraState', 'wideRoadCameraState']
-    self.sm = messaging.SubMaster(['deviceState', 'pandaStates', 'peripheralState', 'modelV2', 'liveCalibration',
-                                   'carOutput', 'driverMonitoringState', 'longitudinalPlan', 'livePose', 'liveDelay',
-                                   'managerState', 'liveParameters', 'radarState', 'liveTorqueParameters',
+      ignore += ['narrowRoadCameraState', 'wideRoadCameraState']
+    self.sm = messaging.SubMaster(['deviceState', 'pandaStates', 'peripheralState', 'modelV2', 'extrinsicsCalibration',
+                                   'carOutput', 'driverMonitoringState', 'longitudinalPlan', 'deviceMotion', 'lateralDelay',
+                                   'managerState', 'vehicleParameters', 'radarState', 'lateralTorqueParameters',
                                    'controlsState', 'carControl', 'driverAssistance', 'alertDebug', 'userBookmark',
                                    'lateralManeuverPlan'] + \
                                    self.camera_packets + self.sensor_packets + self.gps_packets,
@@ -166,19 +168,22 @@ class SelfdriveD:
     loading = self.params.get_bool("UsbGpuLoading")
     if self.big_model_loading and not loading:
       self.big_model_ready_t = time.monotonic()
-      if self.params.get_bool("UsbGpuActive"):
-        self.events.add(EventName.bigModelReady)
     self.big_model_loading = loading
     if self.big_model_loading:
       self.events.add(EventName.bigModelLoading)
 
+    big_active = self.params.get("UsbGpuActive")
+    usbgpu_present = self.sm['deviceState'].chestnutPresent
+    model_unavailable = big_active is True and self.sm.seen['modelV2'] and not self.sm.alive['modelV2']
+    big_failed = big_active is False or model_unavailable or (self.big_model_active and not usbgpu_present)
+    if big_failed and not self.big_model_failed:
+      self.events.add(EventName.bigModelFailed)
+    self.big_model_failed = big_failed
+
     # soft disable if the big model fails
-    big_active = self.params.get_bool("UsbGpuActive")
     if big_active:
       self.big_model_active = True
-    if self.enabled and self.big_model_active and not big_active:
-      self.events.add(EventName.modeldLagging)
-    if not self.enabled:
+    if not self.enabled and not model_unavailable:
       self.big_model_active = False
 
     if self.sm.recv_frame['lateralManeuverPlan'] > 0:
@@ -271,11 +276,11 @@ class SelfdriveD:
         self.last_functional_fan_frame = self.sm.frame
 
     # Handle calibration status
-    cal_status = self.sm['liveCalibration'].calStatus
-    if cal_status != log.LiveCalibrationData.Status.calibrated:
-      if cal_status == log.LiveCalibrationData.Status.uncalibrated:
+    cal_status = self.sm['extrinsicsCalibration'].calStatus
+    if cal_status != log.ExtrinsicsCalibration.Status.calibrated:
+      if cal_status == log.ExtrinsicsCalibration.Status.uncalibrated:
         self.events.add(EventName.calibrationIncomplete)
-      elif cal_status == log.LiveCalibrationData.Status.recalibrating:
+      elif cal_status == log.ExtrinsicsCalibration.Status.recalibrating:
         if not self.recalibrating_seen:
           set_offroad_alert("Offroad_Recalibration", True)
         self.recalibrating_seen = True
@@ -292,11 +297,11 @@ class SelfdriveD:
     #  NOTE: To fork maintainers.
     #  Disabling or nerfing safety features will get you and your users banned from our servers.
     #  We recommend that you do not change these numbers from the defaults.
-    if self.sm.updated['liveCalibration']:
-      self.pose_calibrator.feed_live_calib(self.sm['liveCalibration'])
-    if self.sm.updated['livePose']:
-      device_pose = Pose.from_live_pose(self.sm['livePose'])
-      self.calibrated_pose = self.pose_calibrator.build_calibrated_pose(device_pose)
+    if self.sm.updated['extrinsicsCalibration']:
+      self.pose_calibrator.feed_extrinsics_calibration(self.sm['extrinsicsCalibration'])
+    if self.sm.updated['deviceMotion']:
+      device_motion = Pose.from_device_motion(self.sm['deviceMotion'])
+      self.calibrated_pose = self.pose_calibrator.build_calibrated_pose(device_motion)
 
     if self.calibrated_pose is not None:
       excessive_actuation = self.excessive_actuation_check.update(self.sm, CS, self.calibrated_pose)
@@ -396,11 +401,12 @@ class SelfdriveD:
       self.logged_comm_issue = None
 
     if not self.CP.notCar and not big_model_settling:  # localization has nothing to work with during the load
-      if not self.sm['livePose'].posenetOK:
+      if not self.sm['deviceMotion'].posenetOK:
         self.events.add(EventName.posenetInvalid)
-      if not self.sm['livePose'].inputsOK:
+      if not self.sm['deviceMotion'].inputsOK:
         self.events.add(EventName.locationdTemporaryError)
-      if not self.sm['liveParameters'].valid and cal_status == log.LiveCalibrationData.Status.calibrated and not TESTING_CLOSET and (not SIMULATION or REPLAY):
+      if (not self.sm['vehicleParameters'].valid and cal_status == log.ExtrinsicsCalibration.Status.calibrated and
+          not TESTING_CLOSET and (not SIMULATION or REPLAY)):
         self.events.add(EventName.paramsdTemporaryError)
 
     # conservative HW alert. if the data or frequency are off, locationd will throw an error
@@ -439,7 +445,7 @@ class SelfdriveD:
 
     # GPS checks
     gps_ok = self.sm.recv_frame[self.gps_location_service] > 0 and (self.sm.frame - self.sm.recv_frame[self.gps_location_service]) * DT_CTRL < 2.0
-    if not gps_ok and self.sm['livePose'].inputsOK and (self.distance_traveled > 1500):
+    if not gps_ok and self.sm['deviceMotion'].inputsOK and (self.distance_traveled > 1500):
       self.events.add(EventName.noGps)
     if gps_ok:
       self.distance_traveled = 0
@@ -471,9 +477,9 @@ class SelfdriveD:
       timed_out = self.sm.frame * DT_CTRL > 6.
       if all_valid or timed_out or (SIMULATION and not REPLAY):
         available_streams = VisionIpcClient.available_streams("camerad", block=False)
-        if VisionStreamType.VISION_STREAM_ROAD not in available_streams:
-          self.sm.ignore_alive.append('roadCameraState')
-          self.sm.ignore_valid.append('roadCameraState')
+        if VisionStreamType.VISION_STREAM_NARROW_ROAD not in available_streams:
+          self.sm.ignore_alive.append('narrowRoadCameraState')
+          self.sm.ignore_valid.append('narrowRoadCameraState')
         if VisionStreamType.VISION_STREAM_WIDE_ROAD not in available_streams:
           self.sm.ignore_alive.append('wideRoadCameraState')
           self.sm.ignore_valid.append('wideRoadCameraState')

@@ -77,6 +77,7 @@ inline static std::unordered_map<std::string, ParamKeyAttributes> keys = {
     {"LastUpdateRouteCount", {PERSISTENT, INT, "0"}},
     {"LastUpdateTime", {PERSISTENT, TIME}},
     {"LastUpdateUptimeOnroad", {PERSISTENT, FLOAT, "0.0"}},
+    // TODO: rename the Live* learner cache keys to match their Cereal services, with migration for persisted values.
     {"LiveDelay", {PERSISTENT, BYTES}},
     {"LiveParametersV2", {PERSISTENT, BYTES}},
     {"LivestreamEncoderBitrate", {CLEAR_ON_MANAGER_START | DONT_LOG, INT}},
@@ -130,7 +131,7 @@ inline static std::unordered_map<std::string, ParamKeyAttributes> keys = {
     {"UpdaterLastFetchTime", {PERSISTENT, TIME}},
     {"UptimeOffroad", {PERSISTENT, FLOAT, "0.0"}},
     {"UptimeOnroad", {PERSISTENT, FLOAT, "0.0"}},
-    {"UsbGpuActive", {CLEAR_ON_MANAGER_START | CLEAR_ON_OFFROAD_TRANSITION, BOOL}},
-    {"UsbGpuLoading", {CLEAR_ON_MANAGER_START | CLEAR_ON_OFFROAD_TRANSITION, BOOL}},
+    {"UsbGpuActive", {CLEAR_ON_MANAGER_START | CLEAR_ON_OFFROAD_TRANSITION | CLEAR_ON_IGNITION_ON, BOOL}},
+    {"UsbGpuLoading", {CLEAR_ON_MANAGER_START | CLEAR_ON_OFFROAD_TRANSITION | CLEAR_ON_IGNITION_ON, BOOL}},
     {"Version", {PERSISTENT, STRING}},
 };
