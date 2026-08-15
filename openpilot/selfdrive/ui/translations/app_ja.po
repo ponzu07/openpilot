@@ -1396,6 +1396,10 @@ msgid "upgrade to prime"
 msgstr "prime にアップグレード"
 
 #: openpilot/selfdrive/ui/mici/layouts/settings/toggles.py
+msgid "use comma backend"
+msgstr "comma のサーバーを使う"
+
+#: openpilot/selfdrive/ui/mici/layouts/settings/toggles.py
 msgid "use metric units"
 msgstr "メートル法を使用"
 

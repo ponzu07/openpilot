@@ -1372,6 +1372,10 @@ msgid "upgrade to prime"
 msgstr ""
 
 #: openpilot/selfdrive/ui/mici/layouts/settings/toggles.py
+msgid "use comma backend"
+msgstr ""
+
+#: openpilot/selfdrive/ui/mici/layouts/settings/toggles.py
 msgid "use metric units"
 msgstr ""
 

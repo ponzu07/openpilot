@@ -1260,6 +1260,10 @@ msgid "enable openpilot"
 msgstr ""
 
 #: openpilot/selfdrive/ui/mici/layouts/settings/toggles.py
+msgid "use comma backend"
+msgstr ""
+
+#: openpilot/selfdrive/ui/mici/layouts/settings/toggles.py
 msgid "openpilot defaults to driving in chill mode."
 msgstr ""
 

@@ -1,8 +1,10 @@
 #!/usr/bin/env bash
 
-export API_HOST="https://openpilot.copirobo.com"
-export ATHENA_HOST="wss://openpilot.copirobo.com"
-export CONNECT_HOST="https://connect.copirobo.com"
+if [ "$(cat /data/params/d/UseCommaBackend 2>/dev/null)" != "1" ]; then
+  export API_HOST="https://openpilot.copirobo.com"
+  export ATHENA_HOST="wss://openpilot.copirobo.com"
+  export CONNECT_HOST="https://connect.copirobo.com"
+fi
 
 export OMP_NUM_THREADS=1
 export MKL_NUM_THREADS=1
