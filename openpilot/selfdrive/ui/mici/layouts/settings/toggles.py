@@ -3,9 +3,8 @@ from collections.abc import Callable
 from openpilot.cereal import log
 
 from openpilot.system.ui.widgets.scroller import NavScroller
-from openpilot.selfdrive.ui.mici.widgets.button import BigParamControl, BigMultiParamToggle, BigToggle, GreyBigButton, BigButton
+from openpilot.selfdrive.ui.mici.widgets.button import BigParamControl, BigMultiParamToggle, BigToggle, GreyBigButton
 from openpilot.selfdrive.ui.mici.widgets.dialog import BigConfirmationCircleButton
-from openpilot.selfdrive.ui.mici.layouts.settings.language import LanguageLayoutMici
 from openpilot.system.ui.lib.application import gui_app
 from openpilot.selfdrive.ui.layouts.settings.common import restart_needed_callback
 from openpilot.selfdrive.ui.ui_state import ui_state
@@ -53,9 +52,6 @@ class TogglesLayoutMici(NavScroller):
     record_mic = BigParamControl(lambda: tr("record & upload mic audio"), "RecordAudio", toggle_callback=restart_needed_callback)
     enable_openpilot = BigParamControl(lambda: tr("enable openpilot"), "OpenpilotEnabledToggle", toggle_callback=restart_needed_callback)
 
-    language_btn = BigButton(lambda: tr("language"), "", gui_app.texture("icons_mici/settings/device/info.png", 64, 64))
-    language_btn.set_click_callback(lambda: gui_app.push_widget(LanguageLayoutMici()))
-
     self._scroller.add_widgets([
       self._personality_toggle,
       self._experimental_btn,
@@ -65,7 +61,6 @@ class TogglesLayoutMici(NavScroller):
       record_front,
       record_mic,
       enable_openpilot,
-      language_btn,
     ])
 
     # Toggle lists
