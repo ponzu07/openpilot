@@ -1423,3 +1423,19 @@ msgstr ""
 msgid "pair with comma connect"
 msgstr ""
 
+
+#: openpilot/selfdrive/ui/layouts/settings/toggles.py
+msgid "Curve Speed Control"
+msgstr ""
+
+#: openpilot/selfdrive/ui/layouts/settings/toggles.py
+msgid "Custom Longitudinal Tuning"
+msgstr ""
+
+#: openpilot/selfdrive/ui/layouts/settings/toggles.py
+msgid "Smooths brake application and release below 5 km/h to reduce abrupt braking while stopping."
+msgstr ""
+
+#: openpilot/selfdrive/ui/layouts/settings/toggles.py
+msgid "Uses the model-predicted road curvature to slow down before curves."
+msgstr ""

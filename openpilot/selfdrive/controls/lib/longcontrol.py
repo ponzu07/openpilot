@@ -3,7 +3,9 @@ from opendbc.car.structs import car
 from openpilot.common.realtime import DT_CTRL
 from openpilot.selfdrive.controls.lib.drive_helpers import CONTROL_N
 from openpilot.common.pid import PIDController
+from openpilot.common.params import Params
 from openpilot.selfdrive.modeld.constants import ModelConstants
+from openpilot.selfdrive.controls.lib.custom_longitudinal_tuning import CustomLongitudinalTuning
 
 CONTROL_N_T_IDX = ModelConstants.T_IDXS[:CONTROL_N]
 
@@ -42,6 +44,8 @@ class LongControl:
     self.pid = PIDController(0.0, (CP.longitudinalTuning.kiBP, CP.longitudinalTuning.kiV),
                              rate=1 / DT_CTRL)
     self.last_output_accel = 0.0
+    self.custom_tuning_enabled = Params().get_bool("CustomLongitudinalTuning")
+    self.custom_tuning = CustomLongitudinalTuning(DT_CTRL)
 
   def reset(self):
     self.pid.reset()
@@ -69,6 +73,9 @@ class LongControl:
       error = a_target - CS.aEgo
       output_accel = self.pid.update(error, speed=CS.vEgo,
                                      feedforward=a_target)
+
+    if self.custom_tuning_enabled and self.long_control_state != LongCtrlState.off:
+      output_accel = self.custom_tuning.smooth_accel(output_accel, self.last_output_accel, CS.vEgo)
 
     self.last_output_accel = np.clip(output_accel, accel_limits[0], accel_limits[1])
     return self.last_output_accel

@@ -18,6 +18,12 @@ DESCRIPTIONS = {
     "Your attention is required at all times to use this feature."
   ),
   "DisengageOnAccelerator": tr_noop("When enabled, pressing the accelerator pedal will disengage openpilot."),
+  "CustomLongitudinalTuning": tr_noop(
+    "Smooths brake application and release below 5 km/h to reduce abrupt braking while stopping."
+  ),
+  "CurveSpeedControl": tr_noop(
+    "Uses the model-predicted road curvature to slow down before curves."
+  ),
   "LongitudinalPersonality": tr_noop(
     "Standard is recommended. In aggressive mode, openpilot will follow lead cars closer and be more aggressive with the gas and brake. " +
     "In relaxed mode openpilot will stay further away from lead cars. On supported cars, you can cycle through these personalities with " +
@@ -59,6 +65,18 @@ class TogglesLayout(Widget):
         DESCRIPTIONS["DisengageOnAccelerator"],
         "disengage_on_accelerator.png",
         False,
+      ),
+      "CustomLongitudinalTuning": (
+        lambda: tr("Custom Longitudinal Tuning"),
+        DESCRIPTIONS["CustomLongitudinalTuning"],
+        "speed_limit.png",
+        True,
+      ),
+      "CurveSpeedControl": (
+        lambda: tr("Curve Speed Control"),
+        DESCRIPTIONS["CurveSpeedControl"],
+        "speed_limit.png",
+        True,
       ),
       "IsLdwEnabled": (
         lambda: tr("Enable Lane Departure Warnings"),
@@ -172,11 +190,15 @@ class TogglesLayout(Widget):
         self._toggles["ExperimentalMode"].action_item.set_enabled(True)
         self._toggles["ExperimentalMode"].set_description(e2e_description)
         self._long_personality_setting.action_item.set_enabled(True)
+        self._toggles["CustomLongitudinalTuning"].action_item.set_enabled(True)
+        self._toggles["CurveSpeedControl"].action_item.set_enabled(True)
       else:
         # no long for now
         self._toggles["ExperimentalMode"].action_item.set_enabled(False)
         self._toggles["ExperimentalMode"].action_item.set_state(False)
         self._long_personality_setting.action_item.set_enabled(False)
+        self._toggles["CustomLongitudinalTuning"].action_item.set_enabled(False)
+        self._toggles["CurveSpeedControl"].action_item.set_enabled(False)
         self._params.remove("ExperimentalMode")
 
         unavailable = tr("Experimental mode is currently unavailable on this car since the car's stock ACC is used for longitudinal control.")

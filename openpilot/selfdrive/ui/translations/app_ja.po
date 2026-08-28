@@ -1445,3 +1445,19 @@ msgstr[1] ""
 msgid "✓ SUBSCRIBED"
 msgstr "✓ 登録済み"
 
+
+#: openpilot/selfdrive/ui/layouts/settings/toggles.py
+msgid "Curve Speed Control"
+msgstr "カーブ速度制御"
+
+#: openpilot/selfdrive/ui/layouts/settings/toggles.py
+msgid "Custom Longitudinal Tuning"
+msgstr "カスタム縦制御チューニング"
+
+#: openpilot/selfdrive/ui/layouts/settings/toggles.py
+msgid "Smooths brake application and release below 5 km/h to reduce abrupt braking while stopping."
+msgstr "5 km/h以下でブレーキのかかり方と緩め方を滑らかにし、停止時の急な制動を抑えます。"
+
+#: openpilot/selfdrive/ui/layouts/settings/toggles.py
+msgid "Uses the model-predicted road curvature to slow down before curves."
+msgstr "モデルが予測した道路の曲率を使用して、カーブの手前で減速します。"
