@@ -14,6 +14,10 @@ msgstr ""
 msgid "Cancel"
 msgstr ""
 
+#: openpilot/system/ui/widgets/list_view.py
+msgid "Error"
+msgstr ""
+
 #: openpilot/system/ui/widgets/network.py
 msgid "Advanced"
 msgstr ""
@@ -137,10 +141,6 @@ msgstr ""
 
 #: openpilot/system/ui/widgets/option_dialog.py
 msgid "Select"
-msgstr ""
-
-#: openpilot/system/ui/widgets/list_view.py
-msgid "Error"
 msgstr ""
 
 #: openpilot/selfdrive/ui/widgets/exp_mode_button.py
@@ -282,40 +282,6 @@ msgstr ""
 msgid "QR Code Error"
 msgstr ""
 
-#: openpilot/selfdrive/ui/layouts/home.py
-msgid "UPDATE"
-msgstr ""
-
-#: openpilot/selfdrive/ui/layouts/home.py
-msgid "{} ALERT"
-msgid_plural "{} ALERTS"
-msgstr[0] ""
-msgstr[1] ""
-
-#: openpilot/selfdrive/ui/layouts/onboarding.py
-msgid "Welcome to openpilot"
-msgstr ""
-
-#: openpilot/selfdrive/ui/layouts/onboarding.py
-msgid "You must accept the Terms and Conditions to use openpilot. Read the latest terms at https://comma.ai/terms before continuing."
-msgstr ""
-
-#: openpilot/selfdrive/ui/layouts/onboarding.py
-msgid "Decline"
-msgstr ""
-
-#: openpilot/selfdrive/ui/layouts/onboarding.py
-msgid "Agree"
-msgstr ""
-
-#: openpilot/selfdrive/ui/layouts/onboarding.py
-msgid "You must accept the Terms and Conditions in order to use openpilot."
-msgstr ""
-
-#: openpilot/selfdrive/ui/layouts/onboarding.py
-msgid "Decline, uninstall openpilot"
-msgstr ""
-
 #: openpilot/selfdrive/ui/layouts/sidebar.py
 msgid "--"
 msgstr ""
@@ -384,6 +350,40 @@ msgstr ""
 msgid "ERROR"
 msgstr ""
 
+#: openpilot/selfdrive/ui/layouts/home.py
+msgid "UPDATE"
+msgstr ""
+
+#: openpilot/selfdrive/ui/layouts/home.py
+msgid "{} ALERT"
+msgid_plural "{} ALERTS"
+msgstr[0] ""
+msgstr[1] ""
+
+#: openpilot/selfdrive/ui/layouts/onboarding.py
+msgid "Welcome to openpilot"
+msgstr ""
+
+#: openpilot/selfdrive/ui/layouts/onboarding.py
+msgid "You must accept the Terms and Conditions to use openpilot. Read the latest terms at https://comma.ai/terms before continuing."
+msgstr ""
+
+#: openpilot/selfdrive/ui/layouts/onboarding.py
+msgid "Decline"
+msgstr ""
+
+#: openpilot/selfdrive/ui/layouts/onboarding.py
+msgid "Agree"
+msgstr ""
+
+#: openpilot/selfdrive/ui/layouts/onboarding.py
+msgid "You must accept the Terms and Conditions in order to use openpilot."
+msgstr ""
+
+#: openpilot/selfdrive/ui/layouts/onboarding.py
+msgid "Decline, uninstall openpilot"
+msgstr ""
+
 #: openpilot/selfdrive/ui/layouts/settings/developer.py
 msgid "Enable ADB"
 msgstr ""
@@ -443,112 +443,6 @@ msgstr ""
 
 #: openpilot/selfdrive/ui/layouts/settings/settings.py
 msgid "Developer"
-msgstr ""
-
-#: openpilot/selfdrive/ui/layouts/settings/software.py
-msgid "checking..."
-msgstr ""
-
-#: openpilot/selfdrive/ui/layouts/settings/software.py
-msgid "downloading..."
-msgstr ""
-
-#: openpilot/selfdrive/ui/layouts/settings/software.py
-msgid "finalizing update..."
-msgstr ""
-
-#: openpilot/selfdrive/ui/layouts/settings/software.py
-msgid "never"
-msgstr ""
-
-#: openpilot/selfdrive/ui/layouts/settings/software.py
-msgid "now"
-msgstr ""
-
-#: openpilot/selfdrive/ui/layouts/settings/software.py
-msgid "CHECK"
-msgstr ""
-
-#: openpilot/selfdrive/ui/layouts/settings/software.py
-msgid "Are you sure you want to uninstall?"
-msgstr ""
-
-#: openpilot/selfdrive/ui/layouts/settings/software.py
-msgid "Uninstall"
-msgstr ""
-
-#: openpilot/selfdrive/ui/layouts/settings/software.py
-msgid "Select a branch"
-msgstr ""
-
-#: openpilot/selfdrive/ui/layouts/settings/software.py
-msgid "{} minute ago"
-msgid_plural "{} minutes ago"
-msgstr[0] ""
-msgstr[1] ""
-
-#: openpilot/selfdrive/ui/layouts/settings/software.py
-msgid "{} hour ago"
-msgid_plural "{} hours ago"
-msgstr[0] ""
-msgstr[1] ""
-
-#: openpilot/selfdrive/ui/layouts/settings/software.py
-msgid "{} day ago"
-msgid_plural "{} days ago"
-msgstr[0] ""
-msgstr[1] ""
-
-#: openpilot/selfdrive/ui/layouts/settings/software.py
-msgid "Updates are only downloaded while the car is off."
-msgstr ""
-
-#: openpilot/selfdrive/ui/layouts/settings/software.py
-msgid "Current Version"
-msgstr ""
-
-#: openpilot/selfdrive/ui/layouts/settings/software.py
-msgid "Download"
-msgstr ""
-
-#: openpilot/selfdrive/ui/layouts/settings/software.py
-msgid "Install Update"
-msgstr ""
-
-#: openpilot/selfdrive/ui/layouts/settings/software.py
-msgid "INSTALL"
-msgstr ""
-
-#: openpilot/selfdrive/ui/layouts/settings/software.py
-msgid "Target Branch"
-msgstr ""
-
-#: openpilot/selfdrive/ui/layouts/settings/software.py
-msgid "SELECT"
-msgstr ""
-
-#: openpilot/selfdrive/ui/layouts/settings/software.py
-msgid "failed to check for update"
-msgstr ""
-
-#: openpilot/selfdrive/ui/layouts/settings/software.py
-msgid "UNINSTALL"
-msgstr ""
-
-#: openpilot/selfdrive/ui/layouts/settings/software.py
-msgid "update available"
-msgstr ""
-
-#: openpilot/selfdrive/ui/layouts/settings/software.py
-msgid "DOWNLOAD"
-msgstr ""
-
-#: openpilot/selfdrive/ui/layouts/settings/software.py
-msgid "up to date, last checked never"
-msgstr ""
-
-#: openpilot/selfdrive/ui/layouts/settings/software.py
-msgid "up to date, last checked {}"
 msgstr ""
 
 #: openpilot/selfdrive/ui/layouts/settings/device.py
@@ -782,6 +676,112 @@ msgstr ""
 
 #: openpilot/selfdrive/ui/layouts/settings/toggles.py
 msgid "Enable the openpilot longitudinal control (alpha) toggle to allow Experimental mode."
+msgstr ""
+
+#: openpilot/selfdrive/ui/layouts/settings/software.py
+msgid "checking..."
+msgstr ""
+
+#: openpilot/selfdrive/ui/layouts/settings/software.py
+msgid "downloading..."
+msgstr ""
+
+#: openpilot/selfdrive/ui/layouts/settings/software.py
+msgid "finalizing update..."
+msgstr ""
+
+#: openpilot/selfdrive/ui/layouts/settings/software.py
+msgid "never"
+msgstr ""
+
+#: openpilot/selfdrive/ui/layouts/settings/software.py
+msgid "now"
+msgstr ""
+
+#: openpilot/selfdrive/ui/layouts/settings/software.py
+msgid "CHECK"
+msgstr ""
+
+#: openpilot/selfdrive/ui/layouts/settings/software.py
+msgid "Are you sure you want to uninstall?"
+msgstr ""
+
+#: openpilot/selfdrive/ui/layouts/settings/software.py
+msgid "Uninstall"
+msgstr ""
+
+#: openpilot/selfdrive/ui/layouts/settings/software.py
+msgid "Select a branch"
+msgstr ""
+
+#: openpilot/selfdrive/ui/layouts/settings/software.py
+msgid "{} minute ago"
+msgid_plural "{} minutes ago"
+msgstr[0] ""
+msgstr[1] ""
+
+#: openpilot/selfdrive/ui/layouts/settings/software.py
+msgid "{} hour ago"
+msgid_plural "{} hours ago"
+msgstr[0] ""
+msgstr[1] ""
+
+#: openpilot/selfdrive/ui/layouts/settings/software.py
+msgid "{} day ago"
+msgid_plural "{} days ago"
+msgstr[0] ""
+msgstr[1] ""
+
+#: openpilot/selfdrive/ui/layouts/settings/software.py
+msgid "Updates are only downloaded while the car is off."
+msgstr ""
+
+#: openpilot/selfdrive/ui/layouts/settings/software.py
+msgid "Current Version"
+msgstr ""
+
+#: openpilot/selfdrive/ui/layouts/settings/software.py
+msgid "Download"
+msgstr ""
+
+#: openpilot/selfdrive/ui/layouts/settings/software.py
+msgid "Install Update"
+msgstr ""
+
+#: openpilot/selfdrive/ui/layouts/settings/software.py
+msgid "INSTALL"
+msgstr ""
+
+#: openpilot/selfdrive/ui/layouts/settings/software.py
+msgid "Target Branch"
+msgstr ""
+
+#: openpilot/selfdrive/ui/layouts/settings/software.py
+msgid "SELECT"
+msgstr ""
+
+#: openpilot/selfdrive/ui/layouts/settings/software.py
+msgid "failed to check for update"
+msgstr ""
+
+#: openpilot/selfdrive/ui/layouts/settings/software.py
+msgid "UNINSTALL"
+msgstr ""
+
+#: openpilot/selfdrive/ui/layouts/settings/software.py
+msgid "update available"
+msgstr ""
+
+#: openpilot/selfdrive/ui/layouts/settings/software.py
+msgid "DOWNLOAD"
+msgstr ""
+
+#: openpilot/selfdrive/ui/layouts/settings/software.py
+msgid "up to date, last checked never"
+msgstr ""
+
+#: openpilot/selfdrive/ui/layouts/settings/software.py
+msgid "up to date, last checked {}"
 msgstr ""
 
 #: openpilot/selfdrive/ui/mici/onroad/hud_renderer.py
@@ -1061,52 +1061,6 @@ msgid_plural "{} segments of your driving is in the training dataset so far."
 msgstr[0] ""
 msgstr[1] ""
 
-#: openpilot/selfdrive/ui/mici/layouts/settings/software.py
-msgid "uninstall"
-msgstr ""
-
-#: openpilot/selfdrive/ui/mici/layouts/settings/software.py
-msgid "version"
-msgstr ""
-
-#: openpilot/selfdrive/ui/mici/layouts/settings/software.py
-msgid "branch"
-msgstr ""
-
-#: openpilot/selfdrive/ui/mici/layouts/settings/software.py
-msgid "Please connect to Wi-Fi to update."
-msgstr ""
-
-#: openpilot/selfdrive/ui/mici/layouts/settings/software.py
-msgid "install update"
-msgstr ""
-
-#: openpilot/selfdrive/ui/mici/layouts/settings/software.py
-msgid "uninstall openpilot"
-msgstr ""
-
-#: openpilot/selfdrive/ui/mici/layouts/settings/software.py
-msgid "check for update"
-msgstr ""
-
-#: openpilot/selfdrive/ui/mici/layouts/settings/software.py
-msgid ""
-"updater failed\n"
-"to respond"
-msgstr ""
-
-#: openpilot/selfdrive/ui/mici/layouts/settings/software.py
-msgid "failed to update"
-msgstr ""
-
-#: openpilot/selfdrive/ui/mici/layouts/settings/software.py
-msgid "download update"
-msgstr ""
-
-#: openpilot/selfdrive/ui/mici/layouts/settings/software.py
-msgid "up to date"
-msgstr ""
-
 #: openpilot/selfdrive/ui/mici/layouts/settings/device.py
 msgid "reset"
 msgstr ""
@@ -1311,6 +1265,56 @@ msgstr ""
 
 #: openpilot/selfdrive/ui/mici/layouts/settings/language.py
 msgid "selected"
+msgstr ""
+
+#: openpilot/selfdrive/ui/mici/layouts/settings/software.py
+msgid "uninstall"
+msgstr ""
+
+#: openpilot/selfdrive/ui/mici/layouts/settings/software.py
+msgid "version"
+msgstr ""
+
+#: openpilot/selfdrive/ui/mici/layouts/settings/software.py
+msgid "branch"
+msgstr ""
+
+#: openpilot/selfdrive/ui/mici/layouts/settings/software.py
+msgid "Please connect to Wi-Fi to update."
+msgstr ""
+
+#: openpilot/selfdrive/ui/mici/layouts/settings/software.py
+msgid "install now"
+msgstr ""
+
+#: openpilot/selfdrive/ui/mici/layouts/settings/software.py
+msgid "uninstall openpilot"
+msgstr ""
+
+#: openpilot/selfdrive/ui/mici/layouts/settings/software.py
+msgid "check for update"
+msgstr ""
+
+#: openpilot/selfdrive/ui/mici/layouts/settings/software.py
+msgid ""
+"updater failed\n"
+"to respond"
+msgstr ""
+
+#: openpilot/selfdrive/ui/mici/layouts/settings/software.py
+msgid "Failed to get available branches. Ensure you're connected to the internet and try again."
+msgstr ""
+
+#: openpilot/selfdrive/ui/mici/layouts/settings/software.py
+msgid "failed to update"
+msgstr ""
+
+#: openpilot/selfdrive/ui/mici/layouts/settings/software.py
+msgid "download update"
+msgstr ""
+
+#: openpilot/selfdrive/ui/mici/layouts/settings/software.py
+msgid "up to date"
 msgstr ""
 
 #: openpilot/selfdrive/ui/mici/layouts/settings/network/__init__.py

@@ -359,6 +359,10 @@ msgstr "此車款目前無法使用實驗模式，因為縱向控制使用的是
 msgid "FORGETTING..."
 msgstr "正在遺忘..."
 
+#: openpilot/selfdrive/ui/mici/layouts/settings/software.py
+msgid "Failed to get available branches. Ensure you're connected to the internet and try again."
+msgstr ""
+
 #: openpilot/selfdrive/ui/widgets/setup.py
 msgid "Finish Setup"
 msgstr "完成設定"
@@ -1052,7 +1056,7 @@ msgid "forgetting..."
 msgstr ""
 
 #: openpilot/selfdrive/ui/mici/layouts/settings/software.py
-msgid "install update"
+msgid "install now"
 msgstr ""
 
 #: openpilot/selfdrive/ui/mici/layouts/settings/developer.py

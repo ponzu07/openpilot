@@ -359,6 +359,10 @@ msgstr "Experimental mode is currently unavailable on this car since the car's s
 msgid "FORGETTING..."
 msgstr "FORGETTING..."
 
+#: openpilot/selfdrive/ui/mici/layouts/settings/software.py
+msgid "Failed to get available branches. Ensure you're connected to the internet and try again."
+msgstr ""
+
 #: openpilot/selfdrive/ui/widgets/setup.py
 msgid "Finish Setup"
 msgstr "Finish Setup"
@@ -1052,7 +1056,7 @@ msgid "forgetting..."
 msgstr ""
 
 #: openpilot/selfdrive/ui/mici/layouts/settings/software.py
-msgid "install update"
+msgid "install now"
 msgstr ""
 
 #: openpilot/selfdrive/ui/mici/layouts/settings/developer.py

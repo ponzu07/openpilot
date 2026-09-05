@@ -359,6 +359,10 @@ msgstr "この車では縦制御に純正ACCを使用するため、現在実験
 msgid "FORGETTING..."
 msgstr "削除中..."
 
+#: openpilot/selfdrive/ui/mici/layouts/settings/software.py
+msgid "Failed to get available branches. Ensure you're connected to the internet and try again."
+msgstr "利用可能なブランチを取得できませんでした。インターネット接続を確認して再試行してください。"
+
 #: openpilot/selfdrive/ui/widgets/setup.py
 msgid "Finish Setup"
 msgstr "セットアップを完了"
@@ -1066,8 +1070,8 @@ msgid "forgetting..."
 msgstr "削除中..."
 
 #: openpilot/selfdrive/ui/mici/layouts/settings/software.py
-msgid "install update"
-msgstr "更新をインストール"
+msgid "install now"
+msgstr "今すぐインストール"
 
 #: openpilot/selfdrive/ui/mici/layouts/settings/developer.py
 msgid "joystick debug mode"

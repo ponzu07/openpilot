@@ -359,6 +359,10 @@ msgstr "이 차량은 롱컨 제어에 순정 ACC를 사용하므로 현재 실�
 msgid "FORGETTING..."
 msgstr "삭제 중..."
 
+#: openpilot/selfdrive/ui/mici/layouts/settings/software.py
+msgid "Failed to get available branches. Ensure you're connected to the internet and try again."
+msgstr ""
+
 #: openpilot/selfdrive/ui/widgets/setup.py
 msgid "Finish Setup"
 msgstr "설정 완료"
@@ -1052,7 +1056,7 @@ msgid "forgetting..."
 msgstr ""
 
 #: openpilot/selfdrive/ui/mici/layouts/settings/software.py
-msgid "install update"
+msgid "install now"
 msgstr ""
 
 #: openpilot/selfdrive/ui/mici/layouts/settings/developer.py
