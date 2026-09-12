@@ -778,6 +778,12 @@ def getSimInfo():
 
 
 @dispatcher.add_method
+def setDoorLock(lock: bool) -> dict[str, int]:
+  Params().put("DoorLockCmd", "lock" if lock else "unlock")
+  return {"success": 1}
+
+
+@dispatcher.add_method
 def getNetworkType():
   return HARDWARE.get_network_type()
 

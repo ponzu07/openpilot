@@ -23,6 +23,7 @@ from openpilot.selfdrive.pandad import can_capnp_to_list, can_list_to_can_capnp
 from openpilot.selfdrive.car.cruise import VCruiseHelper
 
 REPLAY = "REPLAY" in os.environ
+DOOR_LOCK_CMDS = {"lock": b"\x40\x05\x30\x11\x00\x80\x00\x00", "unlock": b"\x40\x05\x30\x11\x00\x40\x00\x00"}
 
 EventName = log.OnroadEvent.EventName
 
@@ -78,6 +79,7 @@ class Car:
     self.last_actuators_output = structs.CarControl.Actuators()
 
     self.params = Params()
+    self.door_lock_cmd = None
 
     self.can_callbacks = can_comm_callbacks(self.can_sock, self.pm.sock['sendcan'])
 
@@ -237,6 +239,9 @@ class Car:
       # send car controls over can
       now_nanos = self.can_log_mono_time if REPLAY else int(time.monotonic() * 1e9)
       self.last_actuators_output, can_sends = self.CI.apply(CC, now_nanos)
+      if self.door_lock_cmd in DOOR_LOCK_CMDS:
+        can_sends.append(CanData(0x750, DOOR_LOCK_CMDS[self.door_lock_cmd], 0))
+        self.door_lock_cmd = None
       self.pm.send('sendcan', can_list_to_can_capnp(can_sends, msgtype='sendcan', valid=CS.canValid))
 
       self.CC_prev = CC
@@ -258,6 +263,10 @@ class Car:
     while not evt.is_set():
       self.is_metric = self.params.get_bool("IsMetric")
       self.experimental_mode = self.params.get_bool("ExperimentalMode") and self.CP.openpilotLongitudinalControl
+      cmd = self.params.get("DoorLockCmd")
+      if cmd:
+        self.params.remove("DoorLockCmd")
+        self.door_lock_cmd = cmd
       time.sleep(0.1)
 
   def card_thread(self):
