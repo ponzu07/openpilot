@@ -51,7 +51,7 @@ PPPD_CMD = [
   "nodefaultroute", "connect",
   "/usr/sbin/chat -v ABORT 'NO CARRIER' ABORT 'NO DIALTONE' ABORT 'BUSY' " +
   f"ABORT 'NO ANSWER' ABORT 'ERROR' TIMEOUT 5 '' AT OK ATD*99***{DIAL_CID}# CONNECT ''",
-  "lcp-echo-interval", "30", "lcp-echo-failure", "4", "mtu", "1500", "mru", "1500",
+  "lcp-echo-interval", "30", "lcp-echo-failure", "4", "mtu", "1400", "mru", "1400",
   "novj", "novjccomp", "ipcp-accept-local", "ipcp-accept-remote", "nomagic",
   "user", '""', "password", '""',
 ]
