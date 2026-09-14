@@ -39,6 +39,7 @@ from openpilot.common.utils import CallbackReader, get_upload_stream
 from openpilot.common.params import Params
 from openpilot.common.realtime import set_core_affinity
 from openpilot.common.hardware import HARDWARE, PC
+from openpilot.selfdrive.pandad import can_list_to_can_capnp
 from openpilot.system.loggerd.config import CAMERA_FPS, SEGMENT_LENGTH
 from openpilot.system.loggerd.xattr_cache import getxattr, setxattr
 from openpilot.tools.lib.helpers import RE
@@ -781,6 +782,24 @@ def getSimInfo():
 def setDoorLock(lock: bool) -> dict[str, int]:
   Params().put("DoorLockCmd", "lock" if lock else "unlock")
   return {"success": 1}
+
+
+@dispatcher.add_method
+def getHvBattery() -> dict[str, float]:
+  if not Params().get_bool("IsOffroad"):
+    raise Exception("onroad")
+
+  can_sock = messaging.sub_sock("can", timeout=100)
+  sendcan_sock = messaging.pub_sock("sendcan")
+  for _ in range(3):
+    sendcan_sock.send(can_list_to_can_capnp([(0x7DF, b"\x02\x01\x5b\x00\x00\x00\x00\x00", 0)], msgtype="sendcan"))
+    end = time.monotonic() + 1
+    while time.monotonic() < end:
+      for msg in messaging.drain_sock(can_sock, wait_for_one=True):
+        for frame in msg.can:
+          if frame.src == 0 and frame.address == 0x7EA and frame.dat[1:3] == b"\x41\x5b":
+            return {"soc": frame.dat[3] * 100 / 255}
+  raise TimeoutError
 
 
 @dispatcher.add_method

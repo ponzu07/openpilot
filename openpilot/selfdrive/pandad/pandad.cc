@@ -196,15 +196,17 @@ std::optional<bool> send_panda_states(PubMaster *pm, Panda *panda, bool is_onroa
   }
 
   static Params params;
-  bool power_save_desired = !ignition_local && !params.getBool("CanKeepAwake");
+  bool can_keep_awake = params.getBool("CanKeepAwake");
+  bool power_save_desired = !ignition_local && !can_keep_awake;
   if (((health.flags_pkt & HEALTH_FLAG_POWER_SAVE_ENABLED) != 0U) != power_save_desired) {
     panda->set_power_saving(power_save_desired);
   }
 
   // set safety mode to NO_OUTPUT when car is off or we're not onroad. ELM327 is an alternative if we want to leverage athenad/connect
   bool should_close_relay = !ignition_local || !is_onroad;
-  if (should_close_relay && (health.safety_mode_pkt != (uint8_t)(cereal::CarParams::SafetyModel::NO_OUTPUT))) {
-    panda->set_safety_model(cereal::CarParams::SafetyModel::NO_OUTPUT);
+  auto offroad_safety = can_keep_awake ? cereal::CarParams::SafetyModel::ELM327 : cereal::CarParams::SafetyModel::NO_OUTPUT;
+  if (should_close_relay && (health.safety_mode_pkt != (uint8_t)offroad_safety)) {
+    panda->set_safety_model(offroad_safety, 1U);
   }
 
   if (!panda->comms_healthy()) {
