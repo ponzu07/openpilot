@@ -785,21 +785,26 @@ def setDoorLock(lock: bool) -> dict[str, int]:
 
 
 @dispatcher.add_method
-def getHvBattery() -> dict[str, float]:
-  if not Params().get_bool("IsOffroad"):
-    raise Exception("onroad")
+def getHvBattery() -> dict:
+  params = Params()
+  if params.get_bool("IsOffroad"):
+    can_sock = messaging.sub_sock("can", timeout=100)
+    sendcan_sock = messaging.pub_sock("sendcan")
+    for _ in range(3):
+      sendcan_sock.send(can_list_to_can_capnp([(0x7DF, b"\x02\x01\x5b\x00\x00\x00\x00\x00", 0)], msgtype="sendcan"))
+      end = time.monotonic() + 1
+      while time.monotonic() < end:
+        for msg in messaging.drain_sock(can_sock, wait_for_one=True):
+          for frame in msg.can:
+            if frame.src == 0 and frame.address == 0x7EA and frame.dat[1:3] == b"\x41\x5b":
+              hv = {"soc": frame.dat[3] * 100 / 255, "time": int(time.time()), "source": "obd"}
+              params.put("HvBattery", hv)
+              return hv
 
-  can_sock = messaging.sub_sock("can", timeout=100)
-  sendcan_sock = messaging.pub_sock("sendcan")
-  for _ in range(3):
-    sendcan_sock.send(can_list_to_can_capnp([(0x7DF, b"\x02\x01\x5b\x00\x00\x00\x00\x00", 0)], msgtype="sendcan"))
-    end = time.monotonic() + 1
-    while time.monotonic() < end:
-      for msg in messaging.drain_sock(can_sock, wait_for_one=True):
-        for frame in msg.can:
-          if frame.src == 0 and frame.address == 0x7EA and frame.dat[1:3] == b"\x41\x5b":
-            return {"soc": frame.dat[3] * 100 / 255}
-  raise TimeoutError
+  hv = params.get("HvBattery")
+  if hv is None:
+    raise TimeoutError("no response from car")
+  return hv
 
 
 @dispatcher.add_method

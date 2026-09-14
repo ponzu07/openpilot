@@ -205,6 +205,9 @@ class Car:
       cp_send.carParams = self.CP
       self.pm.send('carParams', cp_send)
 
+    if self.sm.frame % int(60. / DT_CTRL) == 0 and CS.fuelGauge > 0:
+      self.params.put("HvBattery", {"soc": CS.fuelGauge * 100, "time": int(time.time()), "source": "meter"})
+
     # publish new carOutput
     co_send = messaging.new_message('carOutput')
     co_send.valid = self.sm.all_checks(['carControl'])
