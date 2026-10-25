@@ -14,10 +14,6 @@ msgstr ""
 msgid "Cancel"
 msgstr ""
 
-#: openpilot/system/ui/widgets/list_view.py
-msgid "Error"
-msgstr ""
-
 #: openpilot/system/ui/widgets/network.py
 msgid "Advanced"
 msgstr ""
@@ -143,32 +139,8 @@ msgstr ""
 msgid "Select"
 msgstr ""
 
-#: openpilot/selfdrive/ui/widgets/exp_mode_button.py
-msgid "EXPERIMENTAL MODE ON"
-msgstr ""
-
-#: openpilot/selfdrive/ui/widgets/exp_mode_button.py
-msgid "CHILL MODE ON"
-msgstr ""
-
-#: openpilot/selfdrive/ui/widgets/offroad_alerts.py
-msgid "Close"
-msgstr ""
-
-#: openpilot/selfdrive/ui/widgets/offroad_alerts.py
-msgid "Snooze Update"
-msgstr ""
-
-#: openpilot/selfdrive/ui/widgets/offroad_alerts.py
-msgid "Acknowledge Excessive Actuation"
-msgstr ""
-
-#: openpilot/selfdrive/ui/widgets/offroad_alerts.py
-msgid "Reboot and Update"
-msgstr ""
-
-#: openpilot/selfdrive/ui/widgets/offroad_alerts.py
-msgid "No release notes available."
+#: openpilot/system/ui/widgets/list_view.py
+msgid "Error"
 msgstr ""
 
 #: openpilot/selfdrive/ui/widgets/prime.py
@@ -282,6 +254,26 @@ msgstr ""
 msgid "QR Code Error"
 msgstr ""
 
+#: openpilot/selfdrive/ui/widgets/offroad_alerts.py
+msgid "Close"
+msgstr ""
+
+#: openpilot/selfdrive/ui/widgets/offroad_alerts.py
+msgid "Snooze Update"
+msgstr ""
+
+#: openpilot/selfdrive/ui/widgets/offroad_alerts.py
+msgid "Acknowledge Excessive Actuation"
+msgstr ""
+
+#: openpilot/selfdrive/ui/widgets/offroad_alerts.py
+msgid "Reboot and Update"
+msgstr ""
+
+#: openpilot/selfdrive/ui/widgets/offroad_alerts.py
+msgid "No release notes available."
+msgstr ""
+
 #: openpilot/selfdrive/ui/layouts/sidebar.py
 msgid "--"
 msgstr ""
@@ -350,16 +342,6 @@ msgstr ""
 msgid "ERROR"
 msgstr ""
 
-#: openpilot/selfdrive/ui/layouts/home.py
-msgid "UPDATE"
-msgstr ""
-
-#: openpilot/selfdrive/ui/layouts/home.py
-msgid "{} ALERT"
-msgid_plural "{} ALERTS"
-msgstr[0] ""
-msgstr[1] ""
-
 #: openpilot/selfdrive/ui/layouts/onboarding.py
 msgid "Welcome to openpilot"
 msgstr ""
@@ -384,42 +366,15 @@ msgstr ""
 msgid "Decline, uninstall openpilot"
 msgstr ""
 
-#: openpilot/selfdrive/ui/layouts/settings/developer.py
-msgid "Enable ADB"
+#: openpilot/selfdrive/ui/layouts/home.py
+msgid "UPDATE"
 msgstr ""
 
-#: openpilot/selfdrive/ui/layouts/settings/developer.py
-msgid "Enable SSH"
-msgstr ""
-
-#: openpilot/selfdrive/ui/layouts/settings/developer.py
-msgid "SSH Keys"
-msgstr ""
-
-#: openpilot/selfdrive/ui/layouts/settings/developer.py
-msgid "Joystick Debug Mode"
-msgstr ""
-
-#: openpilot/selfdrive/ui/layouts/settings/developer.py
-msgid "Longitudinal Maneuver Mode"
-msgstr ""
-
-#: openpilot/selfdrive/ui/layouts/settings/developer.py
-msgid "Lateral Maneuver Mode"
-msgstr ""
-
-#: openpilot/selfdrive/ui/layouts/settings/developer.py
-msgid "openpilot Longitudinal Control (Alpha)"
-msgstr ""
-
-#: openpilot/selfdrive/ui/layouts/settings/developer.py
-msgid "UI Debug Mode"
-msgstr ""
-
-#: openpilot/selfdrive/ui/layouts/settings/developer.py
-#: openpilot/selfdrive/ui/layouts/settings/toggles.py
-msgid "Enable"
-msgstr ""
+#: openpilot/selfdrive/ui/layouts/home.py
+msgid "{} ALERT"
+msgid_plural "{} ALERTS"
+msgstr[0] ""
+msgstr[1] ""
 
 #: openpilot/selfdrive/ui/layouts/settings/settings.py
 msgid "Device"
@@ -593,91 +548,6 @@ msgstr ""
 msgid " Steering torque response calibration is {}% complete."
 msgstr ""
 
-#: openpilot/selfdrive/ui/layouts/settings/toggles.py
-msgid "When enabled, pressing the accelerator pedal will disengage openpilot."
-msgstr ""
-
-#: openpilot/selfdrive/ui/layouts/settings/toggles.py
-msgid "Enable driver monitoring even when openpilot is not engaged."
-msgstr ""
-
-#: openpilot/selfdrive/ui/layouts/settings/toggles.py
-msgid "Upload data from the cabin camera and help improve the driver monitoring algorithm."
-msgstr ""
-
-#: openpilot/selfdrive/ui/layouts/settings/toggles.py
-msgid "Display speed in km/h instead of mph."
-msgstr ""
-
-#: openpilot/selfdrive/ui/layouts/settings/toggles.py
-msgid "Record and store microphone audio while driving. The audio will be included in the dashcam video in comma connect."
-msgstr ""
-
-#: openpilot/selfdrive/ui/layouts/settings/toggles.py
-msgid "Driving Personality"
-msgstr ""
-
-#: openpilot/selfdrive/ui/layouts/settings/toggles.py
-#: openpilot/selfdrive/ui/mici/layouts/settings/developer.py
-msgid "Changing this setting will restart openpilot if the car is powered on."
-msgstr ""
-
-#: openpilot/selfdrive/ui/layouts/settings/toggles.py
-msgid "Experimental mode is currently unavailable on this car since the car's stock ACC is used for longitudinal control."
-msgstr ""
-
-#: openpilot/selfdrive/ui/layouts/settings/toggles.py
-msgid "Enable openpilot"
-msgstr ""
-
-#: openpilot/selfdrive/ui/layouts/settings/toggles.py
-msgid "Experimental Mode"
-msgstr ""
-
-#: openpilot/selfdrive/ui/layouts/settings/toggles.py
-msgid "Disengage on Accelerator Pedal"
-msgstr ""
-
-#: openpilot/selfdrive/ui/layouts/settings/toggles.py
-msgid "Enable Lane Departure Warnings"
-msgstr ""
-
-#: openpilot/selfdrive/ui/layouts/settings/toggles.py
-msgid "Always-On Driver Monitoring"
-msgstr ""
-
-#: openpilot/selfdrive/ui/layouts/settings/toggles.py
-msgid "Record and Upload Cabin Camera"
-msgstr ""
-
-#: openpilot/selfdrive/ui/layouts/settings/toggles.py
-msgid "Record and Upload Microphone Audio"
-msgstr ""
-
-#: openpilot/selfdrive/ui/layouts/settings/toggles.py
-msgid "Use Metric System"
-msgstr ""
-
-#: openpilot/selfdrive/ui/layouts/settings/toggles.py
-msgid "openpilot longitudinal control may come in a future update."
-msgstr ""
-
-#: openpilot/selfdrive/ui/layouts/settings/toggles.py
-msgid "Aggressive"
-msgstr ""
-
-#: openpilot/selfdrive/ui/layouts/settings/toggles.py
-msgid "Standard"
-msgstr ""
-
-#: openpilot/selfdrive/ui/layouts/settings/toggles.py
-msgid "Relaxed"
-msgstr ""
-
-#: openpilot/selfdrive/ui/layouts/settings/toggles.py
-msgid "Enable the openpilot longitudinal control (alpha) toggle to allow Experimental mode."
-msgstr ""
-
 #: openpilot/selfdrive/ui/layouts/settings/software.py
 msgid "checking..."
 msgstr ""
@@ -784,19 +654,125 @@ msgstr ""
 msgid "up to date, last checked {}"
 msgstr ""
 
-#: openpilot/selfdrive/ui/mici/onroad/hud_renderer.py
-#: openpilot/selfdrive/ui/onroad/hud_renderer.py
-msgid "MAX"
+#: openpilot/selfdrive/ui/layouts/settings/developer.py
+msgid "Enable ADB"
 msgstr ""
 
+#: openpilot/selfdrive/ui/layouts/settings/developer.py
+msgid "Enable SSH"
+msgstr ""
+
+#: openpilot/selfdrive/ui/layouts/settings/developer.py
+msgid "SSH Keys"
+msgstr ""
+
+#: openpilot/selfdrive/ui/layouts/settings/developer.py
+msgid "Joystick Debug Mode"
+msgstr ""
+
+#: openpilot/selfdrive/ui/layouts/settings/developer.py
+msgid "Longitudinal Maneuver Mode"
+msgstr ""
+
+#: openpilot/selfdrive/ui/layouts/settings/developer.py
+msgid "Lateral Maneuver Mode"
+msgstr ""
+
+#: openpilot/selfdrive/ui/layouts/settings/developer.py
+msgid "openpilot Longitudinal Control (Alpha)"
+msgstr ""
+
+#: openpilot/selfdrive/ui/layouts/settings/developer.py
+msgid "UI Debug Mode"
+msgstr ""
+
+#: openpilot/selfdrive/ui/layouts/settings/developer.py
+msgid "Enable"
+msgstr ""
+
+#: openpilot/selfdrive/ui/layouts/settings/initial_cruise_speed.py
 #: openpilot/selfdrive/ui/mici/onroad/hud_renderer.py
 #: openpilot/selfdrive/ui/onroad/hud_renderer.py
 msgid "km/h"
 msgstr ""
 
+#: openpilot/selfdrive/ui/layouts/settings/initial_cruise_speed.py
+#: openpilot/selfdrive/ui/mici/layouts/settings/initial_cruise_speed.py
 #: openpilot/selfdrive/ui/mici/onroad/hud_renderer.py
 #: openpilot/selfdrive/ui/onroad/hud_renderer.py
 msgid "mph"
+msgstr ""
+
+#: openpilot/selfdrive/ui/layouts/settings/toggles.py
+msgid "When enabled, pressing the accelerator pedal will disengage openpilot."
+msgstr ""
+
+#: openpilot/selfdrive/ui/layouts/settings/toggles.py
+msgid "Enable driver monitoring even when openpilot is not engaged."
+msgstr ""
+
+#: openpilot/selfdrive/ui/layouts/settings/toggles.py
+msgid "Upload data from the cabin camera and help improve the driver monitoring algorithm."
+msgstr ""
+
+#: openpilot/selfdrive/ui/layouts/settings/toggles.py
+msgid "Display speed in km/h instead of mph."
+msgstr ""
+
+#: openpilot/selfdrive/ui/layouts/settings/toggles.py
+msgid "Record and store microphone audio while driving. The audio will be included in the dashcam video in comma connect."
+msgstr ""
+
+#: openpilot/selfdrive/ui/layouts/settings/toggles.py
+msgid "Following Distance"
+msgstr ""
+
+#: openpilot/selfdrive/ui/layouts/settings/toggles.py
+msgid "Changing this setting will restart openpilot if the car is powered on."
+msgstr ""
+
+#: openpilot/selfdrive/ui/layouts/settings/toggles.py
+msgid "Enable openpilot"
+msgstr ""
+
+#: openpilot/selfdrive/ui/layouts/settings/toggles.py
+msgid "Disengage on Accelerator Pedal"
+msgstr ""
+
+#: openpilot/selfdrive/ui/layouts/settings/toggles.py
+msgid "Enable Lane Departure Warnings"
+msgstr ""
+
+#: openpilot/selfdrive/ui/layouts/settings/toggles.py
+msgid "Always-On Driver Monitoring"
+msgstr ""
+
+#: openpilot/selfdrive/ui/layouts/settings/toggles.py
+msgid "Record and Upload Cabin Camera"
+msgstr ""
+
+#: openpilot/selfdrive/ui/layouts/settings/toggles.py
+msgid "Record and Upload Microphone Audio"
+msgstr ""
+
+#: openpilot/selfdrive/ui/layouts/settings/toggles.py
+msgid "Use Metric System"
+msgstr ""
+
+#: openpilot/selfdrive/ui/layouts/settings/toggles.py
+msgid "Initial Max Speed"
+msgstr ""
+
+#: openpilot/selfdrive/ui/layouts/settings/toggles.py
+msgid "Aggressive"
+msgstr ""
+
+#: openpilot/selfdrive/ui/layouts/settings/toggles.py
+msgid "Standard"
+msgstr ""
+
+#: openpilot/selfdrive/ui/layouts/settings/toggles.py
+msgid "Relaxed"
 msgstr ""
 
 #: openpilot/selfdrive/ui/onroad/alert_renderer.py
@@ -820,9 +796,15 @@ msgid "Reboot Device"
 msgstr ""
 
 #: openpilot/selfdrive/ui/mici/layouts/onboarding.py
+#: openpilot/selfdrive/ui/mici/layouts/settings/network/esim_ui.py
 #: openpilot/selfdrive/ui/mici/onroad/cabin_camera_dialog.py
 #: openpilot/selfdrive/ui/onroad/cabin_camera_dialog.py
 msgid "camera starting"
+msgstr ""
+
+#: openpilot/selfdrive/ui/mici/onroad/hud_renderer.py
+#: openpilot/selfdrive/ui/onroad/hud_renderer.py
+msgid "MAX"
 msgstr ""
 
 #: openpilot/selfdrive/ui/mici/layouts/offroad_alerts.py
@@ -831,7 +813,6 @@ msgstr ""
 
 #: openpilot/selfdrive/ui/mici/layouts/onboarding.py
 #: openpilot/selfdrive/ui/mici/layouts/settings/developer.py
-#: openpilot/selfdrive/ui/mici/layouts/settings/toggles.py
 msgid "scroll to continue"
 msgstr ""
 
@@ -945,6 +926,10 @@ msgstr ""
 msgid "swipe for QR code"
 msgstr ""
 
+#: openpilot/selfdrive/ui/mici/layouts/settings/language.py
+msgid "selected"
+msgstr ""
+
 #: openpilot/selfdrive/ui/mici/layouts/settings/developer.py
 msgid ""
 "enable alpha\n"
@@ -964,7 +949,9 @@ msgid "Not set"
 msgstr ""
 
 #: openpilot/selfdrive/ui/mici/layouts/settings/developer.py
-msgid "joystick debug mode"
+msgid ""
+"joystick debug\n"
+"mode"
 msgstr ""
 
 #: openpilot/selfdrive/ui/mici/layouts/settings/developer.py
@@ -977,6 +964,10 @@ msgstr ""
 
 #: openpilot/selfdrive/ui/mici/layouts/settings/developer.py
 msgid "alpha longitudinal"
+msgstr ""
+
+#: openpilot/selfdrive/ui/mici/layouts/settings/developer.py
+msgid "navigation (alpha)"
 msgstr ""
 
 #: openpilot/selfdrive/ui/mici/layouts/settings/developer.py
@@ -993,10 +984,6 @@ msgstr ""
 
 #: openpilot/selfdrive/ui/mici/layouts/settings/developer.py
 msgid "Enabling this will switch to openpilot longitudinal control."
-msgstr ""
-
-#: openpilot/selfdrive/ui/mici/layouts/settings/developer.py
-msgid "Using Experimental mode is recommended with openpilot longitudinal control alpha."
 msgstr ""
 
 #: openpilot/selfdrive/ui/mici/layouts/settings/developer.py
@@ -1061,82 +1048,16 @@ msgid_plural "{} segments of your driving is in the training dataset so far."
 msgstr[0] ""
 msgstr[1] ""
 
-#: openpilot/selfdrive/ui/mici/layouts/settings/device.py
-msgid "reset"
+#: openpilot/selfdrive/ui/mici/layouts/settings/initial_cruise_speed.py
+msgid "KPH"
 msgstr ""
 
-#: openpilot/selfdrive/ui/mici/layouts/settings/device.py
-msgid "reboot"
+#: openpilot/selfdrive/ui/mici/layouts/settings/initial_cruise_speed.py
+msgid "MPH"
 msgstr ""
 
-#: openpilot/selfdrive/ui/mici/layouts/settings/device.py
-msgid "power off"
-msgstr ""
-
-#: openpilot/selfdrive/ui/mici/layouts/settings/device.py
-msgid "device ID"
-msgstr ""
-
-#: openpilot/selfdrive/ui/mici/layouts/settings/device.py
-msgid "serial"
-msgstr ""
-
-#: openpilot/selfdrive/ui/mici/layouts/settings/device.py
-msgid "Please connect to Wi-Fi to complete initial pairing."
-msgstr ""
-
-#: openpilot/selfdrive/ui/mici/layouts/settings/device.py
-msgid "reset calibration"
-msgstr ""
-
-#: openpilot/selfdrive/ui/mici/layouts/settings/device.py
-msgid "regulatory info"
-msgstr ""
-
-#: openpilot/selfdrive/ui/mici/layouts/settings/device.py
-msgid ""
-"driver\n"
-"camera preview"
-msgstr ""
-
-#: openpilot/selfdrive/ui/mici/layouts/settings/device.py
-msgid ""
-"review\n"
-"training guide"
-msgstr ""
-
-#: openpilot/selfdrive/ui/mici/layouts/settings/device.py
-msgid ""
-"terms &\n"
-"conditions"
-msgstr ""
-
-#: openpilot/selfdrive/ui/mici/layouts/settings/device.py
-msgid "paired"
-msgstr ""
-
-#: openpilot/selfdrive/ui/mici/layouts/settings/device.py
-msgid "subscribed"
-msgstr ""
-
-#: openpilot/selfdrive/ui/mici/layouts/settings/device.py
-msgid "upgrade to prime"
-msgstr ""
-
-#: openpilot/selfdrive/ui/mici/layouts/settings/device.py
-msgid "pair"
-msgstr ""
-
-#: openpilot/selfdrive/ui/mici/layouts/settings/device.py
-msgid "Device must be registered with the comma.ai backend to pair."
-msgstr ""
-
-#: openpilot/selfdrive/ui/mici/layouts/settings/device.py
-msgid "slide to"
-msgstr ""
-
-#: openpilot/selfdrive/ui/mici/layouts/settings/device.py
-msgid "Disengage to"
+#: openpilot/selfdrive/ui/mici/layouts/settings/initial_cruise_speed.py
+msgid "kph"
 msgstr ""
 
 #: openpilot/selfdrive/ui/mici/layouts/settings/settings.py
@@ -1161,110 +1082,6 @@ msgstr ""
 
 #: openpilot/selfdrive/ui/mici/layouts/settings/settings.py
 msgid "language"
-msgstr ""
-
-#: openpilot/selfdrive/ui/mici/layouts/settings/toggles.py
-msgid ""
-"enable\n"
-"experimental mode"
-msgstr ""
-
-#: openpilot/selfdrive/ui/mici/layouts/settings/toggles.py
-msgid "driving personality"
-msgstr ""
-
-#: openpilot/selfdrive/ui/mici/layouts/settings/toggles.py
-msgid "aggressive"
-msgstr ""
-
-#: openpilot/selfdrive/ui/mici/layouts/settings/toggles.py
-msgid "standard"
-msgstr ""
-
-#: openpilot/selfdrive/ui/mici/layouts/settings/toggles.py
-msgid "relaxed"
-msgstr ""
-
-#: openpilot/selfdrive/ui/mici/layouts/settings/toggles.py
-msgid "experimental mode"
-msgstr ""
-
-#: openpilot/selfdrive/ui/mici/layouts/settings/toggles.py
-msgid "use metric units"
-msgstr ""
-
-#: openpilot/selfdrive/ui/mici/layouts/settings/toggles.py
-msgid "lane departure warnings"
-msgstr ""
-
-#: openpilot/selfdrive/ui/mici/layouts/settings/toggles.py
-msgid "always-on driver monitor"
-msgstr ""
-
-#: openpilot/selfdrive/ui/mici/layouts/settings/toggles.py
-msgid "record & upload cabin camera"
-msgstr ""
-
-#: openpilot/selfdrive/ui/mici/layouts/settings/toggles.py
-msgid "record & upload mic audio"
-msgstr ""
-
-#: openpilot/selfdrive/ui/mici/layouts/settings/toggles.py
-msgid "enable openpilot"
-msgstr ""
-
-#: openpilot/selfdrive/ui/mici/layouts/settings/toggles.py
-msgid "use comma backend"
-msgstr ""
-
-#: openpilot/selfdrive/ui/mici/layouts/settings/toggles.py
-msgid "openpilot defaults to driving in chill mode."
-msgstr ""
-
-#: openpilot/selfdrive/ui/mici/layouts/settings/toggles.py
-msgid "Experimental mode enables alpha-level features that aren't ready for chill mode."
-msgstr ""
-
-#: openpilot/selfdrive/ui/mici/layouts/settings/toggles.py
-msgid "Let the driving model control the gas and brakes."
-msgstr ""
-
-#: openpilot/selfdrive/ui/mici/layouts/settings/toggles.py
-msgid "openpilot will drive as it thinks a human would, including stopping for red lights and stop signs."
-msgstr ""
-
-#: openpilot/selfdrive/ui/mici/layouts/settings/toggles.py
-msgid "The set speed will only act as an upper bound."
-msgstr ""
-
-#: openpilot/selfdrive/ui/mici/layouts/settings/toggles.py
-msgid "This is an alpha quality feature; mistakes should be expected."
-msgstr ""
-
-#: openpilot/selfdrive/ui/mici/layouts/settings/toggles.py
-msgid "The path will change colors to communicate acceleration intent."
-msgstr ""
-
-#: openpilot/selfdrive/ui/mici/layouts/settings/toggles.py
-msgid "Red for braking, green for acceleration, and gray for coasting."
-msgstr ""
-
-#: openpilot/selfdrive/ui/mici/layouts/settings/toggles.py
-msgid ""
-"enabling\n"
-"experimental mode"
-msgstr ""
-
-#: openpilot/selfdrive/ui/mici/layouts/settings/toggles.py
-msgid "End-to-End Longitudinal Control"
-msgstr ""
-
-#: openpilot/selfdrive/ui/mici/layouts/settings/toggles.py
-msgid "New Driving Visualization"
-msgstr ""
-
-#: openpilot/selfdrive/ui/mici/layouts/settings/language.py
-msgid "selected"
 msgstr ""
 
 #: openpilot/selfdrive/ui/mici/layouts/settings/software.py
@@ -1317,58 +1134,53 @@ msgstr ""
 msgid "up to date"
 msgstr ""
 
-#: openpilot/selfdrive/ui/mici/layouts/settings/network/__init__.py
-msgid "starting"
+#: openpilot/selfdrive/ui/mici/layouts/settings/toggles.py
+msgid "following distance"
 msgstr ""
 
-#: openpilot/selfdrive/ui/mici/layouts/settings/network/__init__.py
-#: openpilot/selfdrive/ui/mici/layouts/settings/network/wifi_ui.py
-msgid "connecting..."
+#: openpilot/selfdrive/ui/mici/layouts/settings/toggles.py
+msgid "aggressive"
 msgstr ""
 
-#: openpilot/selfdrive/ui/mici/layouts/settings/network/__init__.py
-msgid "not connected"
+#: openpilot/selfdrive/ui/mici/layouts/settings/toggles.py
+msgid "standard"
 msgstr ""
 
-#: openpilot/selfdrive/ui/mici/layouts/settings/network/__init__.py
-msgid "obtaining IP..."
+#: openpilot/selfdrive/ui/mici/layouts/settings/toggles.py
+msgid "relaxed"
 msgstr ""
 
-#: openpilot/selfdrive/ui/mici/layouts/settings/network/network_layout.py
-msgid "edit"
+#: openpilot/selfdrive/ui/mici/layouts/settings/toggles.py
+msgid "use metric units"
 msgstr ""
 
-#: openpilot/selfdrive/ui/mici/layouts/settings/network/network_layout.py
-msgid "enter APN..."
+#: openpilot/selfdrive/ui/mici/layouts/settings/toggles.py
+msgid "lane departure warnings"
 msgstr ""
 
-#: openpilot/selfdrive/ui/mici/layouts/settings/network/network_layout.py
-msgid "enable tethering"
+#: openpilot/selfdrive/ui/mici/layouts/settings/toggles.py
+msgid "always-on driver monitor"
+msgstr ""
+
+#: openpilot/selfdrive/ui/mici/layouts/settings/toggles.py
+msgid "record & upload cabin camera"
+msgstr ""
+
+#: openpilot/selfdrive/ui/mici/layouts/settings/toggles.py
+msgid "record & upload mic audio"
+msgstr ""
+
+#: openpilot/selfdrive/ui/mici/layouts/settings/toggles.py
+msgid "enable openpilot"
+msgstr ""
+
+#: openpilot/selfdrive/ui/mici/layouts/settings/toggles.py
+msgid "use comma backend"
 msgstr ""
 
 #: openpilot/selfdrive/ui/mici/layouts/settings/network/network_layout.py
 #: openpilot/selfdrive/ui/mici/layouts/settings/network/wifi_ui.py
 msgid "enter password..."
-msgstr ""
-
-#: openpilot/selfdrive/ui/mici/layouts/settings/network/network_layout.py
-msgid "tethering password"
-msgstr ""
-
-#: openpilot/selfdrive/ui/mici/layouts/settings/network/network_layout.py
-msgid "network usage"
-msgstr ""
-
-#: openpilot/selfdrive/ui/mici/layouts/settings/network/network_layout.py
-msgid "enable roaming"
-msgstr ""
-
-#: openpilot/selfdrive/ui/mici/layouts/settings/network/network_layout.py
-msgid "apn settings"
-msgstr ""
-
-#: openpilot/selfdrive/ui/mici/layouts/settings/network/network_layout.py
-msgid "cellular metered"
 msgstr ""
 
 #: openpilot/selfdrive/ui/mici/layouts/settings/network/wifi_ui.py
@@ -1391,6 +1203,11 @@ msgstr ""
 msgid "starting..."
 msgstr ""
 
+#: openpilot/selfdrive/ui/mici/layouts/settings/network/__init__.py
+#: openpilot/selfdrive/ui/mici/layouts/settings/network/wifi_ui.py
+msgid "connecting..."
+msgstr ""
+
 #: openpilot/selfdrive/ui/mici/layouts/settings/network/wifi_ui.py
 msgid "tethering"
 msgstr ""
@@ -1407,6 +1224,140 @@ msgstr ""
 msgid "unsupported"
 msgstr ""
 
+#: openpilot/selfdrive/ui/mici/layouts/settings/network/__init__.py
+msgid "starting"
+msgstr ""
+
+#: openpilot/selfdrive/ui/mici/layouts/settings/network/__init__.py
+msgid "not connected"
+msgstr ""
+
+#: openpilot/selfdrive/ui/mici/layouts/settings/network/__init__.py
+msgid "obtaining IP..."
+msgstr ""
+
+#: openpilot/selfdrive/ui/mici/layouts/settings/network/esim_ui.py
+msgid "Ensure you're connected to the internet and try again."
+msgstr ""
+
+#: openpilot/selfdrive/ui/mici/layouts/settings/network/network_layout.py
+msgid "edit"
+msgstr ""
+
+#: openpilot/selfdrive/ui/mici/layouts/settings/network/network_layout.py
+msgid "enter APN..."
+msgstr ""
+
+#: openpilot/selfdrive/ui/mici/layouts/settings/network/network_layout.py
+msgid "enable tethering"
+msgstr ""
+
+#: openpilot/selfdrive/ui/mici/layouts/settings/network/network_layout.py
+msgid "tethering password"
+msgstr ""
+
+#: openpilot/selfdrive/ui/mici/layouts/settings/network/network_layout.py
+msgid "network usage"
+msgstr ""
+
+#: openpilot/selfdrive/ui/mici/layouts/settings/network/network_layout.py
+msgid "enable roaming"
+msgstr ""
+
+#: openpilot/selfdrive/ui/mici/layouts/settings/network/network_layout.py
+msgid "apn settings"
+msgstr ""
+
+#: openpilot/selfdrive/ui/mici/layouts/settings/network/network_layout.py
+msgid "cellular metered"
+msgstr ""
+
+#: openpilot/selfdrive/ui/mici/layouts/settings/device/device_layout.py
+msgid "reset"
+msgstr ""
+
+#: openpilot/selfdrive/ui/mici/layouts/settings/device/device_layout.py
+msgid "reboot"
+msgstr ""
+
+#: openpilot/selfdrive/ui/mici/layouts/settings/device/device_layout.py
+msgid "power off"
+msgstr ""
+
+#: openpilot/selfdrive/ui/mici/layouts/settings/device/device_layout.py
+msgid "device ID"
+msgstr ""
+
+#: openpilot/selfdrive/ui/mici/layouts/settings/device/device_layout.py
+msgid "serial"
+msgstr ""
+
+#: openpilot/selfdrive/ui/mici/layouts/settings/device/device_layout.py
+msgid "Please connect to Wi-Fi to complete initial pairing."
+msgstr ""
+
+#: openpilot/selfdrive/ui/mici/layouts/settings/device/device_layout.py
+msgid "reset calibration"
+msgstr ""
+
+#: openpilot/selfdrive/ui/mici/layouts/settings/device/device_layout.py
+msgid "regulatory info"
+msgstr ""
+
+#: openpilot/selfdrive/ui/mici/layouts/settings/device/device_layout.py
+msgid ""
+"driver\n"
+"camera preview"
+msgstr ""
+
+#: openpilot/selfdrive/ui/mici/layouts/settings/device/device_layout.py
+msgid ""
+"review\n"
+"training guide"
+msgstr ""
+
+#: openpilot/selfdrive/ui/mici/layouts/settings/device/device_layout.py
+msgid ""
+"terms &\n"
+"conditions"
+msgstr ""
+
+#: openpilot/selfdrive/ui/mici/layouts/settings/device/device_layout.py
+msgid "paired"
+msgstr ""
+
+#: openpilot/selfdrive/ui/mici/layouts/settings/device/device_layout.py
+msgid "pair to connect"
+msgstr ""
+
+#: openpilot/selfdrive/ui/mici/layouts/settings/device/device_layout.py
+msgid "Device must be registered with the comma.ai backend to pair."
+msgstr ""
+
+#: openpilot/selfdrive/ui/mici/layouts/settings/device/device_layout.py
+msgid "slide to"
+msgstr ""
+
+#: openpilot/selfdrive/ui/mici/layouts/settings/device/device_layout.py
+msgid "Disengage to"
+msgstr ""
+
+#: openpilot/selfdrive/ui/mici/layouts/settings/device/device_layout.py
+msgid "prime"
+msgstr ""
+
+#: openpilot/selfdrive/ui/mici/layouts/settings/device/device_layout.py
+msgid "prime lite"
+msgstr ""
+
+#: openpilot/selfdrive/ui/mici/layouts/settings/device/device_layout.py
+msgid "claim prime trial"
+msgstr ""
+
+#: openpilot/selfdrive/ui/mici/layouts/settings/device/device_layout.py
+msgid "upgrade to prime"
+msgstr ""
+
 #: openpilot/selfdrive/ui/mici/onroad/augmented_road_view.py
 msgid "system booting"
 msgstr ""
@@ -1421,9 +1372,5 @@ msgstr ""
 msgid ""
 "start the car to\n"
 "use openpilot"
-msgstr ""
-
-#: openpilot/selfdrive/ui/mici/widgets/pairing_dialog.py
-msgid "pair with comma connect"
 msgstr ""
 
