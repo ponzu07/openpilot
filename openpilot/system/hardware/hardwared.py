@@ -155,6 +155,16 @@ def touch_thread(end_event):
       time.sleep(DT_HW)
 
 
+def set_ppp_mtu(mtu=1400):
+  try:
+    with open("/sys/class/net/ppp0/mtu") as f:
+      if int(f.read()) == mtu:
+        return
+  except FileNotFoundError:
+    return
+  subprocess.run(["sudo", "ip", "link", "set", "ppp0", "mtu", str(mtu)], check=False)
+
+
 def hw_state_thread(end_event, hw_queue):
   """Handles non critical hardware state, and sends over queue"""
   count = 0
@@ -169,6 +179,7 @@ def hw_state_thread(end_event, hw_queue):
     if (count % int(10. / DT_HW)) == 0 or usb_changed:
       prev_usb_topology = usb_topology
       try:
+        set_ppp_mtu()
         network_type = HARDWARE.get_network_type()
         modem_temps = HARDWARE.get_modem_temperatures()
         if len(modem_temps) == 0 and prev_hw_state is not None:
