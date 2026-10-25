@@ -808,7 +808,7 @@ def getHvBattery() -> dict:
         for msg in messaging.drain_sock(can_sock, wait_for_one=True):
           for frame in msg.can:
             if frame.src == 0 and frame.address == 0x7EA and frame.dat[1:3] == b"\x41\x5b":
-              hv = {"soc": frame.dat[3] * 100 / 255, "time": int(time.time()), "source": "obd"}
+              hv = {"soc": frame.dat[3] * 100 / 255, "time": int(time.time()), "source": "obd"}  # noqa: TID251
               params.put("HvBattery", hv)
               return hv
 

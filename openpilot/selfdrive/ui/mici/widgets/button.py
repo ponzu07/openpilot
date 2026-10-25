@@ -31,7 +31,7 @@ class ScrollState(Enum):
 
 
 class BaseButton(Widget):
-  def __init__(self, description: str, title: str, icon: Union[rl.Texture, None] = None):
+  def __init__(self, description: str, title: str | Callable[[], str], icon: Union[rl.Texture, None] = None):
     super().__init__()
     self._shake_start: float | None = None
     if description:
@@ -63,7 +63,7 @@ class BaseButton(Widget):
 class BigCircleButton(BaseButton):
   def __init__(self, icon: rl.Texture, red: bool = False, icon_offset: tuple[int, int] = (0, 0),
                *, description: str = "",
-               description_icon: Union[rl.Texture, None] = None, title: str = ""):
+               description_icon: Union[rl.Texture, None] = None, title: str | Callable[[], str] = ""):
     super().__init__(description, title, description_icon or icon)
     self._red = red
     self._icon_offset = icon_offset
@@ -283,7 +283,7 @@ class BigButton(BaseButton):
 
 
 class BigToggle(BigButton):
-  def __init__(self, text: str, value: str = "", initial_state: bool = False, toggle_callback: Callable | None = None,
+  def __init__(self, text: str | Callable[[], str], value: str = "", initial_state: bool = False, toggle_callback: Callable | None = None,
                *, description: str = "",
                description_icon: Union[rl.Texture, None] = None):
     super().__init__(text, value, "", description=description, description_icon=description_icon)
@@ -320,7 +320,7 @@ class BigToggle(BigButton):
 
 
 class BigMultiToggle(BigToggle):
-  def __init__(self, text: str, options: list[str], toggle_callback: Callable | None = None,
+  def __init__(self, text: str | Callable[[], str], options: list[str], toggle_callback: Callable | None = None,
                select_callback: Callable | None = None, *, description: str = "", description_icon: Union[rl.Texture, None] = None):
     super().__init__(text, "", toggle_callback=toggle_callback, description=description, description_icon=description_icon)
     assert len(options) > 0
@@ -386,7 +386,7 @@ class GreyBigButton(BigButton):
 
 
 class BigMultiParamToggle(BigMultiToggle):
-  def __init__(self, text: str, param: str, options: list[str], toggle_callback: Callable | None = None,
+  def __init__(self, text: str | Callable[[], str], param: str, options: list[str], toggle_callback: Callable | None = None,
                select_callback: Callable | None = None, *, description: str = "", description_icon: Union[rl.Texture, None] = None):
     assert Params is not None
     super().__init__(text, options, toggle_callback, select_callback, description=description, description_icon=description_icon)
@@ -405,7 +405,7 @@ class BigMultiParamToggle(BigMultiToggle):
 
 
 class BigParamControl(BigToggle):
-  def __init__(self, text: str, param: str, toggle_callback: Callable | None = None, *, description: str = "",
+  def __init__(self, text: str | Callable[[], str], param: str, toggle_callback: Callable | None = None, *, description: str = "",
                description_icon: Union[rl.Texture, None] = None):
     assert Params is not None
     super().__init__(text, "", toggle_callback=toggle_callback, description=description, description_icon=description_icon)

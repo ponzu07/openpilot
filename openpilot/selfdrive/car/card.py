@@ -206,7 +206,7 @@ class Car:
       self.pm.send('carParams', cp_send)
 
     if self.sm.frame % int(60. / DT_CTRL) == 0 and CS.fuelGauge > 0:
-      self.params.put("HvBattery", {"soc": CS.fuelGauge * 100, "time": int(time.time()), "source": "meter"})
+      self.params.put("HvBattery", {"soc": CS.fuelGauge * 100, "time": int(time.time()), "source": "meter"})  # noqa: TID251
 
     # publish new carOutput
     co_send = messaging.new_message('carOutput')

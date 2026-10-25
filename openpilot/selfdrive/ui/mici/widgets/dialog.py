@@ -40,7 +40,7 @@ class BigDialog(BigDialogBase):
 
 
 class SettingDescriptionDialog(NavScroller):
-  def __init__(self, title: str, description: str, icon: Union[rl.Texture, None] = None):
+  def __init__(self, title: str | Callable[[], str], description: str, icon: Union[rl.Texture, None] = None):
     super().__init__()
     cards = [GreyBigButton(title, "scroll for details", icon or gui_app.texture("icons_mici/setup/green_info.png", 64, 64))]
     # Explicit lines are authored cards; otherwise prefer sentence boundaries.
@@ -65,7 +65,7 @@ class SettingDescriptionDialog(NavScroller):
 
 
 class BigConfirmationDialog(BigDialogBase):
-  def __init__(self, title: str, icon: rl.Texture, confirm_callback: Callable[[], None],
+  def __init__(self, title: str | Callable[[], str], icon: rl.Texture, confirm_callback: Callable[[], None],
                exit_on_confirm: bool = True, red: bool = False):
     super().__init__()
     self._confirm_callback = confirm_callback
@@ -246,7 +246,7 @@ class BigInputDialog(BigDialogBase):
 
 
 class BigConfirmationCircleButton(BigCircleButton):
-  def __init__(self, title: str, icon: rl.Texture, confirm_callback: Callable[[], None], exit_on_confirm: bool = True,
+  def __init__(self, title: str | Callable[[], str], icon: rl.Texture, confirm_callback: Callable[[], None], exit_on_confirm: bool = True,
                red: bool = False, icon_offset: tuple[int, int] = (0, 0)):
     super().__init__(icon, red, icon_offset)
 

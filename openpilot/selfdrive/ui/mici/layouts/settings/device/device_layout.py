@@ -83,7 +83,7 @@ class EngagedConfirmationCircleButton(BigCircleButton):
 
 
 class EngagedConfirmationButton(BigButton):
-  def __init__(self, text: str, action_text: str, icon: rl.Texture, callback: Callable[[], None],
+  def __init__(self, text: str | Callable[[], str], action_text: str, icon: rl.Texture, callback: Callable[[], None],
                exit_on_confirm: bool = True, red: bool = False, *, description: str = "",
                description_icon: Union[rl.Texture, None] = None):
     super().__init__(text, "", icon, description=description, description_icon=description_icon)

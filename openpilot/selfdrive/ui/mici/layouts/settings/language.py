@@ -1,5 +1,5 @@
 from openpilot.system.ui.widgets.scroller import NavScroller
-from openpilot.system.ui.lib.application import gui_app, FontWeight
+from openpilot.system.ui.lib.application import FontWeight
 from openpilot.system.ui.lib.multilang import multilang, tr_noop
 from openpilot.selfdrive.ui.mici.widgets.button import BigButton
 
