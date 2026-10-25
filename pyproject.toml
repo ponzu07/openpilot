@@ -30,7 +30,6 @@ dependencies = [
   "comma-deps-acados",
   "comma-deps-ffmpeg",
   "comma-deps-zstd",
-  "comma-deps-zeromq",
   "comma-deps-json11",
   "comma-deps-git-lfs",
   "comma-deps-gcc-arm-none-eabi",
@@ -43,8 +42,6 @@ dependencies = [
   "inputs",
 
   # these should be removed
-  "pyzmq",
-  "sentry-sdk",
   "setproctitle",
   "jeepney",
   "zstandard",  # this can go once we're on Python 3.14+
@@ -74,7 +71,7 @@ tools = [
 ]
 
 submodules = [
-  "msgq",
+  "msgq-ipc",
   "opendbc",
   "pandacan",
   "rednose",
@@ -99,13 +96,15 @@ packages = [
   "openpilot",
 ]
 
+dev-mode-dirs = [".", "msgq_repo"]
+
 [tool.hatch.metadata]
 allow-direct-references = true
 
 [tool.codespell]
 quiet-level = 3
 # if you've got a short variable name that's getting flagged, add it here
-ignore-words-list = "bu,ro,te,ue,alo,hda,ois,nam,nams,ned,som,parm,setts,inout,warmup,bumb,nd,sie,preints,whit,indexIn,ws,uint,grey,deque,stdio,amin,BA,LITE,atEnd,UIs,errorString,arange,FocusIn,od,tim,relA,hist,copyable,jupyter,thead,TGE,abl,lite,ser"
+ignore-words-list = "bu,ro,te,ue,alo,hda,ois,nam,nams,ned,som,parm,setts,inout,warmup,bumb,nd,sie,preints,whit,indexIn,ws,uint,grey,deque,stdio,amin,BA,LITE,atEnd,UIs,errorString,arange,FocusIn,od,tim,Wen,relA,hist,copyable,jupyter,thead,TGE,abl,lite,ser"
 builtin = "clear,rare,informal,code,names,en-GB_to_en-US"
 skip = "*.po, uv.lock, *.onnx, *.pem, */c_generated_code/*, docs/assets/*, openpilot/tools/plotjuggler/layouts/*, openpilot/selfdrive/assets/offroad/mici_fcc.html"
 
@@ -156,7 +155,8 @@ override-dependencies = [
 ]
 
 [tool.uv.sources]
-msgq = { path = "msgq_repo", editable = true }
+# SCons owns the native build; an editable install would shadow it with a stale .so
+msgq-ipc = { path = "msgq_repo", package = false }
 opendbc = { path = "opendbc_repo", editable = true }
 pandacan = { path = "panda", editable = true }
 rednose = { path = "rednose_repo", editable = true }

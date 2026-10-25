@@ -19,7 +19,7 @@ class SliderBase(Widget, abc.ABC):
   _circle_bg_pressed_txt: rl.Texture
   _circle_arrow_txt: rl.Texture
 
-  def __init__(self, title: str, confirm_callback: Callable | None = None, shimmer_offset: float = 0.0):
+  def __init__(self, title: str | Callable[[], str], confirm_callback: Callable | None = None, shimmer_offset: float = 0.0):
     super().__init__()
     self._confirm_callback = confirm_callback
     self._shimmer_offset = shimmer_offset
@@ -163,7 +163,7 @@ class SliderBase(Widget, abc.ABC):
 
 
 class LargerSlider(SliderBase):
-  def __init__(self, title: str, confirm_callback: Callable | None = None, green: bool = True, shimmer_offset: float = 0.0):
+  def __init__(self, title: str | Callable[[], str], confirm_callback: Callable | None = None, green: bool = True, shimmer_offset: float = 0.0):
     self._green = green
     super().__init__(title, confirm_callback=confirm_callback, shimmer_offset=shimmer_offset)
 
@@ -178,7 +178,7 @@ class LargerSlider(SliderBase):
 
 
 class BigSlider(SliderBase):
-  def __init__(self, title: str, icon: rl.Texture, confirm_callback: Callable | None = None):
+  def __init__(self, title: str | Callable[[], str], icon: rl.Texture, confirm_callback: Callable | None = None):
     self._icon = icon
     super().__init__(title, confirm_callback=confirm_callback)
     self._label.set_font_size(48)

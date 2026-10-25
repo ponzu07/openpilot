@@ -60,8 +60,7 @@ void can_send_thread(Panda *panda, bool fake_send) {
   util::set_thread_name("pandad_can_send");
 
   AlignedBuffer aligned_buf;
-  std::unique_ptr<Context> context(Context::create());
-  std::unique_ptr<SubSocket> subscriber(SubSocket::create(context.get(), "sendcan", "127.0.0.1", false, true, services.at("sendcan").queue_size));
+  std::unique_ptr<SubSocket> subscriber(SubSocket::create("sendcan", false, services.at("sendcan").queue_size));
   assert(subscriber != NULL);
   subscriber->setTimeout(100);
 
@@ -127,6 +126,8 @@ void fill_panda_state(cereal::PandaState::Builder &ps, cereal::PandaState::Panda
   ps.setInterruptLoad(health.interrupt_load_pkt / 255.0f);
   ps.setFanPower(health.fan_power);
   ps.setSafetyRxChecksInvalid((health.flags_pkt & HEALTH_FLAG_SAFETY_RX_CHECKS_INVALID) != 0U);
+  ps.setNmiReset((health.flags_pkt & HEALTH_FLAG_NMI_RESET) != 0U);
+  ps.setHardfaultReset((health.flags_pkt & HEALTH_FLAG_HARDFAULT_RESET) != 0U);
   ps.setSpiErrorCount(health.spi_error_count_pkt);
   ps.setSbu1Voltage(health.sbu1_voltage_mV / 1000.0f);
   ps.setSbu2Voltage(health.sbu2_voltage_mV / 1000.0f);
@@ -332,8 +333,8 @@ void process_peripheral_state(Panda *panda, PubMaster *pm, bool no_fan_control, 
       }
     }
 
-    // Disable IR on input timeout
-    if (nanos_since_boot() - last_cabin_camera_t > 1e9) {
+    // Disable IR on input timeout or when requested offroad.
+    if (nanos_since_boot() - last_cabin_camera_t > 1e9 || (!is_onroad && params.getBool("DisableDriverCameraIR"))) {
       ir_pwr = 0;
     }
 

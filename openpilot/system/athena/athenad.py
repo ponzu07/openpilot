@@ -250,10 +250,7 @@ def retry_upload(tid: int, end_event: threading.Event, increase_count: bool = Tr
 
     cur_upload_items[tid] = None
 
-    for _ in range(RETRY_DELAY):
-      time.sleep(1)
-      if end_event.is_set():
-        break
+    end_event.wait(RETRY_DELAY)
 
 
 def cb(sm, item, tid, end_event: threading.Event, sz: int, cur: int) -> None:
@@ -693,6 +690,20 @@ def cancelUpload(upload_id: str | list[str]) -> dict[str, int | str]:
   return {"success": 1}
 
 @dispatcher.add_method
+def setNavDestination(latitude: float, longitude: float) -> dict[str, int | str]:
+  if not (-90 <= latitude <= 90 and -180 <= longitude <= 180):
+    return {"success": 0, "error": "Invalid destination coordinates"}
+  Params().put("NavDestination", {"latitude": latitude, "longitude": longitude}, block=True)
+  return {"success": 1}
+
+
+@dispatcher.add_method
+def clearNavDestination() -> dict[str, int]:
+  Params().remove("NavDestination")
+  return {"success": 1}
+
+
+@dispatcher.add_method
 def setRouteViewed(route: str) -> dict[str, int | str]:
   # maintain a list of the last 10 routes viewed in connect
   params = Params()
@@ -797,7 +808,7 @@ def getHvBattery() -> dict:
         for msg in messaging.drain_sock(can_sock, wait_for_one=True):
           for frame in msg.can:
             if frame.src == 0 and frame.address == 0x7EA and frame.dat[1:3] == b"\x41\x5b":
-              hv = {"soc": frame.dat[3] * 100 / 255, "time": int(time.time()), "source": "obd"}
+              hv = {"soc": frame.dat[3] * 100 / 255, "time": int(time.time()), "source": "obd"}  # noqa: TID251
               params.put("HvBattery", hv)
               return hv
 

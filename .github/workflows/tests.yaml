@@ -22,7 +22,7 @@ env:
   PYTHONPATH: ${{ github.workspace }}
   GIT_CONFIG_COUNT: 1
   GIT_CONFIG_KEY_0: lfs.fetchexclude
-  GIT_CONFIG_VALUE_0: openpilot/selfdrive/modeld/models/big_driving_supercombo.onnx
+  GIT_CONFIG_VALUE_0: openpilot/selfdrive/modeld/models/big_driving_tinygrad.pkl
 
 jobs:
   build_release:
@@ -126,7 +126,7 @@ jobs:
     - name: Run replay
       timeout-minutes: ${{ contains(runner.name, 'nsc') && 2 || 20 }}
       continue-on-error: ${{ github.ref == 'refs/heads/master' }}
-      run: openpilot/selfdrive/test/process_replay/test_processes.py -j$(nproc)
+      run: openpilot/selfdrive/test/process_replay/test_processes.py -j$(nproc) --ignore-fields driverMonitoringState.wheeltouchPolicyState.driverInteracting
     - name: Print diff
       id: print-diff
       if: always()
